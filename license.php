@@ -1,21 +1,3 @@
-<?php
-include ("./header.php");
-?>
-<style>
-h1, h2, h3, p {
-    color: #252525;
-}
-p {
-    font-size: 14px;
-}
-</style>
-<div class="content">
-
-
-
-
-
-
 <h1>LICENSE</h1>
 <h3>FOR EVERYTHING CREATED BY TRAMANN PROJECTS AND CONTRIBUTORS</h3>
 <br>
