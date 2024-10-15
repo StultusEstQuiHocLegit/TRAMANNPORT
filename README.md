@@ -1,5 +1,5 @@
 # TRAMANNPORT
-Get your own online shop and website on our open source platfrom for just 1% per transaction.
+An open source shopping platform that brings more value to buyers and sellers.
 
 Our project is open source, you are currently viewing this source code.
 If you want to see the project please visit:
