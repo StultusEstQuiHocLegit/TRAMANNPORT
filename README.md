@@ -10,4 +10,4 @@ An open source shopping platform that brings more value to buyers and sellers.
 <br>
 <br>
 <br>
-<br>Stultus est, qui hoc legit.
+<br>The database structure and the page structure are explained in the document named - TRAMANNPORTPlaning.ods -.
