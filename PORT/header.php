@@ -1,3 +1,9 @@
+<?php
+include ("../config.php");
+
+session_start(); // Start the session
+?>
+
 <html>
 <head>
 	<meta charset="utf-8"/>
@@ -26,47 +32,54 @@ body {
         <img src="../logos/TramannLogoWhite.png" height="40" alt="TRAMANN">
     </a>
     <div id="dropdownMenu">
-        <?php
-            if (1 == 2) {
-                echo "<br><a href=\"explore.php\">EXPLORE</a>";
-                echo "<br>";
-                echo "<br><a href=\"cart.php\">SHOPPING CART</a>";
-                echo "<br>";
-                echo "<br><a href=\"PreviousCarts.php\">PREVIOUS CARTS</a>";
-                echo "<br>";
-                echo "<br><a href=\"account.php\">ACCOUNT</a>";
-            } elseif (1 == 2) {
-                echo "<br><a href=\"dashboard.php\">DASHBOARD</a>";
-                echo "<br>";
-                echo "<br><a href=\"orders.php\">ORDERS</a>";
-                echo "<br>";
-                echo "<br><a href=\"inventory.php\">INVENTORY</a>";
-                echo "<br>";
-                echo "<br><a href=\"products.php\">PRODUCTS</a>";
-                echo "<br>";
-                echo "<br><a href=\"ExplorersCustomers.php\">EXPLORERS (CUSTOMERS)</a>";
-                echo "<br>";
-                echo "<br>";
-                echo "<br>";
-                echo "<br><a href=\"CreatorsSuppliers.php\">CREATORS (SUPPLIERS)</a>";
-                echo "<br>";
-                echo "<br><a href=\"explore.php\">EXPLORE</a>";
-                echo "<br>";
-                echo "<br><a href=\"cart.php\">SOURCING CART</a>";
-                echo "<br>";
-                echo "<br><a href=\"PreviousCarts.php\">PREVIOUS CARTS</a>";
-                echo "<br>";
-                echo "<br>";
-                echo "<br>";
-                echo "<br><a href=\"accounting.php\">ACCOUNTING</a>";
-                echo "<br>";
-                echo "<br><a href=\"help.php\">HELP</a>";
-                echo "<br>";
-                echo "<br><a href=\"account.php\">ACCOUNT</a>";
-                echo "<br>";
-                echo "<br><a href=\"YourWebsite.php\">YOUR WEBSITE</a>";
+    <?php
+            // Check if the user is logged in
+            if (isset($_SESSION['user_id']) && isset($_SESSION['ExplorerOrCreator'])) {
+                // User is logged in
+                $userRole = $_SESSION['ExplorerOrCreator']; // 0: Explorer, 1: Creator
+                
+                if ($userRole == 0) {
+                    // Show Explorer links
+                    echo "<br><a href=\"index.php?content=explore.php\">EXPLORE</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=cart.php\">SHOPPING CART</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=PreviousCarts.php\">PREVIOUS CARTS</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=account.php\">ACCOUNT</a>";
+                } elseif ($userRole == 1) {
+                    // Show Creator links
+                    echo "<br><a href=\"index.php?content=dashboard.php\">DASHBOARD</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=orders.php\">ORDERS</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=inventory.php\">INVENTORY</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=products.php\">PRODUCTS</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=ExplorersCustomers.php\">EXPLORERS (CUSTOMERS)</a>";
+                    echo "<br>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=CreatorsSuppliers.php\">CREATORS (SUPPLIERS)</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=explore.php\">EXPLORE</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=cart.php\">SOURCING CART</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=PreviousCarts.php\">PREVIOUS CARTS</a>";
+                    echo "<br>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=accounting.php\">ACCOUNTING</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=help.php\">HELP</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=account.php\">ACCOUNT</a>";
+                    echo "<br>";
+                    echo "<br><a href=\"index.php?content=YourWebsite.php\">YOUR WEBSITE</a>";
+                }
             } else {
-                echo "<br><a href=\"login.php\">COME ON BOARD</a>";
+                // User is not logged in
+                echo "<br><a href=\"index.php?content=login.php\">COME ON BOARD</a>";
             }
         ?>
         <br>
