@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         foreach ($errors as $error) {
             echo $error . "<br>";
         }
-        echo "<br><br><a href=\"index.php?content=CreateAccount.php\">go back</a>";
+        echo "<br><br><a href=\"index.php?content=CreateAccount.php\">GO BACK</a>";
         exit; // Stop further processing
     }
 
@@ -82,7 +82,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $closeOnlineShopIfPhysicalShopIsClosed = isset($_POST['CloseOnlineShopIfPhysicalShopIsClosed']) ? (int) $_POST['CloseOnlineShopIfPhysicalShopIsClosed'] : 0; // Default to no
     $physicalShopClosedBecauseOfHolidaysClosing = (int) (isset($_POST['PhysicalShopClosedBecauseOfHolidaysClosing']) ? $_POST['PhysicalShopClosedBecauseOfHolidaysClosing'] : 0);
     $physicalShopClosedBecauseOfHolidaysOpening = (int) (isset($_POST['PhysicalShopClosedBecauseOfHolidaysOpening']) ? $_POST['PhysicalShopClosedBecauseOfHolidaysOpening'] : 0);
-
+ 
+     // Add the validation logic here
+     if ($canExplorersVisitYou == 0) {
+         // If CanExplorersVisitYou is '0', set CloseOnlineShopIfPhysicalShopIsClosed to '0'
+         $closeOnlineShopIfPhysicalShopIsClosed = 0;
+     }
 
     // Descriptions and notes
     $shortDescription = isset($_POST['ShortDescription']) ? trim($_POST['ShortDescription']) : null;
@@ -145,7 +150,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Execute the statement
     if ($stmt->execute()) {
-        echo "<br><br><br>Account created successfully! <a href=\"index.php?content=login.php\">Log in here!</a>";
+        echo "<br><br><br>Account created successfully!<br><br><a href=\"index.php?content=login.php\">LOGIN</a>";
     } else {
         echo "<br><br><br>There was an unespected error creating your account. Please try again or contact an administrator so we can fix the problem.";
     }
@@ -215,7 +220,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
 
         if (!isValid) {
-            alert('Please fill out all required fields.'); // Show alert if any required field is empty
+            alert('Please fill out all required fields and mind the correct format.'); // Show alert if any required field is empty
         } else {
             document.getElementById('createAccountForm').submit(); // Submit the form if all required fields are filled
         }
@@ -228,7 +233,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h1>CREATE ACCOUNT</h1> <!-- Main heading -->
 
     <div> <!-- link for login instead -->
-        Already have an account? <a href="index.php?content=login.php">Log in here!</a>
+        Already have an account? <a href="index.php?content=login.php">GO TO LOGIN!</a>
         <br><br><br><br><br>
     </div>
 
@@ -383,13 +388,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </tr>
         </tbody>
     </table>
-</div>
-
                     <!-- Hidden input to always send "no" (0) if the checkbox is unchecked -->
                     <input type="hidden" name="CloseOnlineShopIfPhysicalShopIsClosed" value="0">                
                 <br><br>
                 <input type="checkbox" id="CloseOnlineShopIfPhysicalShopIsClosed" name="CloseOnlineShopIfPhysicalShopIsClosed" value="1">
                 <label for="CloseOnlineShopIfPhysicalShopIsClosed">check if you want your online shop to be closed when your physical shop is closed, for example if you have a restaurant</label>
+</div>
 
                 <br><br><br><br><br>
                 <textarea id="ShortDescription" name="ShortDescription" placeholder="Manufacturing the best explosive tennis balls in the world." style="width: 500px; height: 50px;"></textarea>

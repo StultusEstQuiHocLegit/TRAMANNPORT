@@ -33,12 +33,13 @@ body {
     </a>
     <div id="dropdownMenu">
     <?php
-            // Check if the user is logged in
-            if (isset($_SESSION['user_id']) && isset($_SESSION['ExplorerOrCreator'])) {
+            // Check if the user is logged in using cookies
+            $isLoggedIn = isset($_COOKIE['user_id']);
+            $userRole = $isLoggedIn ? (int)$_COOKIE['ExplorerOrCreator'] : null; // Get user role from cookie if logged in
+
+            if ($isLoggedIn && $userRole !== null) {
                 // User is logged in
-                $userRole = $_SESSION['ExplorerOrCreator']; // 0: Explorer, 1: Creator
-                
-                if ($userRole == 0) {
+                if ($userRole === 0) {
                     // Show Explorer links
                     echo "<br><a href=\"index.php?content=explore.php\">EXPLORE</a>";
                     echo "<br>";
@@ -47,7 +48,7 @@ body {
                     echo "<br><a href=\"index.php?content=PreviousCarts.php\">PREVIOUS CARTS</a>";
                     echo "<br>";
                     echo "<br><a href=\"index.php?content=account.php\">ACCOUNT</a>";
-                } elseif ($userRole == 1) {
+                } elseif ($userRole === 1) {
                     // Show Creator links
                     echo "<br><a href=\"index.php?content=dashboard.php\">DASHBOARD</a>";
                     echo "<br>";

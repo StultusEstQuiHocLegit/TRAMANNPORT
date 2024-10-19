@@ -35,6 +35,10 @@ if (!$isLoggedIn) {
             include("PreviousCarts.php");
         } elseif ($content === 'account.php') {
             include("account.php");
+        } elseif ($content === 'ForgotPassword.php') {
+            include("ForgotPassword.php");
+        } elseif ($content === 'logout.php') {
+            echo "<script>window.location.href = 'logout.php';</script>";
         } else {
             // Default landing page for explorers
             include("explore.php");
@@ -65,6 +69,10 @@ if (!$isLoggedIn) {
             include("help.php");
         } elseif ($content === 'account.php') {
             include("account.php");
+        } elseif ($content === 'ForgotPassword.php') {
+            include("ForgotPassword.php");
+        } elseif ($content === 'logout.php') {
+            echo "<script>window.location.href = 'logout.php';</script>";
         } elseif ($content === 'YourWebsite.php') {
             include("YourWebsite.php");
         } else {

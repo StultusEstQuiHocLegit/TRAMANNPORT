@@ -89,8 +89,8 @@ echo "<div class=\"content\">";
     </form>
 
     <div class="links"> <!-- Links for creating account and forgot password -->
-        <br><br><br><br><br><a href="index.php?content=CreateAccount.php" class="button">Not part of the crew yet?<br>Join us and create an account!</a>
-        <br><br><br><a href="index.php?content=ForgotPassword.php" style="opacity: 0.4;">Forgot your password?</a>
+        <br><br><br><br><br><a href="index.php?content=CreateAccount.php" class="button">NOT PART OF THE CREW YET?<br>JOIN US AND CREATE AN ACCOUNT!</a>
+        <br><br><br><a href="index.php?content=ForgotPassword.php" style="opacity: 0.4;">FORGOT YOUR PASSWORD?</a>
     </div>
 </div>
 
