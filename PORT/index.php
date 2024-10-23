@@ -4,7 +4,34 @@ echo "<div class=\"content\">";
 
 // Check if the user is logged in using cookies
 $isLoggedIn = isset($_COOKIE['user_id']);
-$userRole = $isLoggedIn ? (int)$_COOKIE['ExplorerOrCreator'] : null; // Get user role from cookie if logged in
+$user_id = isset($_COOKIE['user_id']) ? (int)$_COOKIE['user_id'] : null;
+
+$userRole = null; // Initialize user role
+
+if ($user_id !== null) {
+    try {
+        // Prepare the SQL query to get the user role
+        $stmt = $pdo->prepare('SELECT ExplorerOrCreator FROM ExplorersAndCreators WHERE idpk = :id');
+        $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
+        
+        // Execute the query
+        $stmt->execute();
+        
+        // Fetch the result
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Check if a role was found
+        if ($result) {
+            $userRole = (int)$result['ExplorerOrCreator']; // Cast to integer if needed
+        } else {
+            // Handle case where user role is not found
+            $userRole = null; // Or set to a default value
+        }
+    } catch (PDOException $e) {
+        // Handle database errors
+        echo "Database error: " . $e->getMessage();
+    }
+}
 
 // Check for forwarding content
 $content = isset($_GET['content']) ? $_GET['content'] : null;
@@ -24,6 +51,33 @@ if (!$isLoggedIn) {
         include("LandingPage.php");
     }
 } else {
+
+// Fetch user ID from cookies
+$user_id = $_COOKIE['user_id'];
+
+// Connection to the database
+try {
+    // Create a new PDO instance
+    $dsn = "mysql:host=$mysqlDbServer;dbname=$mysqlDbName;charset=utf8";
+    $pdo = new PDO($dsn, $mysqlDbUser, $mysqlDbPassword);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Fetch the user's data from the database
+    $stmt = $pdo->prepare('SELECT * FROM ExplorersAndCreators WHERE idpk = :id');
+    $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        echo "No user found with the given idpk.";
+        exit();
+    }
+
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
+    exit();
+}
+
     // User is logged in, check the role from cookie
     if ($userRole === 0) {
         // Explorer

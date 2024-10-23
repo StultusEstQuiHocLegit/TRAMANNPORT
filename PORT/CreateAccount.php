@@ -98,9 +98,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $timestampCreation = time(); // Current timestamp
 
+    // adding notes and texts for the starting of the dashboard for the first time if the user is a creator
+    if ($explorerOrCreator === 1) {
+        $personalNotes = "make personal notes for yourself and your colleagues," . 
+                         "you could for example insert the notes from your last meeting here," . 
+                         "so everybody in your team can see them";
+
+        $personalStrategicPlaningNotes = "plan your long-term business strategy,\n" . 
+                                         "which new products you want to introduce,\n" . 
+                                         "which new explorers you want to reach, ...";
+
+        $personalToDoList = "Welcome on board, we are very happy to have you with us   : )\n\n" . 
+                            "please mind the white TRAMANN logo in the top left corner of your screen," . 
+                            "by clicking on it, you can open the menu\n\n" . 
+                            "your first to-dos are:\n" .
+                            "- click through the pages in the menu and get familiar with TRAMANN PORT\n" . 
+                            "- visit - ACCOUNT - and upload your logo\n" . 
+                            "- head over to - PRODUCTS AND SERVICES - and start adding them\n" . 
+                            "- go to - YOUR WEBSITE - and customize it\n" . 
+                            "- tell your friends about your new account and website\n" . 
+                            "- replace these to-dos with your new own ones";
+
+        $personalCollectionOfLinks = "add links to other distribution channels," . 
+                                     "mail programs, social media, editing tools, ...," . 
+                                     "so you can quickly access everything from your dashboard.";
+        } else {
+            // insert NULL for explorers
+            $personalNotes = null;
+            $personalStrategicPlaningNotes = null;
+            $personalToDoList = null;
+            $personalCollectionOfLinks = null;
+        }
+
     // Prepare the SQL statement for inserting data into ExplorersAndCreators table
-    $stmt = $pdo->prepare("INSERT INTO ExplorersAndCreators (TimestampCreation, email, password, PhoneNumber, FirstName, LastName, street, HouseNumber, ZIPCode, city, country, planet, IBAN, CapitalInAccountInDollars, ExplorerOrCreator, level, CompanyName, VATID, PhoneNumberForExplorersAsContact, EmailForExplorersAsContact, ShowAddressToExplorers, CanExplorersVisitYou, OpeningHoursMondayOpening, OpeningHoursMondayClosing, OpeningHoursTuesdayOpening, OpeningHoursTuesdayClosing, OpeningHoursWednesdayOpening, OpeningHoursWednesdayClosing, OpeningHoursThursdayOpening, OpeningHoursThursdayClosing, OpeningHoursFridayOpening, OpeningHoursFridayClosing, OpeningHoursSaturdayOpening, OpeningHoursSaturdayClosing, OpeningHoursSundayOpening, OpeningHoursSundayClosing, OpeningHoursNationalHolidaysOpening, OpeningHoursNationalHolidaysClosing, CloseOnlineShopIfPhysicalShopIsClosed, PhysicalShopClosedBecauseOfHolidaysClosing, PhysicalShopClosedBecauseOfHolidaysOpening, ShortDescription, LongDescription, LinksToSocialMediaAndOtherSites) 
-                            VALUES (:timestampCreation, :email, :password, :phoneNumber, :firstName, :lastName, :street, :houseNumber, :zipCode, :city, :country, :planet, :iban, :capitalInAccountInDollars, :explorerOrCreator, :level, :companyName, :vatId, :phoneNumberForExplorersAsContact, :emailForExplorersAsContact, :showAddressToExplorers, :canExplorersVisitYou, :openingHoursMondayOpening, :openingHoursMondayClosing, :openingHoursTuesdayOpening, :openingHoursTuesdayClosing, :openingHoursWednesdayOpening, :openingHoursWednesdayClosing, :openingHoursThursdayOpening, :openingHoursThursdayClosing, :openingHoursFridayOpening, :openingHoursFridayClosing, :openingHoursSaturdayOpening, :openingHoursSaturdayClosing, :openingHoursSundayOpening, :openingHoursSundayClosing, :openingHoursNationalHolidaysOpening, :openingHoursNationalHolidaysClosing, :closeOnlineShopIfPhysicalShopIsClosed, :physicalShopClosedBecauseOfHolidaysClosing, :physicalShopClosedBecauseOfHolidaysOpening, :shortDescription, :longDescription, :linksToSocialMediaAndOtherSites)");
+    $stmt = $pdo->prepare("INSERT INTO ExplorersAndCreators (TimestampCreation, email, password, PhoneNumber, FirstName, LastName, street, HouseNumber, ZIPCode, city, country, planet, IBAN, CapitalInAccountInDollars, ExplorerOrCreator, level, CompanyName, VATID, PhoneNumberForExplorersAsContact, EmailForExplorersAsContact, ShowAddressToExplorers, CanExplorersVisitYou, OpeningHoursMondayOpening, OpeningHoursMondayClosing, OpeningHoursTuesdayOpening, OpeningHoursTuesdayClosing, OpeningHoursWednesdayOpening, OpeningHoursWednesdayClosing, OpeningHoursThursdayOpening, OpeningHoursThursdayClosing, OpeningHoursFridayOpening, OpeningHoursFridayClosing, OpeningHoursSaturdayOpening, OpeningHoursSaturdayClosing, OpeningHoursSundayOpening, OpeningHoursSundayClosing, OpeningHoursNationalHolidaysOpening, OpeningHoursNationalHolidaysClosing, CloseOnlineShopIfPhysicalShopIsClosed, PhysicalShopClosedBecauseOfHolidaysClosing, PhysicalShopClosedBecauseOfHolidaysOpening, ShortDescription, LongDescription, LinksToSocialMediaAndOtherSites, PersonalNotes, PersonalStrategicPlaningNotes, PersonalToDoList, PersonalCollectionOfLinks) 
+                            VALUES (:timestampCreation, :email, :password, :phoneNumber, :firstName, :lastName, :street, :houseNumber, :zipCode, :city, :country, :planet, :iban, :capitalInAccountInDollars, :explorerOrCreator, :level, :companyName, :vatId, :phoneNumberForExplorersAsContact, :emailForExplorersAsContact, :showAddressToExplorers, :canExplorersVisitYou, :openingHoursMondayOpening, :openingHoursMondayClosing, :openingHoursTuesdayOpening, :openingHoursTuesdayClosing, :openingHoursWednesdayOpening, :openingHoursWednesdayClosing, :openingHoursThursdayOpening, :openingHoursThursdayClosing, :openingHoursFridayOpening, :openingHoursFridayClosing, :openingHoursSaturdayOpening, :openingHoursSaturdayClosing, :openingHoursSundayOpening, :openingHoursSundayClosing, :openingHoursNationalHolidaysOpening, :openingHoursNationalHolidaysClosing, :closeOnlineShopIfPhysicalShopIsClosed, :physicalShopClosedBecauseOfHolidaysClosing, :physicalShopClosedBecauseOfHolidaysOpening, :shortDescription, :longDescription, :linksToSocialMediaAndOtherSites, :personalNotes, :personalStrategicPlaningNotes, :personalToDoList, :personalCollectionOfLinks)");
 
     // Bind parameters
     $stmt->bindParam(':timestampCreation', $timestampCreation);
@@ -147,6 +179,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bindParam(':shortDescription', $shortDescription);
     $stmt->bindParam(':longDescription', $longDescription);
     $stmt->bindParam(':linksToSocialMediaAndOtherSites', $linksToSocialMediaAndOtherSites);
+    $stmt->bindParam(':personalNotes', $personalNotes);
+    $stmt->bindParam(':personalStrategicPlaningNotes', $personalStrategicPlaningNotes);
+    $stmt->bindParam(':personalToDoList', $personalToDoList);
+    $stmt->bindParam(':personalCollectionOfLinks', $personalCollectionOfLinks);
 
     // Execute the statement
     if ($stmt->execute()) {

@@ -1,50 +1,4 @@
 <?php
-// Fetch user ID from cookies
-$user_id = $_COOKIE['user_id'];
-
-// Connection to the database
-try {
-    // Create a new PDO instance
-    $dsn = "mysql:host=$mysqlDbServer;dbname=$mysqlDbName;charset=utf8";
-    $pdo = new PDO($dsn, $mysqlDbUser, $mysqlDbPassword);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // Fetch the user's data from the database
-    $stmt = $pdo->prepare('SELECT * FROM ExplorersAndCreators WHERE idpk = :id');
-    $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
-    $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$user) {
-        echo "No user found with the given idpk.";
-        exit();
-    }
-
-} catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();
-    exit();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Check if the form was submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Initialize an array to hold error messages
@@ -66,6 +20,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     foreach ($requiredFields as $field) {
         if (empty(trim($_POST[$field]))) {
             $errors[] = ucfirst($field) . " is required.";
+        }
+    }
+
+    // Handle profile picture upload (if there's an error or no file, it won't break form submission)
+    if (isset($_FILES['profilePicture']) && $_FILES['profilePicture']['error'] !== UPLOAD_ERR_NO_FILE) {
+        if ($_FILES['profilePicture']['error'] === UPLOAD_ERR_OK) {
+            $fileTmpPath = $_FILES['profilePicture']['tmp_name'];
+            $fileName = $_FILES['profilePicture']['name'];
+            $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+            // Validate file extension (allowed types)
+            $allowedExtensions = ['png', 'jpg', 'jpeg', 'svg', 'gif'];
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                $errors[] = "Invalid file type. Only PNG, JPG, JPEG, GIF, and SVG files are allowed.";
+            } else {
+                // Set the upload directory
+                $uploadDir = './uploads/AccountPictures/';
+                
+                // Assuming user ID is stored in a cookie (or another source)
+                $user_id = $_COOKIE['user_id'];
+
+                // Delete old profile picture if exists
+                foreach ($allowedExtensions as $ext) {
+                    $existingFilePath = $uploadDir . $user_id . '.' . $ext;
+                    if (file_exists($existingFilePath)) {
+                        unlink($existingFilePath); // Delete the old file
+                    }
+                }
+
+                // Generate the new file path
+                $destPath = $uploadDir . $user_id . '.' . $fileExtension;
+
+                // Move the uploaded file
+                if (!move_uploaded_file($fileTmpPath, $destPath)) {
+                    $errors[] = "Error moving the uploaded file.";
+                }
+            }
+        } else {
+            $errors[] = "There was an error uploading the file.";
         }
     }
 
@@ -275,8 +268,11 @@ try {
 <div class="registration-container">
     <h1>ACCOUNT</h1>
 
-    <form id="updateAccountForm" action="" method="post">
+    <form id="updateAccountForm" action="" method="post" enctype="multipart/form-data">
         <div class="steps">
+            idpk: <?php echo htmlspecialchars($user['idpk']); ?>
+
+            <br><br><br><br>
             <input type="hidden" name="ExplorerOrCreator" value="0">
             <input type="checkbox" id="ExplorerOrCreator" name="ExplorerOrCreator" value="1" <?php echo ($user['ExplorerOrCreator'] == 1) ? 'checked' : ''; ?> onclick="toggleCreatorFields()">
             <label for="ExplorerOrCreator">business account (check if you<br>want to create and sell products too)</label>
@@ -294,6 +290,41 @@ try {
             <label for="PhoneNumber">phone number</label>
 
             <br><br><br><br><br>
+            <?php
+                // Get the user's `idpk` (already sanitized with `htmlspecialchars`)
+                $idpk = htmlspecialchars($user['idpk']);
+
+                // Define the possible image file extensions
+                $imageExtensions = ['png', 'jpg', 'jpeg', 'svg', 'gif'];
+
+                // Base directory for profile pictures
+                $uploadDir = './uploads/AccountPictures/';
+
+                // Initialize a variable to hold the profile picture path (if found)
+                $profilePicturePath = null;
+
+                // Iterate through the possible extensions and check if the file exists
+                foreach ($imageExtensions as $ext) {
+                    $potentialPath = $uploadDir . $idpk . '.' . $ext;
+                    if (file_exists($potentialPath)) {
+                        $profilePicturePath = $potentialPath;
+                        break; // Exit the loop once we find the file
+                    }
+                }
+
+                // Display the profile picture if it exists
+                if ($profilePicturePath) {
+                    // Output the image tag for the found profile picture
+                    echo "<img src=\"$profilePicturePath\" style=\"width:150px;height:150px;\">";
+                } else {
+                    // If no profile picture is found, display nothing
+                }
+            ?>
+            <br><br>
+            <input type="file" name="profilePicture" id="profilePicture" accept="image/*">
+            <label for="profilePicture"><br><div style="opacity: 0.4;">(upload new profile picture)</div></label>
+
+            <br><br><br><br>
             <input type="text" id="FirstName" name="FirstName" value="<?php echo htmlspecialchars($user['FirstName']); ?>" placeholder="how your friends call you" style="width: 300px;" required>
             <label for="FirstName">first name*</label>
 

@@ -35,7 +35,34 @@ body {
     <?php
             // Check if the user is logged in using cookies
             $isLoggedIn = isset($_COOKIE['user_id']);
-            $userRole = $isLoggedIn ? (int)$_COOKIE['ExplorerOrCreator'] : null; // Get user role from cookie if logged in
+            $user_id = isset($_COOKIE['user_id']) ? (int)$_COOKIE['user_id'] : null;
+            
+            $userRole = null; // Initialize user role
+            
+            if ($user_id !== null) {
+                try {
+                    // Prepare the SQL query to get the user role
+                    $stmt = $pdo->prepare('SELECT ExplorerOrCreator FROM ExplorersAndCreators WHERE idpk = :id');
+                    $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
+                    
+                    // Execute the query
+                    $stmt->execute();
+                    
+                    // Fetch the result
+                    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    // Check if a role was found
+                    if ($result) {
+                        $userRole = (int)$result['ExplorerOrCreator']; // Cast to integer if needed
+                    } else {
+                        // Handle case where user role is not found
+                        $userRole = null; // Or set to a default value
+                    }
+                } catch (PDOException $e) {
+                    // Handle database errors
+                    echo "Database error: " . $e->getMessage();
+                }
+            }
 
             if ($isLoggedIn && $userRole !== null) {
                 // User is logged in
@@ -56,7 +83,7 @@ body {
                     echo "<br>";
                     echo "<br><a href=\"index.php?content=inventory.php\">INVENTORY</a>";
                     echo "<br>";
-                    echo "<br><a href=\"index.php?content=products.php\">PRODUCTS</a>";
+                    echo "<br><a href=\"index.php?content=products.php\">PRODUCTS AND SERVICES</a>";
                     echo "<br>";
                     echo "<br><a href=\"index.php?content=ExplorersCustomers.php\">EXPLORERS (CUSTOMERS)</a>";
                     echo "<br>";
