@@ -4,7 +4,7 @@ An open source shopping platform that brings more value to buyers and sellers.
 <br>Our project is open source, you are currently viewing the corresponding repository
 <br>and you can find the code in the folder namend - PORT -.
 <br>
-<br>If you want to see the project live please visit:
+<br>If you want to see the project live, please visit:
 <br>www.tramann-projects.com/PORT/index.php
 <br>
 <br>
