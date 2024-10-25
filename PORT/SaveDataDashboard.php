@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_COOKIE['user_id'] ?? null;
 
     if (!$user_id) {
-        echo "User ID not found.";
+        echo "The idpk of the creator couldn't be found.";
         exit;
     }
 

@@ -2,17 +2,17 @@
 <div class="stats-container">
     <div class="stat-item">
         <span class="stat-number">20$ (+5%)</span>
-        revenue today
+        <div style="opacity: 0.4;">revenue value created last 24h</div>
     </div>
     <div class="vertical-line"></div>
     <div class="stat-item">
         <span class="stat-number">352$ (+11%)</span>
-        revenue last 30 days
+        <div style="opacity: 0.4;">revenue value created last 30 days</div>
     </div>
     <div class="vertical-line"></div>
     <div class="stat-item">
-        <span class="stat-number">15</span>
-        creators this month
+        <span class="stat-number">15 (+3%)</span>
+        <div style="opacity: 0.4;">explorers made happy last 30 days</div>
     </div>
 </div>
 
@@ -40,27 +40,19 @@
 
 <br><br><br><br><br>
 <h3>TO DO LIST</h3>
-<textarea id="PersonalToDoList" rows="16" style="width: 100%;" oninput="saveData('PersonalToDoList', this.value)">
-    <?php echo htmlspecialchars(trim($user['PersonalToDoList'] ?? '')); ?>
-</textarea>
+<textarea id="PersonalToDoList" rows="16" style="width: 100%;" oninput="saveData('PersonalToDoList', this.value)"><?php echo htmlspecialchars(trim($user['PersonalToDoList'] ?? '')); ?></textarea>
 <br>
 <br>
 <h3>COLLECTION OF LINKS</h3>
-<textarea id="PersonalCollectionOfLinks" rows="10" style="width: 100%;" oninput="saveData('PersonalCollectionOfLinks', this.value)">
-    <?php echo htmlspecialchars(trim($user['PersonalCollectionOfLinks'] ?? '')); ?>
-</textarea>
+<textarea id="PersonalCollectionOfLinks" rows="10" style="width: 100%;" oninput="saveData('PersonalCollectionOfLinks', this.value)"><?php echo htmlspecialchars(trim($user['PersonalCollectionOfLinks'] ?? '')); ?></textarea>
 <br>
 <br>
 <h3>NOTES</h3>
-<textarea id="PersonalNotes" rows="16" style="width: 100%;" oninput="saveData('PersonalNotes', this.value)">
-    <?php echo htmlspecialchars(trim($user['PersonalNotes'] ?? '')); ?>
-</textarea>
+<textarea id="PersonalNotes" rows="16" style="width: 100%;" oninput="saveData('PersonalNotes', this.value)"><?php echo htmlspecialchars(trim($user['PersonalNotes'] ?? '')); ?></textarea>
 <br>
 <br>
 <h3>STRATEGIC PLANNING NOTES</h3>
-<textarea id="PersonalStrategicPlaningNotes" rows="10" style="width: 100%;" oninput="saveData('PersonalStrategicPlaningNotes', this.value)">
-    <?php echo htmlspecialchars(trim($user['PersonalStrategicPlaningNotes'] ?? '')); ?>
-</textarea>
+<textarea id="PersonalStrategicPlaningNotes" rows="10" style="width: 100%;" oninput="saveData('PersonalStrategicPlaningNotes', this.value)"><?php echo htmlspecialchars(trim($user['PersonalStrategicPlaningNotes'] ?? '')); ?></textarea>
 
 
 <script>

@@ -1,8 +1,7 @@
+<h1>PRODUCTS AND SERVICES</h1>
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
-    $errors = [];
-
-    // Check required fields
+    // Example array of required fields
     $requiredFields = [
         'KeywordsForSearch', 
         'name', 
@@ -10,10 +9,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         'type'
     ];
 
+    // Initialize an array to hold any errors
+    $errors = [];
+
+    // Loop through each required field and check if it's set
     foreach ($requiredFields as $field) {
-        if (empty(trim($_POST[$field]))) {
-            $errors[] = ucfirst($field) . " is required.";
+        // Use isset() for strict checking, especially for 'type' field
+        if (!isset($_POST[$field]) || $_POST[$field] === '') {
+            $errors[] = "$field is required.";
         }
+    }
+
+    // Special check for the 'type' field to allow zero as a valid value
+    if (array_key_exists('type', $_POST) && $_POST['type'] === '') {
+        $errors[] = "type is required.";
     }
 
     // If there are errors, stop the script and display them
@@ -29,18 +38,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     $name = $_POST['name'];
     $shortDescription = $_POST['ShortDescription'];
     $longDescription = $_POST['LongDescription'];
-    $allowComments = isset($_POST['AllowComments']) ? $_POST['AllowComments'] : '0';
+    $allowComments = isset($_POST['AllowComments']) ? (int) $_POST['AllowComments'] : 1; // Default to yes (1)
     $type = $_POST['type'];
     $sellingPriceProductOrServiceInDollars = $_POST['SellingPriceProductOrServiceInDollars'];
-    $weightInKg = isset($_POST['WeightInKg']) ? $_POST['WeightInKg'] : '0';
-    $dimensionsLengthInMm = isset($_POST['DimensionsLengthInMm']) ? $_POST['DimensionsLengthInMm'] : '0';
-    $dimensionsWidthInMm = isset($_POST['DimensionsWidthInMm']) ? $_POST['DimensionsWidthInMm'] : '0';
-    $dimensionsHeightInMm = isset($_POST['DimensionsHeightInMm']) ? $_POST['DimensionsHeightInMm'] : '0';
-    $sellingPricePackagingAndShippingInDollars = isset($_POST['SellingPricePackagingAndShippingInDollars']) ? $_POST['SellingPricePackagingAndShippingInDollars'] : '0';
-    $manageInventory = isset($_POST['ManageInventory']) ? $_POST['ManageInventory'] : '0';
-    $inventoryAvailable = isset($_POST['InventoryAvailable']) ? $_POST['InventoryAvailable'] : '0';
-    $inventoryInProduction = isset($_POST['InventoryInProduction']) ? $_POST['InventoryInProduction'] : '0';
+    $weightInKg = $_POST['WeightInKg'] ? (float) $_POST['WeightInKg'] : null;
+    $dimensionsLengthInMm = $_POST['DimensionsLengthInMm'] ? (float) $_POST['DimensionsLengthInMm'] : null;
+    $dimensionsWidthInMm = $_POST['DimensionsWidthInMm'] ? (float) $_POST['DimensionsWidthInMm'] : null;
+    $dimensionsHeightInMm = $_POST['DimensionsHeightInMm'] ?  (float) $_POST['DimensionsHeightInMm'] : null;
+    $sellingPricePackagingAndShippingInDollars = $_POST['SellingPricePackagingAndShippingInDollars'] ? (float) $_POST['SellingPricePackagingAndShippingInDollars'] : null;
+    $manageInventory = isset($_POST['ManageInventory']) ? (int) $_POST['ManageInventory'] : 1; // Default to yes (1)
+    $inventoryAvailable = isset($_POST['InventoryAvailable']) ? (int) $_POST['InventoryAvailable'] : null;
+    $inventoryInProduction = isset($_POST['InventoryInProduction']) ? (int) $_POST['InventoryInProduction'] : null;
     $personalNotes = $_POST['PersonalNotes'];
+
+    // Check conditions for setting inventory values
+    if ($manageInventory == 0 || $type == 3 || $type == 4) {
+        $inventoryAvailable = 0; // Set InventoryAvailable to 0
+        $inventoryInProduction = 0; // Set InventoryInProduction to 0
+    }
 
     // New fields
     $timestampCreation = time();  // Get the current time as UNIX timestamp
@@ -56,8 +71,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         DimensionsLengthInMm, DimensionsWidthInMm, DimensionsHeightInMm, 
         SellingPricePackagingAndShippingInDollars, ManageInventory, InventoryAvailable, 
         InventoryInProduction, PersonalNotes, state
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    if (!$stmt->execute([$timestampCreation, $idpkCreator, $keywordsForSearch, $name, $shortDescription, $longDescription, $allowComments, $type, $sellingPriceProductOrServiceInDollars, $weightInKg, $dimensionsLengthInMm, $dimensionsWidthInMm, $dimensionsHeightInMm, $sellingPricePackagingAndShippingInDollars, $manageInventory, $inventoryAvailable, $inventoryInProduction, $personalNotes, $state])) {
+    ) VALUES (
+        :timestampCreation, :idpkCreator, :keywordsForSearch, :name, :shortDescription, :longDescription, 
+        :allowComments, :type, :sellingPriceProductOrServiceInDollars, :weightInKg, 
+        :dimensionsLengthInMm, :dimensionsWidthInMm, :dimensionsHeightInMm, 
+        :sellingPricePackagingAndShippingInDollars, :manageInventory, :inventoryAvailable, 
+        :inventoryInProduction, :personalNotes, :state
+    )");
+    
+    // Bind the parameters
+    $stmt->bindParam(':timestampCreation', $timestampCreation);
+    $stmt->bindParam(':idpkCreator', $idpkCreator);
+    $stmt->bindParam(':keywordsForSearch', $keywordsForSearch);
+    $stmt->bindParam(':name', $name);
+    $stmt->bindParam(':shortDescription', $shortDescription);
+    $stmt->bindParam(':longDescription', $longDescription);
+    $stmt->bindParam(':allowComments', $allowComments);
+    $stmt->bindParam(':type', $type);
+    $stmt->bindParam(':sellingPriceProductOrServiceInDollars', $sellingPriceProductOrServiceInDollars);
+    $stmt->bindParam(':weightInKg', $weightInKg);
+    $stmt->bindParam(':dimensionsLengthInMm', $dimensionsLengthInMm);
+    $stmt->bindParam(':dimensionsWidthInMm', $dimensionsWidthInMm);
+    $stmt->bindParam(':dimensionsHeightInMm', $dimensionsHeightInMm);
+    $stmt->bindParam(':sellingPricePackagingAndShippingInDollars', $sellingPricePackagingAndShippingInDollars);
+    $stmt->bindParam(':manageInventory', $manageInventory);
+    $stmt->bindParam(':inventoryAvailable', $inventoryAvailable);
+    $stmt->bindParam(':inventoryInProduction', $inventoryInProduction);
+    $stmt->bindParam(':personalNotes', $personalNotes);
+    $stmt->bindParam(':state', $state);
+    
+    // Execute the statement
+    if (!$stmt->execute()) {
         echo "Error in SQL execution: " . implode(", ", $stmt->errorInfo());
         exit;
     }
@@ -65,35 +109,191 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     // Get the ID of the new product
     $productId = $pdo->lastInsertId();
 
-    // Handle file uploads
-    $uploadDir = "uploads/ProductPictures/$productId_";
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
+    // Define the upload directory based on the product ID
+    $uploadDir = "uploads/ProductPictures/{$productId}_";
+    
 
+    // Initialize a sequential counter for image files
+    $imageCounter = 0;
+
+    // Loop through each file input (ProductPicture0 to ProductPicture4)
     for ($i = 0; $i < 5; $i++) {
-        if (!empty($_FILES["ProductPicture$i"]['name'])) {
-            $fileName = basename($_FILES["ProductPicture$i"]['name']);
+        $inputName = "ProductPicture$i";
+
+        // Check if a file was uploaded for this input
+        if (!empty($_FILES[$inputName]['name'])) {
+            $fileName = basename($_FILES[$inputName]['name']);
             $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
             $validTypes = ['png', 'jpg', 'jpeg', 'gif'];
 
-            // Check file type
+            // Validate the file type
             if (in_array($fileType, $validTypes)) {
-                $targetFilePath = $uploadDir . $i . '.' . $fileType;
-                if (move_uploaded_file($_FILES["ProductPicture$i"]['tmp_name'], $targetFilePath)) {
-                    // File successfully uploaded
+                // Define the target file path using the sequential counter
+                $targetFilePath = "{$uploadDir}{$imageCounter}.{$fileType}";
+
+                // Attempt to move the uploaded file to the target location
+                if (move_uploaded_file($_FILES[$inputName]['tmp_name'], $targetFilePath)) {
+                    // Increment the counter only if the file was successfully uploaded
+                    $imageCounter++;
                 } else {
-                    echo "Error uploading file $i.";
+                    echo "Error uploading file from input $i.<br>";
                 }
             } else {
-                echo "Invalid file type for picture $i.";
+                echo "Invalid file type for picture $i.<br>";
             }
         }
     }
 
-    echo json_encode(['success' => true, 'message' => 'Product created successfully.']);
-    exit; // Stop further processing
+    // echo "<br><br><br>Created successfully!<br><br><a href=\"index.php?content=products.php\">GO BACK</a>";
+    // exit; // Stop further processing
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if (isset($_POST['action']) && $_POST['action'] == 'update' && isset($_POST['productId'])) {
+    $productId = $_POST['productId'];
+
+    // Prepare and execute your SQL query to fetch the product
+    $stmt = $db->prepare("SELECT * FROM products WHERE idpk = ?");
+    $stmt->execute([$productId]);
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Check if a product was found
+    if (!$product) {
+        // Handle the error (product not found)
+        die("Product or service couldn't be found.");
+    }
+}
+
+
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'update') {
+    // Example array of required fields
+    $requiredFields = [
+        'KeywordsForSearch', 
+        'name', 
+        'SellingPriceProductOrServiceInDollars', 
+        'type'
+    ];
+
+    // Initialize an array to hold any errors
+    $errors = [];
+
+    // Loop through each required field and check if it's set
+    foreach ($requiredFields as $field) {
+        // Use isset() for strict checking, especially for 'type' field
+        if (!isset($_POST[$field]) || $_POST[$field] === '') {
+            $errors[] = "$field is required.";
+        }
+    }
+
+    // Special check for the 'type' field to allow zero as a valid value
+    if (array_key_exists('type', $_POST) && $_POST['type'] === '') {
+        $errors[] = "type is required.";
+    }
+
+    // If there are errors, stop the script and display them
+    if (!empty($errors)) {
+        foreach ($errors as $error) {
+            echo $error . "<br>";
+        }
+        exit; // Stop further processing
+    }
+
+    $productId = $_POST['productId']; // Ensure productId is passed to the form
+    $name = $_POST['name'];
+    $keywords = $_POST['KeywordsForSearch'];
+    $shortDescription = $_POST['ShortDescription'];
+    $longDescription = $_POST['LongDescription'];
+    $allowComments = isset($_POST['AllowComments']) ? 1 : 0;
+    $type = $_POST['type'];
+    $weight = $_POST['WeightInKg'];
+    $dimensionsLength = $_POST['DimensionsLengthInMm'];
+    $dimensionsWidth = $_POST['DimensionsWidthInMm'];
+    $dimensionsHeight = $_POST['DimensionsHeightInMm'];
+    $sellingPrice = $_POST['SellingPriceProductOrServiceInDollars'];
+    $shippingPrice = $_POST['SellingPricePackagingAndShippingInDollars'];
+    $manageInventory = isset($_POST['ManageInventory']) ? 1 : 0;
+    $inventoryAvailable = $_POST['InventoryAvailable'];
+    $inventoryInProduction = $_POST['InventoryInProduction'];
+    $personalNotes = $_POST['PersonalNotes'];
+
+    // Check conditions for setting inventory values
+    if ($manageInventory == 0 || $type == 3 || $type == 4) {
+        $inventoryAvailable = 0; // Set InventoryAvailable to 0
+        $inventoryInProduction = 0; // Set InventoryInProduction to 0
+    }
+
+    // Assuming user_id is stored in a cookie or session
+    $userId = $_COOKIE['user_id']; // or use session variable as needed
+
+    // Prepare your update query with IdpkCreator security check
+    $stmt = $pdo->prepare("
+        UPDATE ProductsAndServices SET 
+            name = :name,
+            KeywordsForSearch = :keywords,
+            ShortDescription = :shortDescription,
+            LongDescription = :longDescription,
+            AllowComments = :allowComments,
+            type = :type,
+            WeightInKg = :weight,
+            DimensionsLengthInMm = :dimensionsLength,
+            DimensionsWidthInMm = :dimensionsWidth,
+            DimensionsHeightInMm = :dimensionsHeight,
+            SellingPriceProductOrServiceInDollars = :sellingPrice,
+            SellingPricePackagingAndShippingInDollars = :shippingPrice,
+            ManageInventory = :manageInventory,
+            InventoryAvailable = :inventoryAvailable,
+            InventoryInProduction = :inventoryInProduction,
+            PersonalNotes = :personalNotes
+        WHERE idpk = :id AND IdpkCreator = :creatorId
+    ");
+
+    // Bind parameters
+    $stmt->bindParam(':name', $name);
+    $stmt->bindParam(':keywords', $keywords);
+    $stmt->bindParam(':shortDescription', $shortDescription);
+    $stmt->bindParam(':longDescription', $longDescription);
+    $stmt->bindParam(':allowComments', $allowComments);
+    $stmt->bindParam(':type', $type);
+    $stmt->bindParam(':weight', $weight);
+    $stmt->bindParam(':dimensionsLength', $dimensionsLength);
+    $stmt->bindParam(':dimensionsWidth', $dimensionsWidth);
+    $stmt->bindParam(':dimensionsHeight', $dimensionsHeight);
+    $stmt->bindParam(':sellingPrice', $sellingPrice);
+    $stmt->bindParam(':shippingPrice', $shippingPrice);
+    $stmt->bindParam(':manageInventory', $manageInventory);
+    $stmt->bindParam(':inventoryAvailable', $inventoryAvailable);
+    $stmt->bindParam(':inventoryInProduction', $inventoryInProduction);
+    $stmt->bindParam(':personalNotes', $personalNotes);
+    $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
+    $stmt->bindParam(':creatorId', $userId, PDO::PARAM_INT);
+
+    // Execute the update
+    if ($stmt->execute()) {
+        // Optionally redirect or notify user of success
+        echo "Product updated successfully.";
+    } else {
+        echo "Error updating product.";
+    }
+}
+
 ?>
 
 
@@ -132,7 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     function showProductList() {
         document.getElementById('createProductDiv').style.display = 'none';
         document.getElementById('editProductDiv').style.display = 'none';
-        document.getElementById('createNewProductButton').style.display = 'block';
+        document.getElementById('createNewProductButton').style.display = '';
         document.getElementById('listProductDiv').style.display = 'block';
         loadProductList();  // Load the list of products
     }
@@ -144,49 +344,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 
 
 
-function submitFormCreateProduct() {
-    event.preventDefault();  // Prevent the default form submission
-    const form = document.getElementById('createProductForm');
-    const formData = new FormData(form);
-    
-    // Add action to the form data
-    formData.append('action', 'create');
+    function submitFormCreateProduct() {
+        const form = document.getElementById('createProductForm');
+        const formData = new FormData(form);
 
-    // Check for required fields
-    const requiredFields = ['KeywordsForSearch', 'name', 'SellingPriceProductOrServiceInDollars', 'type'];
-    let isValid = true;
+        // Check for required fields
+        const requiredFields = ['KeywordsForSearch', 'name', 'SellingPriceProductOrServiceInDollars', 'type'];
+        let isValid = true;
 
-    requiredFields.forEach(function(field) {
-        const input = document.getElementById(field);
-        if (!input.value.trim()) {
-            isValid = false; // If a field is empty, set isValid to false
-            input.style.border = '3px solid yellow'; // Highlight empty field
-        } else {
-            input.style.border = ''; // Reset border color if field is valid
+        requiredFields.forEach(function(field) {
+            const input = document.getElementById(field);
+            if (!input.value.trim()) {
+                isValid = false; // If a field is empty, set isValid to false
+                input.style.border = '3px solid yellow'; // Highlight empty field
+            } else {
+                input.style.border = ''; // Reset border color if field is valid
+            }
+        });
+
+        if (!isValid) {
+            alert('Please fill out all required fields and mind the correct format.'); // Show alert if any required field is empty
+            return; // Stop submission if validation fails
         }
-    });
+        if (!isValid) {
+            alert('Please fill out all required fields and mind the correct format.'); // Show alert if any required field is empty
+        } else {
+            document.getElementById('createProductForm').submit(); // Submit the form if all required fields are filled
+        }
 
-    if (!isValid) {
-        alert('Please fill out all required fields and mind the correct format.'); // Show alert if any required field is empty
-        return; // Stop submission if validation fails
+        // // Proceed with the AJAX request
+        // fetch('products.php', {
+        //     method: 'POST',
+        //     body: formData
+        // })
+        // .then(response => response.json())
+        // .then(data => {
+        //     if (data.success) {
+        //         alert('Product created successfully!');
+        //         showProductList();  // Show list after product creation
+        //     } else {
+        //         alert('Error creating product: ' + data.message);
+        //     }
+        // })
+        // .catch(error => console.error('Error:', error));
     }
-
-    // Proceed with the AJAX request
-    fetch('products.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Product created successfully!');
-            showProductList();  // Show list after product creation
-        } else {
-            alert('Error creating product: ' + data.message);
-        }
-    })
-    .catch(error => console.error('Error:', error));
-}
 
 
 
@@ -200,26 +401,32 @@ function submitFormCreateProduct() {
 
     // Function to submit the update product form via AJAX
     function submitFormUpdateProduct() {
-        event.preventDefault();  // Prevent the default form submission
         const form = document.getElementById('editProductForm');
         const formData = new FormData(form);
 
-        formData.append('action', 'update');  // Add action to the form data
+        // Check for required fields
+        const requiredFields = ['KeywordsForSearch', 'name', 'SellingPriceProductOrServiceInDollars', 'type'];
+        let isValid = true;
 
-        fetch('products.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Product updated successfully!');
-                showProductList();  // Show list after product update
+        requiredFields.forEach(function(field) {
+            const input = document.getElementById(field);
+            if (!input.value.trim()) {
+                isValid = false; // If a field is empty, set isValid to false
+                input.style.border = '3px solid yellow'; // Highlight empty field
             } else {
-                alert('Error updating product: ' + data.message);
+                input.style.border = ''; // Reset border color if field is valid
             }
-        })
-        .catch(error => console.error('Error:', error));
+        });
+
+        if (!isValid) {
+            alert('Please fill out all required fields and mind the correct format.'); // Show alert if any required field is empty
+            return; // Stop submission if validation fails
+        }
+        if (!isValid) {
+            alert('Please fill out all required fields and mind the correct format.'); // Show alert if any required field is empty
+        } else {
+            document.getElementById('editProductForm').submit(); // Submit the form if all required fields are filled
+        }
     }
 
 
@@ -232,24 +439,30 @@ function submitFormCreateProduct() {
 
     // Function to load the list of products dynamically
     function loadProductList() {
-        fetch('products.php')  // Sends a GET request
-        .then(response => response.json())
-        .then(data => {
-            let productListDiv = document.getElementById('productList');
-            productListDiv.innerHTML = '';  // Clear the existing list
+        fetch('products.php')  // Sends a GET request to products.php
+        .then(response => response.json())  // Expect a JSON response
+        // .then(data => {
+            // let productListDiv = document.getElementById('productList');
+            // productListDiv.innerHTML = '';  // Clear the existing list
 
-            data.products.forEach(product => {
-                let productItem = document.createElement('div');
-                let opacityStyle = product.state == 0 ? 'opacity: 0.4;' : '';  // Apply reduced opacity if inactive
-
-                productItem.innerHTML = `<div style="${opacityStyle}">
-                    ${product.name} (${product.id}) - ${product.shortDescription} - ${product.sellingPrice}$ (+${product.shippingPrice}$)
-                    <a href="javascript:void(0)" onclick="showEditProduct(${product.id})">Edit</a>
-                </div>`;
-                productListDiv.appendChild(productItem);
-            });
-        })
-        .catch(error => console.error('Error:', error));
+            // Iterate through the products and create the HTML structure for each product
+            // data.products.forEach(product => {
+            //     let productItem = document.createElement('div');
+            //     let opacityStyle = product.state == 0 ? 'opacity: 0.4;' : '';  // Apply reduced opacity if inactive
+// 
+            //     // Create the HTML structure for each product
+            //     productItem.innerHTML = `
+            //         <div style="${opacityStyle}">
+            //             ${product.name} (${product.idpk}) - ${product.ShortDescription} - ${product.SellingPriceProductOrServiceInDollars}$ (+${product.SellingPricePackagingAndShippingInDollars}$)
+            //             <a href="javascript:void(0)" onclick="showEditProduct(${product.idpk})">edit</a>
+            //         </div>
+            //     `;
+// 
+            //     // Append the product to the list
+            //     productListDiv.appendChild(productItem);
+            // });
+        // })
+        .catch(error => console.error('error:', error));
     }
 
 
@@ -261,27 +474,48 @@ function submitFormCreateProduct() {
 
 
 
+    // Function to show the edit form for a specific product
+    function showEditProduct(productId) {
+        // Show the edit form and hide others
+        document.getElementById('editProductDiv').style.display = 'block';
+        document.getElementById('listProductDiv').style.display = 'none';
+        document.getElementById('createProductDiv').style.display = 'none';
+        document.getElementById('createNewProductButton').style.display = 'none';
+
+        // Fetch product details using AJAX
+        fetch(`SaveDataFetchProductIdpk.php?productId=${productId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error); // Handle error (e.g., product not found)
+                } else {
+                    // Populate the edit form with product details
+                    document.getElementById('editProductId').value = data.idpk;
+                    document.getElementById('KeywordsForSearch').value = data.KeywordsForSearch;
+                    document.getElementById('name').value = data.name;
+                    // Populate any additional fields as needed
+                }
+            })
+            .catch(error => console.error('Error fetching product details:', error));
+    }
 
 
 
 
     // Function to show the edit form for a specific product
     function showEditProduct(productId) {
-        // Fetch product details and fill the edit form
-        fetch(`products.php?action=get&id=${productId}`)
-        .then(response => response.json())
-        .then(data => {
-            let product = data.product;
-            document.getElementById('editProductId').value = product.id;
-            document.getElementById('editProductName').value = product.name;
-            document.getElementById('editProductPrice').value = product.sellingPrice;
-
-            document.getElementById('editProductDiv').style.display = 'block';
-            document.getElementById('listProductDiv').style.display = 'none';
-            document.getElementById('createProductDiv').style.display = 'none';
-            document.getElementById('createNewProductButton').style.display = 'none';
-        })
-        .catch(error => console.error('Error:', error));
+        // You can directly use the productId passed
+        // Or, if you want to get it from the hidden input field
+        // const productId = document.querySelector(`input[value='${productId}']`).value;
+        
+        // Show the edit form and hide others
+        document.getElementById('editProductDiv').style.display = 'block';
+        document.getElementById('listProductDiv').style.display = 'none';
+        document.getElementById('createProductDiv').style.display = 'none';
+        document.getElementById('createNewProductButton').style.display = 'none';
+        
+        // Optionally, set the value in a hidden input in the edit form
+        document.getElementById('editProductId').value = productId;
     }
 
     window.onload = function() {
@@ -292,13 +526,7 @@ function submitFormCreateProduct() {
 
 
 
-
-
-
-
-
-
-
+    
 
 
 
@@ -330,7 +558,7 @@ function submitFormCreateProduct() {
             inventoryFieldsDiv.style.display = 'none';
         }
     }
-
+    
     // Initial setup on page load
     window.onload = function() {
         toggleFields();  // Set initial visibility of fields
@@ -390,7 +618,6 @@ function submitFormCreateProduct() {
 
 
 
-<h1>PRODUCTS AND SERVICES</h1>
 
 <!-- Button to toggle showing the create product form -->
 <a href="javascript:void(0)" id="createNewProductButton" class="button" onclick="showCreateProduct()">CREATE NEW PRODUCT OR SERVICE</a>
@@ -405,7 +632,11 @@ function submitFormCreateProduct() {
     <div align=center>
         <h3>CREATE</h3>
     </div>
-    <form id="createProductForm" onsubmit="submitFormCreateProduct(event)" enctype="multipart/form-data">
+    <form id="createProductForm" onsubmit="submitFormCreateProduct()" action="" method="post" enctype="multipart/form-data">
+        <!-- tell that this is the form for creating -->
+            <input type="hidden" name="action" value="create">
+
+
         <!-- Product Keywords for Search -->
         <textarea id="KeywordsForSearch" name="KeywordsForSearch" rows="3" style="width: 100%;" placeholder="something for the bots" required></textarea>
         <label for="KeywordsForSearch">keywords for search*<br><div style="opacity: 0.4;">(* means that this field is required)</div></label>
@@ -452,6 +683,7 @@ function submitFormCreateProduct() {
         <label for="AllowComments">check if you want to allow explorers to add comments, notes, special requests, ...</label>
 
         <!-- Dropdown for Product Type -->
+            <input type="hidden" name="type" value="0">
         <br><br><br><br><br>
         <select id="type" name="type" onchange="toggleFields()">
             <option value="0">product</option>
@@ -539,14 +771,124 @@ function submitFormCreateProduct() {
     <div align=center>
         <h3>UPDATE</h3>
     </div>
-    <form id="editProductForm" onsubmit="submitFormUpdateProduct(event)" enctype="multipart/form-data">
-        <input type="hidden" id="editProductId" name="productId">
-        <label for="editProductName">Product Name:</label>
-        <input type="text" id="editProductName" name="productName" required><br>
-        <label for="editProductPrice">Price:</label>
-        <input type="number" id="editProductPrice" name="productPrice" required><br>
+    <form id="editProductForm" onsubmit="submitFormUpdateProduct()" action="" method="post" enctype="multipart/form-data">
+        <!-- tell that this is the form for creating -->
+            <input type="hidden" name="action" value="update">
+        <!-- tell the idpk of the product or service -->
+            <input type="hidden" name="productId" value="<?php echo htmlspecialchars($product['idpk']); ?>">
+
+
+        <!-- Product Keywords for Search -->
+        <textarea id="KeywordsForSearch" name="KeywordsForSearch" value="<?php echo htmlspecialchars($product['KeywordsForSearch']); ?>" rows="3" style="width: 100%;" placeholder="something for the bots" required></textarea>
+        <label for="KeywordsForSearch">keywords for search*<br><div style="opacity: 0.4;">(* means that this field is required)</div></label>
+
+        <!-- Product Name -->
+        <br><br>
+        <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($product['name']); ?>" placeholder="something short for the humans" style="width: 500px;" required>
+        <label for="name">product name*</label>
+
+        <br><br><br><br><br>
+        <input type="file" name="ProductPicture0" id="ProductPicture0" accept="image/*">
+        <label for="ProductPicture0"><br>upload main product picture</label>
+
+        <br><br>
+        <input type="file" name="ProductPicture1" id="ProductPicture1" accept="image/*">
+        <label for="ProductPicture1"><br>upload additional product picture</label>
+
+        <br><br>
+        <input type="file" name="ProductPicture2" id="ProductPicture2" accept="image/*">
+        <label for="ProductPicture2"><br>upload additional product picture</label>
+
+        <br><br>
+        <input type="file" name="ProductPicture3" id="ProductPicture3" accept="image/*">
+        <label for="ProductPicture3"><br>upload additional product picture</label>
+
+        <br><br>
+        <input type="file" name="ProductPicture4" id="ProductPicture4" accept="image/*">
+        <label for="ProductPicture4"><br>upload additional product picture</label>
+
+        <!-- Short Description -->
+        <br><br><br><br><br>
+        <textarea id="ShortDescription" name="ShortDescription" value="<?php echo htmlspecialchars($product['ShortDescription']); ?>" rows="3" style="width: 100%;" placeholder="keep it short and simple"></textarea>
+        <label for="ShortDescription">short description</label>
+
+        <!-- Long Description -->
+        <br><br>
+        <textarea id="LongDescription" name="LongDescription" value="<?php echo htmlspecialchars($product['LongDescription']); ?>" rows="6" style="width: 100%;" placeholder="if there is more to say"></textarea>
+        <label for="LongDescription">long description</label>
+
+        <!-- Checkbox for Allow Comments -->
+            <input type="hidden" name="AllowComments" value="0">
+        <br><br><br><br><br>
+        <input type="checkbox" id="AllowComments" name="AllowComments" value="1" <?php echo ($product['AllowComments'] == 1) ? 'checked' : ''; ?>>
+        <label for="AllowComments">check if you want to allow explorers to add comments, notes, special requests, ...</label>
+
+        <!-- Dropdown for Product Type -->
+            <input type="hidden" name="type" value="0">
+        <br><br><br><br><br>
+        <select id="type" name="type" onchange="toggleFields()">
+            <option value="0">product</option>
+            <option value="1">restaurant food</option>
+            <option value="2">other food products</option>
+            <option value="3">physical service</option>
+            <option value="4">digital service</option>
+        </select>
+        <label for="type">type*</label>
+
+        <!-- Div for Weight, Dimensions (only for products/food) -->
+        <div id="physicalAttributes" style="display: none;">
+            <br><br><br><br><br>
+            <input type="number" id="WeightInKg" name="WeightInKg" value="<?php echo htmlspecialchars($product['WeightInKg']); ?>" placeholder="we love the metric system" style="width: 300px;">
+            <label for="WeightInKg">weight (in kg)</label>
+
+            <br><br>
+            <input type="number" id="DimensionsLengthInMm" name="DimensionsLengthInMm" value="<?php echo htmlspecialchars($product['DimensionsLengthInMm']); ?>" placeholder="it's easier to calculate" style="width: 300px;">
+            <label for="DimensionsLengthInMm">length (in mm)</label>
+
+            <br><br>
+            <input type="number" id="DimensionsWidthInMm" name="DimensionsWidthInMm" value="<?php echo htmlspecialchars($product['DimensionsWidthInMm']); ?>" placeholder="nearly all of the world uses it" style="width: 300px;">
+            <label for="DimensionsWidthInMm">width (in mm)</label>
+
+            <br><br>
+            <input type="number" id="DimensionsHeightInMm" name="DimensionsHeightInMm" value="<?php echo htmlspecialchars($product['DimensionsHeightInMm']); ?>" placeholder="it's totally logical" style="width: 300px;">
+            <label for="DimensionsHeightInMm">height (in mm)</label>
+        </div>
+
+            <br><br><br><br><br>
+            <input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" value="<?php echo htmlspecialchars($product['SellingPriceProductOrServiceInDollars']); ?>" placeholder="price the explorer should pay" style="width: 300px;" required>
+            <label for="SellingPriceProductOrServiceInDollars">selling price (in USD)*</label>
+        <!-- Div for Selling Price (only for products/food) -->
+        <div id="priceAttributes" style="display: none;">
+            <br><br>
+            <input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" value="<?php echo htmlspecialchars($product['SellingPricePackagingAndShippingInDollars']); ?>" placeholder="only if you want to separate" style="width: 300px;">
+            <label for="SellingPricePackagingAndShippingInDollars">selling price of packaging and shipping (in USD)</label>
+        </div>
+
+        <!-- Checkbox for Manage Inventory -->
+            <input type="hidden" name="ManageInventory" value="0">
+        <br><br><br><br><br>
+        <input type="checkbox" id="ManageInventory" name="ManageInventory" value="1" <?php echo ($product['ManageInventory'] == 1) ? 'checked' : ''; ?> onclick="toggleInventoryFields()">
+        <label for="ManageInventory">check if you want to manage the inventory</label>
+
+        <!-- Inventory Fields -->
+        <div id="inventoryFields" style="display: none;">
+            <br><br>
+            <input type="number" id="InventoryAvailable" name="InventoryAvailable" value="<?php echo htmlspecialchars($product['InventoryAvailable']); ?>" placeholder="how much do you have right now" style="width: 300px;">
+            <label for="InventoryAvailable">inventory available</label>
+
+            <br><br>
+            <input type="number" id="InventoryInProduction" name="InventoryInProduction" value="<?php echo htmlspecialchars($product['InventoryInProduction']); ?>" placeholder="and how much is in production" style="width: 300px;">
+            <label for="InventoryInProduction">inventory in production</label>
+        </div>
+
+        <!-- Personal Notes -->
+        <br><br><br><br><br>
+        <textarea id="PersonalNotes" name="PersonalNotes" value="<?php echo htmlspecialchars($product['PersonalNotes']); ?>" rows="6" style="width: 100%;" placeholder="only you can see these"></textarea>
+        <label for="PersonalNotes">personal notes</label>
+
         <br><br><br><br><br>
         <div align=center>
+            <!-- Submit button for updating product -->
             <a href="javascript:void(0);" class="mainbutton" onclick="submitFormUpdateProduct()">SAVE</a>
         </div>
     </form>
@@ -567,7 +909,7 @@ function submitFormCreateProduct() {
 
 <!-- Div for listing all products -->
 <div id="listProductDiv" class="steps">
-    <br><br><br><br><br>
+    <br><br>
     <div id="productList">
         <!-- Products will be dynamically loaded here
          please use the following format for display from the database ProductsAndServices where the IdpkCreator is the same as the user idpk (// Assuming user_id is stored in a cookie
@@ -576,5 +918,96 @@ function submitFormCreateProduct() {
     'name' ('idpk') - 'ShortDescription' - 'SellingPriceProductOrServiceInDollars'$ (+'SellingPricePackagingAndShippingInDollars'$) - editLinkHere,
     display with only 0.4 opacity if 'state' = 0 (inactive)
         -->
+    <?php
+    // Get the user ID from the cookie
+    if (isset($_COOKIE['user_id'])) {
+        $user_id = $_COOKIE['user_id'];
+
+        // Query to get all products for the specific user, ordered alphabetically
+        $stmt = $pdo->prepare("SELECT idpk, name, ShortDescription, SellingPriceProductOrServiceInDollars, SellingPricePackagingAndShippingInDollars, PersonalNotes, state FROM ProductsAndServices WHERE IdpkCreator = :id ORDER BY name ASC");
+        $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Fetch all products as an associative array
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Separate active and inactive products
+        $activeProducts = [];
+        $inactiveProducts = [];
+
+        foreach ($products as $product) {
+            if ($product['state'] == 1) {
+                $activeProducts[] = $product;
+            } else {
+                $inactiveProducts[] = $product;
+            }
+        }
+
+        // Start the table structure
+        echo '<table>';
+
+        // Display active products
+        if (!empty($activeProducts)) {
+            foreach ($activeProducts as $product) {
+                // Truncate the name and description
+                $truncatedName = (strlen($product['name']) > 50) ? substr($product['name'], 0, 50) . '...' : $product['name'];
+                $truncatedDescription = (strlen($product['ShortDescription']) > 100) ? substr($product['ShortDescription'], 0, 100) . '...' : $product['ShortDescription'];
+                $truncatedPersonalNotes = (strlen($product['PersonalNotes']) > 100) ? substr($product['PersonalNotes'], 0, 100) . '...' : $product['PersonalNotes'];
+
+                // Display Shipping Price if not 0 or null
+                $shippingPrice = (!empty($product['SellingPricePackagingAndShippingInDollars']) && $product['SellingPricePackagingAndShippingInDollars'] != 0)
+                                ? '(+' . $product['SellingPricePackagingAndShippingInDollars'] . '$)'
+                                : '';
+
+                echo "<tr>";
+                echo "<td>$truncatedName ({$product['idpk']})</td>";
+                echo "<td>$truncatedDescription</td>";
+                echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$</td>";
+                echo "<td>$shippingPrice</td>";
+                echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>more</a></td>";
+                // hidden field to transfer the idpk of the product or service
+                    echo "<input type='hidden' class='editProductId' id='editProductId' value='{$product['idpk']}'>";
+                echo "<td>$truncatedPersonalNotes</td>";
+                echo "</tr>";
+                echo "<tr></tr>"; // additional line after each product or service
+            }
+        }
+
+        // Add spacing rows between active and inactive products
+        echo "<tr></tr><tr></tr><tr></tr><tr></tr><tr></tr>";
+
+        // Display inactive products with opacity
+        if (!empty($inactiveProducts)) {
+            foreach ($inactiveProducts as $product) {
+                $opacityStyle = 'style="opacity: 0.4;"';
+                $truncatedName = (strlen($product['name']) > 50) ? substr($product['name'], 0, 50) . '...' : $product['name'];
+                $truncatedDescription = (strlen($product['ShortDescription']) > 100) ? substr($product['ShortDescription'], 0, 100) . '...' : $product['ShortDescription'];
+                $truncatedPersonalNotes = (strlen($product['PersonalNotes']) > 100) ? substr($product['PersonalNotes'], 0, 100) . '...' : $product['PersonalNotes'];
+                
+                // Display Shipping Price if not 0 or null
+                $shippingPrice = (!empty($product['SellingPricePackagingAndShippingInDollars']) && $product['SellingPricePackagingAndShippingInDollars'] != 0)
+                                ? '(+' . $product['SellingPricePackagingAndShippingInDollars'] . '$)'
+                                : '';
+
+                echo "<tr $opacityStyle>";
+                echo "<td>$truncatedName ({$product['idpk']})</td>";
+                echo "<td>$truncatedDescription</td>";
+                echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$</td>";
+                echo "<td>$shippingPrice</td>";
+                echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>more</a></td>";
+                // hidden field to transfer the idpk of the product or service
+                    echo "<input type='hidden' class='editProductId' id='editProductId' value='{$product['idpk']}'>";
+                echo "<td>$truncatedPersonalNotes</td>";
+                echo "</tr>";
+                echo "<tr></tr>"; // additional line after each product or service
+            }
+        } else {
+            // If no products are found, display a message
+            echo "<tr><td colspan='5'>please create new products or services so they can be shown here</td></tr>";
+        }
+
+        echo '</table>';
+    }
+    ?>
     </div>
 </div>
