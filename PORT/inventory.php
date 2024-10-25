@@ -152,13 +152,13 @@ function updateInventory(productId, field, value) {
 
 function applyOutlineBasedOnValue(input, value) {
     // Apply the outline based on value ranges
-    if (value < -10) {
+    if (value <= -10) {
         input.style.outline = "3px solid yellow";
-    } else if (value < -5) {
+    } else if (value <= -5) {
         input.style.outline = "2px solid yellow";
-    } else if (value < 0) {
+    } else if (value <= 0) {
         input.style.outline = "1px solid yellow";
-    } else if (value < 5) {
+    } else if (value <= 5) {
         input.style.outline = "1px solid white";
     } else {
         input.style.outline = "none"; // Reset outline if no condition is met
