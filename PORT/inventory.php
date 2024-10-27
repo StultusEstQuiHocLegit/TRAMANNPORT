@@ -97,8 +97,10 @@
                 echo "<tr></tr>"; // additional line after each product or service
             }
         } else {
-            // If no products are found, display a message
-            echo "<tr><td colspan='5'>please <a href=\"index.php?content=products.php\">CREATE NEW PRODUCTS</a> so they can be shown here</td></tr>";
+            echo "<div align=center>";
+                // If no products are found, display a message
+                echo "<tr><td colspan='5'>please <a href=\"index.php?content=products.php\">CREATE NEW PRODUCTS</a> so they can be shown here</td></tr>";
+            echo "</div>";
         }
 
         echo '</table>';
