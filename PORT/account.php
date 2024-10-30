@@ -13,8 +13,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         'HouseNumber', 
         'ZIPCode', 
         'city', 
-        'country', 
-        'planet'
+        'country',
+        'IBAN'
     ];
 
     foreach ($requiredFields as $field) {
@@ -101,6 +101,7 @@ try {
             country = :country, 
             planet = :planet, 
             IBAN = :IBAN,
+            darkmode = :darkmode,
             OpeningHoursMondayOpening = :OpeningHoursMondayOpening,
             OpeningHoursMondayClosing = :OpeningHoursMondayClosing,
             OpeningHoursTuesdayOpening = :OpeningHoursTuesdayOpening,
@@ -137,7 +138,8 @@ try {
     $stmt->bindParam(':city', $_POST['city'], PDO::PARAM_STR);
     $stmt->bindParam(':country', $_POST['country'], PDO::PARAM_STR);
     $stmt->bindParam(':planet', $_POST['planet'], PDO::PARAM_STR);
-    $stmt->bindParam(':IBAN', $_POST['IBAN'], PDO::PARAM_STR); // Assuming IBAN is also in the form
+    $stmt->bindParam(':IBAN', $_POST['IBAN'], PDO::PARAM_STR);
+    $stmt->bindParam(':darkmode', $_POST['darkmode'], PDO::PARAM_STR);
 
     // Bind opening hours
     $stmt->bindParam(':OpeningHoursMondayOpening', $_POST['OpeningHoursMondayOpening'], PDO::PARAM_STR);
@@ -241,8 +243,8 @@ try {
             'HouseNumber', 
             'ZIPCode', 
             'city', 
-            'country', 
-            'planet'
+            'country',
+            'IBAN'
         ];
 
         requiredFields.forEach(function(field) {
@@ -272,13 +274,7 @@ try {
         <div class="steps">
             idpk: <?php echo htmlspecialchars($user['idpk']); ?>
 
-            <br><br><br><br>
-            <input type="hidden" name="ExplorerOrCreator" value="0">
-            <input type="checkbox" id="ExplorerOrCreator" name="ExplorerOrCreator" value="1" <?php echo ($user['ExplorerOrCreator'] == 1) ? 'checked' : ''; ?> onclick="toggleCreatorFields()">
-            <label for="ExplorerOrCreator">business account (check if you<br>want to create and sell products too)</label>
-
-            <br><br><br><br>
-
+            <br><br><br><br><br>
             <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" placeholder="it's also your login and has to be legit" style="width: 300px;" required>
             <label for="email">email*<br><div style="opacity: 0.4;">(* means that this field is required)</div></label>
 
@@ -353,8 +349,8 @@ try {
             <label for="country">country*</label>
 
             <br><br>
-            <input type="text" id="planet" name="planet" value="<?php echo htmlspecialchars($user['planet']); ?>" placeholder="waiting for the first people from mars" style="width: 300px;" required>
-            <label for="planet">planet*</label>
+            <input type="text" id="planet" name="planet" value="<?php echo htmlspecialchars($user['planet']); ?>" placeholder="waiting for the first people from mars" style="width: 300px;">
+            <label for="planet">planet</label>
 
             <br><br><br><br><br>
             <input type="text" id="IBAN" name="IBAN" value="<?php echo htmlspecialchars($user['IBAN']); ?>" placeholder="a long number on your banking card" style="width: 300px;" required>
@@ -387,6 +383,16 @@ try {
                             break;
                     }
                 ?>)
+            
+            <br><br><br><br><br>
+                <input type="hidden" name="darkmode" value="0">
+            <input type="checkbox" id="darkmode" name="darkmode" value="1" <?php echo ($user['darkmode'] == 1) ? 'checked' : ''; ?>>
+            <label for="darkmode">darkmode (check if you want things to look way cooler)</label>
+
+            <br><br><br><br>
+                <input type="hidden" name="ExplorerOrCreator" value="0">
+            <input type="checkbox" id="ExplorerOrCreator" name="ExplorerOrCreator" value="1" <?php echo ($user['ExplorerOrCreator'] == 1) ? 'checked' : ''; ?> onclick="toggleCreatorFields()">
+            <label for="ExplorerOrCreator">business account (check if you<br>want to create and sell products too)</label>
 
             <div id="creatorFields" style="display: <?php echo ($user['ExplorerOrCreator'] == 1) ? 'block' : 'none'; ?>;">
                 <br><br><br><br><br>

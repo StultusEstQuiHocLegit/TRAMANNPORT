@@ -14,8 +14,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         'HouseNumber', 
         'ZIPCode', 
         'city', 
-        'country', 
-        'planet'
+        'country',
+        'IBAN'
     ];
 
     foreach ($requiredFields as $field) {
@@ -119,7 +119,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             "- tell your friends about your new account and website\n" . 
                             "- replace these to-dos with your new own ones";
 
-        $personalCollectionOfLinks = "add links to other distribution channels," . 
+        $personalCollectionOfLinks = "first, click on this fild to start the editing mode," .
+                                     "then add links to other distribution channels," . 
                                      "mail programs, social media, editing tools, ...," . 
                                      "so you can quickly access everything from your dashboard.";
         } else {
@@ -241,8 +242,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'HouseNumber', 
             'ZIPCode', 
             'city', 
-            'country', 
-            'planet'
+            'country',
+            'IBAN'
         ];
 
         requiredFields.forEach(function(field) {
@@ -275,19 +276,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <form id="createAccountForm" action="" method="post"> <!-- Form for creating an account -->
         <div class="steps">
-                <!-- Hidden input to always send "Explorer" (0) if the checkbox is unchecked -->
-                <input type="hidden" name="ExplorerOrCreator" value="0">
-            <!-- Explorer or Creator Checkbox -->
-            <input type="checkbox" id="ExplorerOrCreator" name="ExplorerOrCreator" value="1" onclick="toggleCreatorFields()"> <!-- Checkbox for role selection -->
-            <label for="ExplorerOrCreator">business account (check if you<br>want to create and sell products too)</label>
-
-            <br><br><br><br>
-
             <input type="email" id="email" name="email" placeholder="it's also your login and has to be legit" style="width: 300px;" required>
             <label for="email">email*<br><div style="opacity: 0.4;">(* means that this field is required)</div></label>
 
             <br>
-            <input type="password" id="password" name="password" placeholder="something easy to remember, but hard to guess" style="width: 300px;" required>
+            <input type="text" id="password" name="password" placeholder="something easy to remember, but hard to guess" style="width: 300px;" required>
             <label for="password">password*</label>
 
             <br><br>
@@ -323,12 +316,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="country">country*</label>
 
             <br><br>
-            <input type="text" id="planet" name="planet" placeholder="waiting for the first people from mars" style="width: 300px;" required>
-            <label for="planet">planet*</label>
+            <input type="text" id="planet" name="planet" placeholder="waiting for the first people from mars" style="width: 300px;">
+            <label for="planet">planet</label>
 
             <br><br><br><br><br>
             <input type="text" id="IBAN" name="IBAN" placeholder="a long number on your banking card" style="width: 300px;" required>
             <label for="IBAN">IBAN*</label>
+            
+            <br><br><br><br><br>
+                <!-- Hidden input to always send "Explorer" (0) if the checkbox is unchecked -->
+                <input type="hidden" name="ExplorerOrCreator" value="0">
+            <!-- Explorer or Creator Checkbox -->
+            <input type="checkbox" id="ExplorerOrCreator" name="ExplorerOrCreator" value="1" onclick="toggleCreatorFields()"> <!-- Checkbox for role selection -->
+            <label for="ExplorerOrCreator"><strong>business account</strong> (check if you<br>want to create and sell products too)</label>
 
             <!-- Additional fields for creators (hidden by default) -->
             <div id="creatorFields" style="display: none;">

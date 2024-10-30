@@ -74,6 +74,20 @@ echo "<div class=\"content\">";
         <br><br><br>
     <?php endif; ?>
 
+    <div class="links"> <!-- Links for creating account -->
+        <br>
+        <a href="index.php?content=CreateAccount.php" class="mainbutton">CREATE AN ACCOUNT</a>
+
+        <br><br><br><br>
+        <!-- <h3> - - - - - OR - - - - - </h3> -->
+        <h3 style="display: flex; align-items: center; text-align: center; margin: 20px 0;">
+            <hr>
+            <span style="padding: 0 20px; font-weight: bold;">OR</span>
+            <hr>
+        </h3>
+        <br><br><br>
+    </div>
+
     <form id="loginForm" action="" method="post"> <!-- Form for login -->
         <!-- <div class="steps"> -->
             <input type="email" id="email" name="email" placeholder="email" style="width: 300px;" required> <!-- Email input -->
@@ -88,9 +102,9 @@ echo "<div class=\"content\">";
         <a href="javascript:void(0);" class="mainbutton" onclick="submitForm()">LOG IN</a>
     </form>
 
-    <div class="links"> <!-- Links for creating account and forgot password -->
-        <br><br><br><br><br><a href="index.php?content=CreateAccount.php" class="button">NOT PART OF THE CREW YET?<br>JOIN US AND CREATE AN ACCOUNT!</a>
-        <br><br><br><a href="index.php?content=ForgotPassword.php" style="opacity: 0.4;">FORGOT YOUR PASSWORD?</a>
+    <div class="links"> <!-- Links for forgot password -->
+        <br><br><br>
+        <a href="index.php?content=ForgotPassword.php" style="opacity: 0.4;">FORGOT YOUR PASSWORD?</a>
     </div>
 </div>
 

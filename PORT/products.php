@@ -9,7 +9,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
 
     // Example array of required fields
     $requiredFields = [
-        'KeywordsForSearch', 
         'name', 
         'SellingPriceProductOrServiceInDollars', 
         'type'
@@ -196,7 +195,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
             const formData = new FormData(form);
         
             // Check for required fields
-            const requiredFields = ['KeywordsForSearch', 'name', 'SellingPriceProductOrServiceInDollars', 'type'];
+            const requiredFields = ['name', 'SellingPriceProductOrServiceInDollars', 'type'];
             let isValid = true;
         
             requiredFields.forEach(function(field) {
@@ -286,14 +285,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                     <input type="hidden" name="productId" value="<?php echo htmlspecialchars($product['idpk']); ?>">
         
         
-                <!-- Product Keywords for Search -->
-                <textarea id="KeywordsForSearch" name="KeywordsForSearch" rows="3" style="width: 100%;" placeholder="something for the bots" required><?php echo htmlspecialchars($product['KeywordsForSearch']); ?></textarea>
-                <label for="KeywordsForSearch">keywords for search*<br><div style="opacity: 0.4;">(* means that this field is required)</div></label>
-        
                 <!-- Product Name -->
-                <br><br>
                 <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($product['name']); ?>" placeholder="something short for the humans" style="width: 500px;" required>
-                <label for="name">product name*</label>
+                <label for="name">product name*<br><div style="opacity: 0.4;">(* means that this field is required)</div></label>
+
+                <!-- Product Keywords for Search -->
+                <br>
+                <textarea id="KeywordsForSearch" name="KeywordsForSearch" rows="3" style="width: 100%;" placeholder="something for the bots (highest search priority)" required><?php echo htmlspecialchars($product['KeywordsForSearch']); ?></textarea>
+                <label for="KeywordsForSearch">keywords for search</label>
 
                 <br><br>
                 idpk: <?php echo htmlspecialchars($product['idpk']); ?>
@@ -425,7 +424,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                     <label for="InventoryAvailable">inventory available</label>
         
                     <br><br>
-                    <input type="number" id="InventoryInProduction" name="InventoryInProduction" value="<?php echo htmlspecialchars($product['InventoryInProduction']); ?>" placeholder="and how much is in production" style="width: 300px;">
+                    <input type="number" id="InventoryInProduction" name="InventoryInProduction" value="<?php echo htmlspecialchars($product['InventoryInProduction']); ?>" placeholder="and how much is in production" style="width: 300px;" oninput="updateInventoryAvailable()">
                     <label for="InventoryInProduction">inventory in production</label>
                 </div>
         
@@ -451,6 +450,31 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                 </div>
             </form>
         </div>
+    <script>
+        // Variable to store the previous value of InventoryInProduction
+        var previousInventoryInProduction = parseInt(document.getElementById('InventoryInProduction').value) || 0;
+
+        function updateInventoryAvailable() {
+            var inventoryAvailableInput = document.getElementById('InventoryAvailable');
+            var inventoryInProductionInput = document.getElementById('InventoryInProduction');
+
+            // Parse current value of InventoryInProduction
+            var currentInventoryInProduction = parseInt(inventoryInProductionInput.value) || 0;
+
+            // Check if the current value is less than the previous value
+            if (currentInventoryInProduction < previousInventoryInProduction) {
+                // Calculate the difference and update InventoryAvailable
+                var difference = previousInventoryInProduction - currentInventoryInProduction;
+                var currentInventoryAvailable = parseInt(inventoryAvailableInput.value) || 0;
+
+                // Increase InventoryAvailable by the difference
+                inventoryAvailableInput.value = currentInventoryAvailable + difference;
+            }
+
+            // Update the previous value for the next input
+            previousInventoryInProduction = currentInventoryInProduction;
+        }
+    </script>
     <?php
     } else {
         // echo "Product or service with idpk $idpk not found.";
@@ -482,7 +506,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     // Example array of required fields
     $requiredFields = [
-        'KeywordsForSearch', 
         'name', 
         'SellingPriceProductOrServiceInDollars', 
         'type'
@@ -682,7 +705,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         const formData = new FormData(form);
 
         // Check for required fields
-        const requiredFields = ['KeywordsForSearch', 'name', 'SellingPriceProductOrServiceInDollars', 'type'];
+        const requiredFields = ['name', 'SellingPriceProductOrServiceInDollars', 'type'];
         let isValid = true;
 
         requiredFields.forEach(function(field) {
@@ -738,7 +761,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         const formData = new FormData(form);
 
         // Check for required fields
-        const requiredFields = ['KeywordsForSearch', 'name', 'SellingPriceProductOrServiceInDollars', 'type'];
+        const requiredFields = ['name', 'SellingPriceProductOrServiceInDollars', 'type'];
         let isValid = true;
 
         requiredFields.forEach(function(field) {
@@ -969,15 +992,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         <!-- tell that this is the form for creating -->
             <input type="hidden" name="action" value="create">
 
-
-        <!-- Product Keywords for Search -->
-        <textarea id="KeywordsForSearch" name="KeywordsForSearch" rows="3" style="width: 100%;" placeholder="something for the bots" required></textarea>
-        <label for="KeywordsForSearch">keywords for search*<br><div style="opacity: 0.4;">(* means that this field is required)</div></label>
         
         <!-- Product Name -->
-        <br><br>
         <input type="text" id="name" name="name" placeholder="something short for the humans" style="width: 500px;" required>
-        <label for="name">product name*</label>
+        <label for="name">product name*<br><div style="opacity: 0.4;">(* means that this field is required)</div></label>
+
+        <!-- Product Keywords for Search -->
+        <br>
+        <textarea id="KeywordsForSearch" name="KeywordsForSearch" rows="3" style="width: 100%;" placeholder="something for the bots (highest search priority)" required></textarea>
+        <label for="KeywordsForSearch">keywords for search</label>
 
         <br><br><br><br><br>
         <input type="file" name="ProductPicture0" id="ProductPicture0" accept="image/*">
@@ -1195,11 +1218,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
                 echo "</tr>";
                 echo "<tr></tr>"; // additional line after each product or service
             }
-        } else {
-            echo "<div align=center>";
-                // If no products are found, display a message
-                echo "<tr><td colspan='5'>please create new products or services so they can be shown here</td></tr>";
-            echo "</div>";
+        }
+
+        // Display message only if there are no products at all
+        if (empty($activeProducts) && empty($inactiveProducts)) {
+            echo "<tr><td colspan='5' align='center'>please <a href=\"index.php?content=products.php\">CREATE NEW PRODUCTS</a> so they can be shown here</td></tr>";
         }
 
         echo '</table>';

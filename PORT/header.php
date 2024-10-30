@@ -9,7 +9,7 @@ session_start(); // Start the session
 	<meta charset="utf-8"/>
     <title>TRAMANN PROJECTS - PORT</title>
   	<header>
-  	<link rel="stylesheet" type="text/css" href="../style.css">
+  	<!-- <link rel="stylesheet" type="text/css" href="../style.css"> -->
   	<link rel="icon" type="image/png" href="../logos/favicon.png">
 </header>
 
@@ -29,9 +29,7 @@ body {
 <body>
 <div class="header">
     <a href="javascript:void(0);" title="TRAMANN" id="dropdownMenuLogo">
-        <img src="../logos/TramannLogoWhite.png" height="40" alt="TRAMANN">
-    </a>
-    <div id="dropdownMenu">
+    
     <?php
             // Check if the user is logged in using cookies
             $isLoggedIn = isset($_COOKIE['user_id']);
@@ -42,7 +40,7 @@ body {
             if ($user_id !== null) {
                 try {
                     // Prepare the SQL query to get the user role
-                    $stmt = $pdo->prepare('SELECT ExplorerOrCreator FROM ExplorersAndCreators WHERE idpk = :id');
+                    $stmt = $pdo->prepare('SELECT ExplorerOrCreator, darkmode FROM ExplorersAndCreators WHERE idpk = :id');
                     $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
                     
                     // Execute the query
@@ -51,18 +49,35 @@ body {
                     // Fetch the result
                     $result = $stmt->fetch(PDO::FETCH_ASSOC);
                     
-                    // Check if a role was found
+                    // Check if a role and dark mode preference were found
                     if ($result) {
                         $userRole = (int)$result['ExplorerOrCreator']; // Cast to integer if needed
+                        $darkMode = (int)$result['darkmode']; // 0 = no, 1 = yes
+
+                        // Determine the appropriate stylesheet based on the dark mode preference
+                        if ($darkMode === 1) {
+                            echo '<img src="../logos/TramannLogoWhite.png" height="40" alt="TRAMANN">'; // Dark mode logo
+                            echo '<link rel="stylesheet" type="text/css" href="../style.css">'; // Dark mode stylesheet
+                        } else {
+                            echo '<img src="../logos/TramannLogo.png" height="40" alt="TRAMANN">'; // Light mode logo
+                            echo '<link rel="stylesheet" type="text/css" href="../style.css">'; // Dark mode stylesheet
+                            echo '<link rel="stylesheet" type="text/css" href="../StyleLightmode.css">'; // Light mode stylesheet adding to the existing one
+                        }
                     } else {
-                        // Handle case where user role is not found
-                        $userRole = null; // Or set to a default value
+                        // Handle case where user role or dark mode is not found
+                        $userRole = null; // Set to a default value or handle as needed
+                        $darkMode = null;
                     }
                 } catch (PDOException $e) {
                     // Handle database errors
                     echo "Database error: " . $e->getMessage();
                 }
+            } else {
+                echo '<img src="../logos/TramannLogo.png" height="40" alt="TRAMANN">'; // Light mode logo
+                echo '<link rel="stylesheet" type="text/css" href="../style.css">'; // Dark mode stylesheet
+                echo '<link rel="stylesheet" type="text/css" href="../StyleLightmode.css">'; // Light mode stylesheet adding to the existing one
             }
+    echo "</a><div id=\"dropdownMenu\">";
 
             if ($isLoggedIn && $userRole !== null) {
                 // User is logged in
