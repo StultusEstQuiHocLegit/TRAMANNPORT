@@ -46,11 +46,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
     $allowComments = isset($_POST['AllowComments']) ? (int) $_POST['AllowComments'] : 1; // Default to yes (1)
     $type = $_POST['type'];
     $sellingPriceProductOrServiceInDollars = $_POST['SellingPriceProductOrServiceInDollars'];
-    $weightInKg = $_POST['WeightInKg'] ? (float) $_POST['WeightInKg'] : null;
-    $dimensionsLengthInMm = $_POST['DimensionsLengthInMm'] ? (float) $_POST['DimensionsLengthInMm'] : null;
-    $dimensionsWidthInMm = $_POST['DimensionsWidthInMm'] ? (float) $_POST['DimensionsWidthInMm'] : null;
-    $dimensionsHeightInMm = $_POST['DimensionsHeightInMm'] ?  (float) $_POST['DimensionsHeightInMm'] : null;
-    $sellingPricePackagingAndShippingInDollars = $_POST['SellingPricePackagingAndShippingInDollars'] ? (float) $_POST['SellingPricePackagingAndShippingInDollars'] : null;
+    $weightInKg = isset($_POST['WeightInKg']) ? (float) str_replace(',', '.', $_POST['WeightInKg']) : null;
+    $dimensionsLengthInMm = isset($_POST['DimensionsLengthInMm']) ? round((float) str_replace(',', '.', $_POST['DimensionsLengthInMm']), 2) : null;
+    $dimensionsWidthInMm = isset($_POST['DimensionsWidthInMm']) ? round((float) str_replace(',', '.', $_POST['DimensionsWidthInMm']), 2) : null;
+    $dimensionsHeightInMm = isset($_POST['DimensionsHeightInMm']) ? round((float) str_replace(',', '.', $_POST['DimensionsHeightInMm']), 2) : null;
+    $sellingPricePackagingAndShippingInDollars = isset($_POST['SellingPricePackagingAndShippingInDollars']) ? round((float) str_replace(',', '.', $_POST['SellingPricePackagingAndShippingInDollars']), 2) : null;
     $manageInventory = isset($_POST['ManageInventory']) ? (int) $_POST['ManageInventory'] : 1; // Default to yes (1)
     $inventoryAvailable = isset($_POST['InventoryAvailable']) ? (int) $_POST['InventoryAvailable'] : null;
     $inventoryInProduction = isset($_POST['InventoryInProduction']) ? (int) $_POST['InventoryInProduction'] : null;
@@ -150,6 +150,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
             }
         }
     }
+    echo "<script>window.location.href = 'index.php?content=products.php';</script>";
+    exit();
 }
 
 
@@ -385,29 +387,29 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                 <!-- Div for Weight, Dimensions (only for products/food) -->
                 <div id="physicalAttributes" style="display: none;">
                     <br><br><br><br><br>
-                    <input type="number" id="WeightInKg" name="WeightInKg" value="<?php echo htmlspecialchars($product['WeightInKg']); ?>" placeholder="we love the metric system" style="width: 300px;">
+                    <input type="number" id="WeightInKg" name="WeightInKg" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['WeightInKg'])); ?>" placeholder="we love the metric system" style="width: 300px;">
                     <label for="WeightInKg">weight (in kg)</label>
         
                     <br><br>
-                    <input type="number" id="DimensionsLengthInMm" name="DimensionsLengthInMm" value="<?php echo htmlspecialchars($product['DimensionsLengthInMm']); ?>" placeholder="it's easier to calculate" style="width: 300px;">
+                    <input type="number" id="DimensionsLengthInMm" name="DimensionsLengthInMm" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['DimensionsLengthInMm'])); ?>" placeholder="it's easier to calculate" style="width: 300px;">
                     <label for="DimensionsLengthInMm">length (in mm)</label>
         
                     <br><br>
-                    <input type="number" id="DimensionsWidthInMm" name="DimensionsWidthInMm" value="<?php echo htmlspecialchars($product['DimensionsWidthInMm']); ?>" placeholder="nearly all of the world uses it" style="width: 300px;">
+                    <input type="number" id="DimensionsWidthInMm" name="DimensionsWidthInMm" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['DimensionsWidthInMm'])); ?>" placeholder="nearly all of the world uses it" style="width: 300px;">
                     <label for="DimensionsWidthInMm">width (in mm)</label>
         
                     <br><br>
-                    <input type="number" id="DimensionsHeightInMm" name="DimensionsHeightInMm" value="<?php echo htmlspecialchars($product['DimensionsHeightInMm']); ?>" placeholder="it's totally logical" style="width: 300px;">
+                    <input type="number" id="DimensionsHeightInMm" name="DimensionsHeightInMm" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['DimensionsHeightInMm'])); ?>" placeholder="it's totally logical" style="width: 300px;">
                     <label for="DimensionsHeightInMm">height (in mm)</label>
                 </div>
         
                     <br><br><br><br><br>
-                    <input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" value="<?php echo htmlspecialchars($product['SellingPriceProductOrServiceInDollars']); ?>" placeholder="price the explorer should pay" style="width: 300px;" required>
+                    <input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['SellingPriceProductOrServiceInDollars'])); ?>" placeholder="price the explorer should pay" style="width: 300px;" required>
                     <label for="SellingPriceProductOrServiceInDollars">selling price (in USD)*</label>
                 <!-- Div for Selling Price (only for products/food) -->
                 <div id="priceAttributes" style="display: none;">
                     <br><br>
-                    <input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" value="<?php echo htmlspecialchars($product['SellingPricePackagingAndShippingInDollars']); ?>" placeholder="only if you want to separate" style="width: 300px;">
+                    <input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['SellingPricePackagingAndShippingInDollars'])); ?>" placeholder="only if you want to separate" style="width: 300px;">
                     <label for="SellingPricePackagingAndShippingInDollars">selling price of packaging and shipping (in USD)</label>
                 </div>
         
@@ -543,11 +545,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     $allowComments = isset($_POST['AllowComments']) ? (int) $_POST['AllowComments'] : 1; // Default to yes (1)
     $type = $_POST['type'];
     $sellingPriceProductOrServiceInDollars = $_POST['SellingPriceProductOrServiceInDollars'];
-    $weightInKg = $_POST['WeightInKg'] ? (float) $_POST['WeightInKg'] : null;
-    $dimensionsLengthInMm = $_POST['DimensionsLengthInMm'] ? (float) $_POST['DimensionsLengthInMm'] : null;
-    $dimensionsWidthInMm = $_POST['DimensionsWidthInMm'] ? (float) $_POST['DimensionsWidthInMm'] : null;
-    $dimensionsHeightInMm = $_POST['DimensionsHeightInMm'] ?  (float) $_POST['DimensionsHeightInMm'] : null;
-    $sellingPricePackagingAndShippingInDollars = $_POST['SellingPricePackagingAndShippingInDollars'] ? (float) $_POST['SellingPricePackagingAndShippingInDollars'] : null;
+    $weightInKg = isset($_POST['WeightInKg']) ? (float) str_replace(',', '.', $_POST['WeightInKg']) : null;
+    $dimensionsLengthInMm = isset($_POST['DimensionsLengthInMm']) ? round((float) str_replace(',', '.', $_POST['DimensionsLengthInMm']), 2) : null;
+    $dimensionsWidthInMm = isset($_POST['DimensionsWidthInMm']) ? round((float) str_replace(',', '.', $_POST['DimensionsWidthInMm']), 2) : null;
+    $dimensionsHeightInMm = isset($_POST['DimensionsHeightInMm']) ? round((float) str_replace(',', '.', $_POST['DimensionsHeightInMm']), 2) : null;
+    $sellingPricePackagingAndShippingInDollars = isset($_POST['SellingPricePackagingAndShippingInDollars']) ? round((float) str_replace(',', '.', $_POST['SellingPricePackagingAndShippingInDollars']), 2) : null;
     $manageInventory = isset($_POST['ManageInventory']) ? (int) $_POST['ManageInventory'] : 1; // Default to yes (1)
     $inventoryAvailable = isset($_POST['InventoryAvailable']) ? (int) $_POST['InventoryAvailable'] : null;
     $inventoryInProduction = isset($_POST['InventoryInProduction']) ? (int) $_POST['InventoryInProduction'] : null;
@@ -648,6 +650,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 
     // echo "<br><br><br>Created successfully!<br><br><a href=\"index.php?content=products.php\">GO BACK</a>";
     // exit; // Stop further processing
+    echo "<script>window.location.href = 'index.php?content=products.php';</script>";
+    exit();
 }
 
 ?>
