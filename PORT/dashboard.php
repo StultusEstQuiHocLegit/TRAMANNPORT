@@ -47,13 +47,13 @@
 <!-- <textarea id="PersonalCollectionOfLinks" rows="10" style="width: 100%;" oninput="saveData('PersonalCollectionOfLinks', this.value)"><?php // echo htmlspecialchars(trim($user['PersonalCollectionOfLinks'] ?? '')); ?></textarea> -->
 <!-- Hidden Textarea for Input -->
 <!-- <div style="width: 50%; max-width: 50%;"> -->
-<textarea id="PersonalCollectionOfLinks" rows="10" style="width: 100%; display: none; text-align: left;"
+<textarea id="PersonalCollectionOfLinks" rows="10" style="display: none; text-align: left;"
     oninput="updateDisplay(); saveData('PersonalCollectionOfLinks', this.value)">
 <?php echo htmlspecialchars(trim($user['PersonalCollectionOfLinks'] ?? '')); ?>
 </textarea>
 
 <!-- Display Area for Clickable Links -->
-<div id="displayLinks" style="width: 100%; white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; text-align: left;"
+<div id="displayLinks" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; text-align: left;"
     onclick="handleDisplayClick(event)">
     <!-- Display will be dynamically updated here -->
 </div>

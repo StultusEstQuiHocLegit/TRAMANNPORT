@@ -31,15 +31,42 @@ function displayProductRow($product, $highlight = false, $user_id = null) {
     } else {
         echo "<td></td>";
     }
-    echo "<td>$truncatedName ({$product['idpk']})</td>";
-    echo "<td>$truncatedDescription</td>";
-    echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$</td>";
-    echo "<td>$shippingPrice</td>";
+        // add image here
+        // Define the base path for the uploaded images
+        $uploadDir = "uploads/ProductPictures/" . htmlspecialchars($product['idpk']) . "_";
+
+        // Define possible file extensions
+        $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+
+        // Initialize array to store the paths of the existing images
+        $imagePaths = [];
+
+        // Check each slot (0 to 4) for the available extensions
+        for ($i = 0; $i < 5; $i++) {
+            foreach ($validExtensions as $extension) {
+                $filePath = "{$uploadDir}{$i}.{$extension}";
+                if (file_exists($filePath)) {
+                    $imagePaths[] = $filePath;  // Add to array if file exists
+                    break;  // Stop checking other extensions if a file is found
+                }
+            }
+        }
+
+        if (isset($imagePaths[0]) && file_exists($imagePaths[0])):
+            echo "<td><img src=\"" . htmlspecialchars($imagePaths[0]) . "\" style=\"height:100px;\"></td>";
+        else:
+            echo "<td></td>";
+        endif;
+    echo "<td>$truncatedName ({$product['idpk']})<br><div style=\"opacity: 0.5;\">$truncatedDescription</div></td>";
+    // echo "<td>$truncatedDescription</td>";
+    echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$ $shippingPrice</td>";
     
     // Links
-    echo "<td><a href='index.php?content=ShowProduct.php&idpk={$product['idpk']}'>more</a></td>";
+    echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>more</a></td>";  // show link
     if ($canManage) {
         echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>edit</a></td>";  // manage link
+    } else {
+        echo "<td><a href='index.php?content=explore.php&action=BuyProduct&idpk={$product['idpk']}'>buy</a></td>";  // buy link
     }
     echo "</tr>";
 }

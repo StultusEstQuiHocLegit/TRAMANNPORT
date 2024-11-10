@@ -2,7 +2,7 @@
 
 <div style="display: flex; width: 100%;">
     <input type="search" id="SearchBar" name="SearchBar" placeholder="explore ..." style="width: 70%;">
-    <a href="javascript:void(0)" id="StartSearchButton" class="button" onclick="StartSearch()" style="width: 20%;">SEARCH</a>
+    <a href="javascript:void(0)" id="StartSearchButton" class="mainbutton" onclick="StartSearch()" style="width: 20%;">SEARCH</a>
     <div style="width: 3%;"></div>
     <a href="javascript:void(0)" id="ShowSearchOptionsDiv" class="button" onclick="ShowSearchOptionsDiv()" style="width: 7%;">v</a>
 </div>
@@ -18,8 +18,38 @@
 
 <br><br><br>
 
-<div id="FeedAndResults">
-</div>
+<?php
+echo "<div id=\"ShowProduct\">";
+    include ("ShowProduct.php");
+echo "</div>";
+
+
+
+
+echo "<div id=\"FeedAndResults\"></div>";
+?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 <script>
@@ -40,6 +70,9 @@
     function StartSearch() {
         const searchQuery = document.getElementById('SearchBar').value;
         const selectedOption = document.getElementById('SearchOptions').value;
+
+        // Hide the ShowProduct div when the search is started
+        document.getElementById('ShowProduct').style.display = 'none';
 
         // Perform your search logic here using searchQuery and selectedOption
         console.log('Search Query:', searchQuery);

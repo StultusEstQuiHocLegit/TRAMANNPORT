@@ -56,10 +56,10 @@ body {
 
                         // Determine the appropriate stylesheet based on the dark mode preference
                         if ($darkMode === 1) {
-                            echo '<img src="../logos/TramannLogoWhite.png" height="40" alt="TRAMANN">'; // Dark mode logo
+                            echo '<img id="menuIcon" src="../logos/TramannLogoWhite.png" height="40" alt="TRAMANN">'; // Dark mode logo
                             echo '<link rel="stylesheet" type="text/css" href="../style.css">'; // Dark mode stylesheet
                         } else {
-                            echo '<img src="../logos/TramannLogo.png" height="40" alt="TRAMANN">'; // Light mode logo
+                            echo '<img id="menuIcon" src="../logos/TramannLogo.png" height="40" alt="TRAMANN">'; // Light mode logo
                             echo '<link rel="stylesheet" type="text/css" href="../style.css">'; // Dark mode stylesheet
                             echo '<link rel="stylesheet" type="text/css" href="../StyleLightmode.css">'; // Light mode stylesheet adding to the existing one
                         }
@@ -73,7 +73,7 @@ body {
                     echo "Database error: " . $e->getMessage();
                 }
             } else {
-                echo '<img src="../logos/TramannLogo.png" height="40" alt="TRAMANN">'; // Light mode logo
+                echo '<img id="menuIcon" src="../logos/TramannLogo.png" height="40" alt="TRAMANN">'; // Light mode logo
                 echo '<link rel="stylesheet" type="text/css" href="../style.css">'; // Dark mode stylesheet
                 echo '<link rel="stylesheet" type="text/css" href="../StyleLightmode.css">'; // Light mode stylesheet adding to the existing one
             }

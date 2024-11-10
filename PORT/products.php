@@ -114,7 +114,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
     }
 
     // Get the ID of the new product
-    $productId = $pdo->lastInsertId();
+    $productId = $idpk;
 
     // Define the upload directory based on the product ID
     $uploadDir = "uploads/ProductPictures/{$productId}_";
@@ -323,35 +323,35 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                 
                 <br><br><br><br><br>
                 <?php if (isset($imagePaths[0]) && file_exists($imagePaths[0])): ?>
-                    <br><br><img src="<?php echo $imagePaths[0]; ?>" style="width:300px;height:300px;"><br>
+                    <br><br><img src="<?php echo $imagePaths[0]; ?>" style="height:300px;"><br>
                 <?php endif; ?>
                 <input type="file" name="ProductPicture0" id="ProductPicture0" accept="image/*">
                 <label for="ProductPicture0"><br>Upload main product picture</label>
                 
                 <br><br>
                 <?php if (isset($imagePaths[1]) && file_exists($imagePaths[1])): ?>
-                    <br><br><img src="<?php echo $imagePaths[1]; ?>" style="width:300px;height:300px;"><br>
+                    <br><br><img src="<?php echo $imagePaths[1]; ?>" style="height:300px;"><br>
                 <?php endif; ?>
                 <input type="file" name="ProductPicture1" id="ProductPicture1" accept="image/*">
                 <label for="ProductPicture1"><br>Upload additional product picture</label>
                 
                 <br><br>
                 <?php if (isset($imagePaths[2]) && file_exists($imagePaths[2])): ?>
-                    <br><br><img src="<?php echo $imagePaths[2]; ?>" style="width:300px;height:300px;"><br>
+                    <br><br><img src="<?php echo $imagePaths[2]; ?>" style="height:300px;"><br>
                 <?php endif; ?>
                 <input type="file" name="ProductPicture2" id="ProductPicture2" accept="image/*">
                 <label for="ProductPicture2"><br>Upload additional product picture</label>
                 
                 <br><br>
                 <?php if (isset($imagePaths[3]) && file_exists($imagePaths[3])): ?>
-                    <br><br><img src="<?php echo $imagePaths[3]; ?>" style="width:300px;height:300px;"><br>
+                    <br><br><img src="<?php echo $imagePaths[3]; ?>" style="height:300px;"><br>
                 <?php endif; ?>
                 <input type="file" name="ProductPicture3" id="ProductPicture3" accept="image/*">
                 <label for="ProductPicture3"><br>Upload additional product picture</label>
                 
                 <br><br>
                 <?php if (isset($imagePaths[4]) && file_exists($imagePaths[4])): ?>
-                    <br><br><img src="<?php echo $imagePaths[4]; ?>" style="width:300px;height:300px;"><br>
+                    <br><br><img src="<?php echo $imagePaths[4]; ?>" style="height:300px;"><br>
                 <?php endif; ?>
                 <input type="file" name="ProductPicture4" id="ProductPicture4" accept="image/*">
                 <label for="ProductPicture4"><br>Upload additional product picture</label>

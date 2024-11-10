@@ -1,7 +1,7 @@
 <h1>TRAMANN PORT</h1>
   <p>
     <!-- An open source shopping platform that brings more value to buyers and sellers. -->
-    Get your own online shop and website on our open source platfrom for just 1% per transaction.
+    Get your own online shop and website on our open source platform for just 1% per transaction.
   </p>
   Start for free, only 1% per transaction, simple to use, no advertisement,
   powered by open source code and the spirit to change the world for good.

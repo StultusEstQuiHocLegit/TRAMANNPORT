@@ -119,7 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             "- tell your friends about your new account and website\n" . 
                             "- replace these to-dos with your new own ones";
 
-        $personalCollectionOfLinks = "first, click on this fild to start the editing mode," .
+        $personalCollectionOfLinks = "first, click on this field to start the editing mode," .
                                      "then add links to other distribution channels," . 
                                      "mail programs, social media, editing tools, ...," . 
                                      "so you can quickly access everything from your dashboard.";

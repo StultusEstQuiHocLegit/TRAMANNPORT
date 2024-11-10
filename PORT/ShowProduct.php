@@ -1,1 +1,308 @@
-ShowProduct - currently under construction, if you need this function urgently, tell Lasse to hurry up   ; )
+<?php
+// Check if action and idpk are set
+if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['idpk'])) {
+    // Retrieve the idpk from the URL
+    $idpk = intval($_GET['idpk']);
+
+    $user_id = isset($_COOKIE['user_id']) ? (int)$_COOKIE['user_id'] : null;
+
+    // Query the database to get product details
+    $query = "SELECT * FROM ProductsAndServices WHERE idpk = ? AND state = 1";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([$idpk]);
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Determine if the user can manage this product
+    $canManage = ($product['IdpkCreator'] == $user_id);
+
+    // Check if the product exists
+    if ($product) {
+        echo "<h3>$product[name] ($product[idpk])</h3>";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        // Initialize the main image and thumbnail images array
+        $uploadDir = "uploads/ProductPictures/" . htmlspecialchars($product['idpk']) . "_";
+        $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+        $images = [];
+        
+        // Loop through images and store all existing images in $images array
+        for ($i = 0; $i < 5; $i++) {
+            foreach ($validExtensions as $extension) {
+                $filePath = "{$uploadDir}{$i}.{$extension}";
+                if (file_exists($filePath)) {
+                    $images[] = $filePath;
+                    break;
+                }
+            }
+        }
+        
+        // Set the first image as the default main image
+        $mainImage = $images[0] ?? null;
+        
+        // Display the main image and table in a container with controlled width
+        if ($mainImage):
+        ?>
+            <div id="imageContainer" style="text-align: center; width: fit-content; margin: auto;">
+                <!-- Main image display -->
+                <img id="mainImage" src="<?= htmlspecialchars($mainImage); ?>" style="height: 500px; display: block; margin: auto;">
+                
+                <!-- Display thumbnails in a table with the same width as the main image -->
+                <table style="width: 100%; margin-top: 10px;">
+                    <tr>
+                        <?php
+                        // Calculate thumbnail width based on the number of images and main image width
+                        $thumbnailWidth = 100 / count($images) . "%";
+                        
+                        // Loop through all images and display them as thumbnails
+                        foreach ($images as $index => $thumb):
+                            // Add an identifier to each thumbnail for JavaScript access
+                            $isMain = ($thumb === $mainImage) ? " selected" : "";
+                            echo "<td style='text-align: center; width: $thumbnailWidth;'>";
+                            echo "<img id='thumb$index' src='" . htmlspecialchars($thumb) . "' class='thumbnail$isMain' style='height: 100px; cursor: pointer;' onclick='changeMainImage(this.src, $index)'>";
+                            echo "</td>";
+                        endforeach;
+                        ?>
+                    </tr>
+                </table>
+            </div>
+        
+            <!-- JavaScript to change main image when a thumbnail is clicked -->
+            <script>
+                function changeMainImage(selectedSrc, selectedIndex) {
+                    // Update the main image with the selected thumbnail
+                    const mainImage = document.getElementById('mainImage');
+                    mainImage.src = selectedSrc;
+        
+                    // Remove 'selected' class from all thumbnails and add it to the current one
+                    const thumbnails = document.querySelectorAll('.thumbnail');
+                    thumbnails.forEach((thumb, index) => {
+                        thumb.classList.remove('selected');
+                        if (index === selectedIndex) {
+                            thumb.classList.add('selected');
+                        }
+                    });
+                }
+            </script>
+        
+            <style>
+                /* Thumbnail styling */
+                .thumbnail {
+                    border: 1px solid transparent; /* Default border */
+                }
+        
+                /* Highlight selected thumbnail */
+                .thumbnail.selected {
+                    /* border: 1px solid yellow; */
+                    opacity: 0.3;
+                }
+            </style>
+        <?php
+        endif;
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        echo "<br><br><br>";
+        echo "$product[ShortDescription]";
+        echo "<br><br><br><br>";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // Display the table with product details
+        echo "<table style='width: 100%;'>";
+        echo "<tr>";
+        // Top left cell: Selling price and packaging/shipping price
+        echo "<td style='text-align: center;'>";
+        echo "" . htmlspecialchars($product['SellingPriceProductOrServiceInDollars']) . "$ (+" . htmlspecialchars($product['SellingPricePackagingAndShippingInDollars']) . "$)";
+        echo "</td>";
+
+        // Top right cell: Buy/Edit button
+        echo "<td style='text-align: center;'>";
+        if ($canManage) {
+            echo "<a href='index.php?content=products.php&action=update&idpk=" . htmlspecialchars($product['idpk']) . "' class='mainbutton'>EDIT</a>";
+        } else {
+            echo "<a href='index.php?content=explore.php&action=BuyProduct&idpk=" . htmlspecialchars($product['idpk']) . "' class='mainbutton'>BUY</a>";
+        }
+        echo "</td>";
+        echo "</tr>";
+
+        echo "<tr>";
+
+
+
+        // Bottom left cell: Creator ID
+        // Assuming $product['IdpkCreator'] contains the creator's ID
+        $creatorId = $product['IdpkCreator'];
+
+        // Query to get CompanyName and level from ExplorersAndCreators
+        $query = "SELECT CompanyName, level FROM ExplorersAndCreators WHERE idpk = :creatorId LIMIT 1";
+        $stmt = $pdo->prepare($query); // Assuming $pdo is your database connection
+        $stmt->bindParam(':creatorId', $creatorId, PDO::PARAM_INT);
+        $stmt->execute();
+        $creator = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Define levels and their descriptions
+        $levelDescriptions = [
+            0 => "new",
+            1 => "experienced",
+            2 => "experts",
+            3 => "checked experts",
+            4 => "official partners"
+        ];
+
+        // Display the creator information in the table cell
+        echo "<tr>";
+        // Bottom left cell: CompanyName, Idpk, and level
+        echo "<td style='text-align: center;'><a href='index.php?content=explore.php&action=ShowCreator&idpk=" . $creatorId . "'>";
+
+                // Define the possible image file extensions
+                $imageExtensions = ['png', 'jpg', 'jpeg', 'svg', 'gif'];
+
+                // Base directory for profile pictures
+                $uploadDir = './uploads/AccountPictures/';
+
+                // Initialize a variable to hold the profile picture path (if found)
+                $profilePicturePath = null;
+
+                // Iterate through the possible extensions and check if the file exists
+                foreach ($imageExtensions as $ext) {
+                    $potentialPath = $uploadDir . $creatorId . '.' . $ext;
+                    if (file_exists($potentialPath)) {
+                        $profilePicturePath = $potentialPath;
+                        break; // Exit the loop once we find the file
+                    }
+                }
+
+                // Display the profile picture if it exists
+                if ($profilePicturePath) {
+                    // Output the image tag for the found profile picture
+                    echo "<img src=\"$profilePicturePath\" style=\"height:50px;\"><br>";
+                } else {
+                    // If no profile picture is found, display nothing
+                }
+
+        // Display CompanyName and IdpkCreator
+        echo htmlspecialchars($creator['CompanyName']) . " (" . htmlspecialchars($product['IdpkCreator']) . ")</a><br>";
+        // Display level with description
+        $level = $creator['level'];
+        $levelText = isset($levelDescriptions[$level]) ? $levelDescriptions[$level] : "unknown";
+        echo "<span style='opacity: 0.5;'>(level: $level ($levelText))</span>";
+
+        echo "</td>";
+
+
+
+        // Bottom right cell: Inventory information
+        echo "<td style='text-align: center; opacity: 0.5;'>";
+        if ($product['ManageInventory'] == 1) {
+            echo ($product['InventoryAvailable'] > 0 ? "available: " . htmlspecialchars($product['InventoryAvailable']) : "can be produced") . "<br>";
+            echo ($product['InventoryInProduction'] > 0 ? "in production: " . htmlspecialchars($product['InventoryInProduction']) : "can be produced");
+        } else {
+            echo "can be produced";
+        }
+                echo "<br><br>";
+                // Query the transactions table to count sales of the selected product
+                $productId = $product['idpk'];
+                $query = "SELECT COUNT(*) as sale_count FROM transactions WHERE IdpkProductOrService = :productId";
+                $stmt = $pdo->prepare($query); // Assuming $pdo is your database connection
+                $stmt->bindParam(':productId', $productId, PDO::PARAM_INT);
+                $stmt->execute();
+                $salesData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                // Display the sales count if the product has been sold at least once
+                if ($salesData && $salesData['sale_count'] > 0) {
+                    echo "<br>already sold: " . htmlspecialchars($salesData['sale_count']);
+                }
+        echo "</td>";
+        echo "</tr>";
+        echo "</table>";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        echo "<br><br><br><br>";
+        echo "$product[LongDescription]";
+
+        echo "<br><br><br><br><br><br><br><br><br><br>";
+    }
+}
+
+
+?>
