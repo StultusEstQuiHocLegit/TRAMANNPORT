@@ -10,4 +10,5 @@ An open source shopping platform that brings more value to buyers and sellers.
 <br>
 <br>
 <br>
-<br>The database structure and the page structure are explained in - /PORT/help.php -.
+<br>The database structure and the page structure are explained in - /PORT/help.php -, please visit:
+<br>www.tramann-projects.com/PORT/index.php?content=help.php
