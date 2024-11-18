@@ -1,10 +1,13 @@
-<br><br><br>
+<br><br>
 
-<div style="display: flex; width: 100%;">
-    <input type="search" id="SearchBar" name="SearchBar" placeholder="explore ..." style="width: 70%;">
-    <a href="javascript:void(0)" id="StartSearchButton" class="mainbutton" onclick="StartSearch()" style="width: 20%;">SEARCH</a>
-    <div style="width: 3%;"></div>
-    <a href="javascript:void(0)" id="ShowSearchOptionsDiv" class="button" onclick="ShowSearchOptionsDiv()" style="width: 7%;">v</a>
+<div style="display: flex; width: 100%; justify-content: center; align-items: center;">
+    <input type="search" id="SearchBar" name="SearchBar" placeholder="explore ..." style="width: 300px;">
+</div>
+<br>
+<div style="display: flex; width: 100%; justify-content: center; align-items: center;">
+    <a href="javascript:void(0)" id="StartSearchButton" class="mainbutton" onclick="StartSearch()"">🔍 SEARCH</a>
+    <div style="width: 5px;"></div>
+    <a href="javascript:void(0)" id="ShowSearchOptionsDiv" class="button" onclick="ShowSearchOptionsDiv()"">v</a>
 </div>
 <div id="SearchOptionsDiv">
     <br>

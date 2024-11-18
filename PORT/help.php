@@ -1,6 +1,6 @@
-<h1>HELP</h1>
+<h1>📖 HELP</h1>
 
-<br>If you shouldn't be able to find anything helpful below, please feel free to <a href="mailto:hi@tramann-projects.com?subject=Hi  : )&body=Hi,%0D%0A%0D%0A%0D%0A[ContentOfYourMessage]%0D%0A%0D%0A%0D%0A%0D%0AWith best regards,%0D%0A[YourName]" title="Always at your service   : )">CONTACT US   : )</a>
+<br>If you shouldn't be able to find anything helpful below, please feel free to <a href="mailto:hi@tramann-projects.com?subject=Hi  : )&body=Hi,%0D%0A%0D%0A%0D%0A[ContentOfYourMessage]%0D%0A%0D%0A%0D%0A%0D%0AWith best regards,%0D%0A[YourName]" title="Always at your service   : )">✉️ CONTACT US   : )</a>
 
 <br><br><br><br><br>
 
@@ -27,11 +27,11 @@
 
         // Data for the topics: an array of objects with title and content
         const topics = [
-            {
-    title: 'DATABASE STRUCTURE EXPLORERSANDCREATORS',
+{
+    title: '🧬 DATABASE STRUCTURE EXPLORERSANDCREATORS',
     content: `
         <br>
-        <strong>database name: ExplorersAndCreators</strong>
+        <strong>table name: ExplorersAndCreators</strong>
         <br><br>
         <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
         <br><br><br>
@@ -60,7 +60,7 @@
                 <tr><td>level</td><td>tinyint</td><td>s</td><td>(0 = new, 1 = experienced, 2 = experts, 3 = checked experts, 4 = official partners)</td></tr>
 
                 <tr><td><br><br><br></td><td></td><td><td></td></tr>
-                <tr style='opacity: 0.5;'><td>the above was for both</td><td></td><td></td><td>the following is mainly for creators</td></tr>
+                <tr style='opacity: 0.5;'><td>the above was for both, the following is mainly for creators</td><td></td><td></td><td></td></tr>
                 <tr><td><br><br><br></td><td></td><td><td></td></tr>
 
                 <tr><td>CompanyName</td><td>varchar(250)</td><td>e</td><td></td></tr>
@@ -120,11 +120,119 @@
     `
 },
 {
-    title: 'WHAT IS AN ERP SYSTEM',
-    content: 'ERP stands for enterprise resource planning and describes the management of business processes.'
+    title: '🧬 DATABASE STRUCTURE PRODUCTSANDSERVICES',
+    content: `
+        <br>
+        <strong>table name: ProductsAndServices</strong>
+        <br><br>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
+        <br><br><br>
+        <table>
+            <thead>
+                <tr><th>field name</th><th>type</th><th>r</th><th>description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>idpk</td><td>int, auto increment, primary key</td><td>s*</td><td></td></tr>
+                <tr><td>TimestampCreation</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>IdpkCreator</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>KeywordsForSearch</td><td>text</td><td>e</td><td></td></tr>
+                <tr><td>name</td><td>text</td><td>e*</td><td></td></tr>
+                <tr><td>ShortDescription</td><td>text</td><td>e</td><td></td></tr>
+                <tr><td>LongDescription</td><td>text</td><td>e</td><td></td></tr>
+                <tr><td>AllowCommentsNotesSpecialRequests</td><td>tinyint</td><td>e</td><td>(0 = no, 1 = yes (standard))</td></tr>
+                <tr><td>type</td><td>tinyint</td><td>e*</td><td>(0 = product (standard), 1 = restaurant food, 2 = other food products, 3 = physical service, 4 = digital service)</td></tr>
+                <tr><td>WeightInKg</td><td>decimal(10,5)</td><td>e</td><td style="opacity: 0.5;">(0 for services)</td></tr>
+                <tr><td>DimensionsLengthInMm</td><td>decimal(10,2)</td><td>e</td><td style="opacity: 0.5;">(0 for services)</td></tr>
+                <tr><td>DimensionsWidthInMm</td><td>decimal(10,2)</td><td>e</td><td style="opacity: 0.5;">(0 for services)</td></tr>
+                <tr><td>DimensionsHeightInMm</td><td>decimal(10,2)</td><td>e</td><td style="opacity: 0.5;">(0 for services)</td></tr>
+                <tr><td>SellingPriceProductOrServiceInDollars</td><td>decimal(10,2)</td><td>e*</td><td></td></tr>
+                <tr><td>SellingPricePackagingAndShippingInDollars</td><td>decimal(10,2)</td><td>e</td><td style="opacity: 0.5;">(0 for services)</td></tr>
+                <tr><td>ManageInventory</td><td>tinyint</td><td>e</td><td>(0 = no, 1 = yes (standard))</td></tr>
+                <tr><td>InventoryAvailable</td><td>int</td><td>e</td><td style="opacity: 0.5;">(0 for services or if inventory is not managed)</td></tr>
+                <tr><td>InventoryInProduction</td><td>int</td><td>e</td><td style="opacity: 0.5;">(0 for services or if inventory is not managed)</td></tr>
+                <tr><td>PersonalNotes</td><td>text</td><td>e</td><td></td></tr>
+                <tr><td>state</td><td>tinyint</td><td>e*</td><td>(0 = inactive, 1 = active (standard))</td></tr>
+            </tbody>
+        </table>
+    `
 },
 {
-    title: 'PAGE STRUCTURE',
+    title: '🧬 DATABASE STRUCTURE TRANSACTIONS',
+    content: `
+        <br>
+        <strong>table name: transactions</strong>
+        <br><br>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
+        <br><br><br>
+        <table>
+            <thead>
+                <tr><th>field name</th><th>type</th><th>r</th><th>description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>idpk</td><td>int, auto increment, primary key</td><td>s*</td><td></td></tr>
+                <tr><td>TimestampCreation</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>IdpkExplorer</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>IdpkProductOrService</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>IdpkCart</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>quantity</td><td>int</td><td>e*</td><td></td></tr>
+                <tr><td>AmountInDollars</td><td>decimal(10,2)</td><td>s*</td><td>(total amount (already multiplied with the quantity), because prices can change)</td></tr>
+                <tr><td>state</td><td>tinyint</td><td>e*</td><td>
+                    (0 = collecting, 1 = ordered, 2 = paid, 3 = orders transmitted to creators, 
+                    4 = creators producing or selecting, 5 = creators shipping, 
+                    6 = in customs, 7 = at distribution center, 
+                    8 = arriving, 9 = finished)
+                </td></tr>
+                <tr><td>CommentsNotesSpecialRequests</td><td>text</td><td>e</td><td></td></tr>
+            </tbody>
+        </table>
+    `
+},
+{
+    title: '🧬 DATABASE STRUCTURE CARTS',
+    content: `
+        <br>
+        <strong>table name: carts</strong>
+        <br><br>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
+        <br><br><br>
+        <table>
+            <thead>
+                <tr><th>field name</th><th>type</th><th>r</th><th>description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>idpk</td><td>int, auto increment, primary key</td><td>s*</td><td></td></tr>
+                <tr><td>TimestampCreation</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>IdpkExplorerOrCreator</td><td>int</td><td>s*</td><td></td></tr>
+
+                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
+                <tr style='opacity: 0.5;'><td>if the ProductsAndServices aren't restaurant food (type)</td><td></td><td></td><td></td></tr>
+                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
+
+                <tr><td>DeliveryType</td><td>tinyint</td><td>e*</td><td>
+                    (0 = standard (default), 1 = express, 2 = as soon as possible, 
+                    3 = pick up in store, 4 = best matching wished ideal delivery time)
+                </td></tr>
+                <tr><td>WishedIdealDeliveryOrPickUpTime</td><td>int</td><td>e</td><td style="opacity: 0.5;">
+                    (show only, if DeliveryType is 4, for 3 show OpeningHours (from database ExplorersAndCreators) also)
+                </td></tr>
+
+                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
+                <tr style='opacity: 0.5;'><td>if the ProductsAndServices are restaurant food (type)</td><td></td><td></td><td></td></tr>
+                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
+
+                <tr><td>DeliveryType</td><td>tinyint</td><td>e*</td><td>
+                    <div style="opacity: 0.5;">(0 = standard (don't show), 1 = express (don't show), )</div>(2 = as soon as possible, 3 = pick up in store, 
+                    4 = best matching wished ideal delivery time (default))
+                </td></tr>
+                <tr><td>WishedIdealDeliveryOrPickUpTime</td><td>int</td><td>e</td><td style="opacity: 0.5;">
+                    (show only, if DeliveryType is 4, for 3 show OpeningHours (from database ExplorersAndCreators) also)
+                </td></tr>
+            </tbody>
+        </table>
+    `
+},
+{
+    title: '📚 PAGE STRUCTURE',
     content: `
         <div class="steps">
             all pages in alphabetic order:
@@ -146,16 +254,41 @@
             <br>LandingPage.php
             <br>login.php
             <br>logout.php
+            <br>menu.php
             <br>orders.php
             <br>PreviousCarts.php
             <br>products.php
+            <br>SaveDataCart.php
             <br>SaveDataDashboard.php
             <br>SaveDataInventory.php
+            <br>SaveDataShowProduct.php
             <br>search.php
             <br>ShowCreator.php
             <br>ShowProduct.php
             <br>YourWebsite.php
         </div>
+    `
+},
+{
+    title: '⛓️ PROCESS OF ORDERING',
+    content: `
+        <table>
+            <thead>
+                <tr><th>state (from table - transactions -)</th><th>agent</th><th>description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>0 = collecting</td><td>explorer (or other creator)</td><td>collectiong products and services, for example in explore.php, clicking on - ADD TO CART - and adding them to cart.php, transactions are created in the table - transactions -</td></tr>
+                <tr><td>1 = ordered</td><td>explorer (or other creator)</td><td>clicked on - BUY NOW - in cart.php, carts are created in the table - carts -, TRAMANN PORT payment system gets triggered, additional email is send to system</td></tr>
+                <tr><td>2 = paid</td><td>system</td><td>TRAMANN PORT payment system is processing the payment and updating the table - transactions - accordingly, orders are from now on displayed in PreviousCarts.php (for explorer (or other creator))</td></tr>
+                <tr><td>3 = orders transmitted to creators</td><td>creators</td><td>orders are now displayed in dashboard.php (preview) and orders.php (for creators, - state - can be updated there)</td></tr>
+                <tr><td>4 = creators producing or selecting</td><td>creators</td><td>orders are now displayed in dashboard.php (preview) and orders.php (for creators, - state - can be updated there)</td></tr>
+                <tr><td>5 = creators shipping</td><td>creators</td><td>orders are from now on displayed in order.php (with lower opacity (old orders))</td></tr>
+                <tr><td> 6 = in customs</td><td>freight forwarders</td><td>shipping</td></tr>
+                <tr><td>7 = at distribution center</td><td>freight forwarders</td><td>shipping</td></tr>
+                <tr><td>8 = arriving</td><td>freight forwarders</td><td>shipping</td></tr>
+                <tr><td>9 = finished</td><td>explorer (or other creator)</td><td>shipping</td></tr>
+            </tbody>
+        </table>
     `
 }
         ];

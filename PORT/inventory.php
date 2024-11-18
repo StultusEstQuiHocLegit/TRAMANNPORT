@@ -1,4 +1,4 @@
-<h1>INVENTORY</h1>
+<h1>🏰 INVENTORY</h1>
 
 <!-- Div for listing all products -->
 <div id="listProductDiv" class="steps">
@@ -58,12 +58,12 @@
                     echo "<td style=\"opacity: 0.6;\">$truncatedName ({$product['idpk']})</td>";
                     echo "<td style=\"opacity: 0.6;\">inventory not managed</td>";
                     echo "<td style=\"opacity: 0.6;\">inventory not managed</td>";
-                    echo "<td style=\"opacity: 0.6;\">$truncatedPersonalNotes</td>";
+                    echo "<td style=\"opacity: 0.6;\"><div style=\"opacity: 0.5;\">$truncatedPersonalNotes</div></td>";
                 } else {
                     echo "<td>$truncatedName ({$product['idpk']})</td>";
                     echo "<td><input type=\"number\" id=\"InventoryAvailable_{$product['idpk']}\" name=\"InventoryAvailable\" value=\"" . htmlspecialchars($product['InventoryAvailable']) . "\" placeholder=\"0\" style=\"width: 100px;\" onchange=\"updateInventory({$product['idpk']}, 'InventoryAvailable', this.value)\"></td>";
                     echo "<td><input type=\"number\" id=\"InventoryInProduction_{$product['idpk']}\" name=\"InventoryInProduction\" value=\"" . htmlspecialchars($product['InventoryInProduction']) . "\" placeholder=\"0\" style=\"width: 100px;\" onchange=\"updateInventory({$product['idpk']}, 'InventoryInProduction', this.value)\"></td>";
-                    echo "<td>$truncatedPersonalNotes</td>";
+                    echo "<td><div style=\"opacity: 0.5;\">$truncatedPersonalNotes</div></td>";
                 }
                 echo "</tr>";
                 echo "<tr></tr>"; // additional line after each product or service
@@ -86,12 +86,12 @@
                     echo "<td style=\"opacity: 0.6;\">$truncatedName ({$product['idpk']})</td>";
                     echo "<td style=\"opacity: 0.6;\">inventory not managed</td>";
                     echo "<td style=\"opacity: 0.6;\">inventory not managed</td>";
-                    echo "<td style=\"opacity: 0.6;\">$truncatedPersonalNotes</td>";
+                    echo "<td style=\"opacity: 0.6;\"><div style=\"opacity: 0.5;\">$truncatedPersonalNotes</div></td>";
                 } else {
                     echo "<td>$truncatedName ({$product['idpk']})</td>";
                     echo "<td><input type=\"number\" id=\"InventoryAvailable_{$product['idpk']}\" name=\"InventoryAvailable\" value=\"" . htmlspecialchars($product['InventoryAvailable']) . "\" placeholder=\"0\" style=\"width: 100px;\" onchange=\"updateInventory({$product['idpk']}, 'InventoryAvailable', this.value)\"></td>";
                     echo "<td><input type=\"number\" id=\"InventoryInProduction_{$product['idpk']}\" name=\"InventoryInProduction\" value=\"" . htmlspecialchars($product['InventoryInProduction']) . "\" placeholder=\"0\" style=\"width: 100px;\" onchange=\"updateInventory({$product['idpk']}, 'InventoryInProduction', this.value)\"></td>";
-                    echo "<td>$truncatedPersonalNotes</td>";
+                    echo "<td><div style=\"opacity: 0.5;\">$truncatedPersonalNotes</div></td>";
                 }
                 echo "</tr>";
                 echo "<tr></tr>"; // additional line after each product or service
@@ -100,7 +100,7 @@
 
         // Display message only if there are no products at all
         if (empty($activeProducts) && empty($inactiveProducts)) {
-            echo "<tr><td colspan='5' align='center'>please <a href=\"index.php?content=products.php\">CREATE NEW PRODUCTS</a> so they can be shown here</td></tr>";
+            echo "<tr><td colspan='5' align='center'>please create new <a href=\"index.php?content=products.php\">📦 PRODUCTS AND SERVICES</a> so they can be shown here</td></tr>";
         }
 
         echo '</table>';

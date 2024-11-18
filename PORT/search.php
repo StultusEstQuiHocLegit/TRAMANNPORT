@@ -62,11 +62,11 @@ function displayProductRow($product, $highlight = false, $user_id = null) {
     echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$ $shippingPrice</td>";
     
     // Links
-    echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>more</a></td>";  // show link
+    echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>👁️ MORE</a></td>";  // show link
     if ($canManage) {
-        echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>edit</a></td>";  // manage link
+        echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";  // manage link
     } else {
-        echo "<td><a href='index.php?content=explore.php&action=BuyProduct&idpk={$product['idpk']}'>buy</a></td>";  // buy link
+        echo "<td><a href='index.php?content=explore.php' onclick='addToCartGlow(event, {$product['idpk']})'>🛒 ADD TO CART</a></td>";  // add to cart link
     }
     echo "</tr>";
 }

@@ -1,3 +1,85 @@
+<script>
+    // JavaScript function to trigger the glow animation, log idpk, prevent link navigation, and add a database entry
+    function addToCartGlow(event, idpk) {
+        event.preventDefault(); // Prevent the link from navigating
+        
+        console.log("Product idpk:", idpk); // Log the idpk to the console
+    
+        const glowElement = document.getElementById('glowEffect');
+        
+        // Reset the animation by setting it to 'none' and forcing a reflow
+        glowElement.style.animation = 'none';
+        void glowElement.offsetWidth; // Trigger a reflow, flushing the CSS changes
+        
+        // Reapply the animation
+        glowElement.style.animation = 'glow 2.5s forwards';
+        
+        // Get the user_id from cookies
+        const user_id = getCookie('user_id');
+        if (!user_id) {
+            console.error("User id not found. Cannot proceed.");
+            return; // Exit if user_id is missing
+        }
+    
+        // Send an AJAX request to add the transaction to the database
+        fetch('SaveDataShowProduct.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                idpk: idpk,
+                user_id: user_id
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Transaction added successfully.");
+            } else {
+                console.error("Failed to add transaction:", data.error);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+    
+    // Helper function to get a cookie by name
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null; // Return null if cookie is not found
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <?php
 // Check if action and idpk are set
 if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['idpk'])) {
@@ -173,16 +255,21 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['
         echo "<table style='width: 100%;'>";
         echo "<tr>";
         // Top left cell: Selling price and packaging/shipping price
+            // Function to format the shipping price
+            function formatShippingPrice($shippingPrice) {
+                return (!empty($shippingPrice) && $shippingPrice != 0) ? "(+$shippingPrice\$)" : '';
+            }
+            $shippingPrice = formatShippingPrice($product['SellingPricePackagingAndShippingInDollars']);
         echo "<td style='text-align: center;'>";
-        echo "" . htmlspecialchars($product['SellingPriceProductOrServiceInDollars']) . "$ (+" . htmlspecialchars($product['SellingPricePackagingAndShippingInDollars']) . "$)";
+        echo "{$product['SellingPriceProductOrServiceInDollars']}$ $shippingPrice";
         echo "</td>";
 
         // Top right cell: Buy/Edit button
         echo "<td style='text-align: center;'>";
         if ($canManage) {
-            echo "<a href='index.php?content=products.php&action=update&idpk=" . htmlspecialchars($product['idpk']) . "' class='mainbutton'>EDIT</a>";
+            echo "<a href='index.php?content=products.php&action=update&idpk=" . htmlspecialchars($product['idpk']) . "' class='mainbutton'>✏️ EDIT</a>";
         } else {
-            echo "<a href='index.php?content=explore.php&action=BuyProduct&idpk=" . htmlspecialchars($product['idpk']) . "' class='mainbutton'>BUY</a>";
+            echo "<a href='index.php?content=explore.php' onclick='addToCartGlow(event, {$product['idpk']})' class='mainbutton'>🛒 ADD TO CART</a>";
         }
         echo "</td>";
         echo "</tr>";

@@ -1,5 +1,81 @@
-<h1>PRODUCTS AND SERVICES</h1>
+<h1>📦 PRODUCTS AND SERVICES</h1>
 <?php
+if (
+    isset($_GET['action']) && $_GET['action'] === 'deleteProductPicture' &&
+    isset($_GET['idpk']) && isset($_GET['slot'])
+) {
+    $idpk = htmlspecialchars($_GET['idpk']);
+    $slot = (int) $_GET['slot']; // Ensure slot is an integer
+    $user_id = isset($_COOKIE['user_id']) ? (int)$_COOKIE['user_id'] : null;
+
+    // Verify user ownership via the database
+    try {
+        $dsn = "mysql:host=$mysqlDbServer;dbname=$mysqlDbName;charset=utf8";
+        $pdo = new PDO($dsn, $mysqlDbUser, $mysqlDbPassword);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // Query the database to ensure the user owns the product
+        $stmt = $pdo->prepare("SELECT * FROM ProductsAndServices WHERE idpk = ? AND IdpkCreator = ?");
+        $stmt->execute([$idpk, $user_id]);
+
+        // Check if the product exists and is owned by the user
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$product) {
+            echo "You are not authorized to delete this product picture.";
+            exit;
+        }
+    } catch (PDOException $e) {
+        echo "Database error: " . $e->getMessage();
+        exit;
+    }
+
+    // Define the valid extensions and upload directory
+    $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    $uploadDir = "uploads/ProductPictures/" . $idpk . "_";
+
+    // Try to delete the specified slot's picture
+    $deleted = false;
+    foreach ($validExtensions as $extension) {
+        $filePath = "{$uploadDir}{$slot}.{$extension}";
+        if (file_exists($filePath)) {
+            if (unlink($filePath)) {
+                $deleted = true;
+                break;
+            }
+        }
+    }
+
+    if ($deleted) {
+    } else {
+        // echo "The product picture couldn't be found or deleted.";
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Check if action and idpk are set
 if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GET['idpk'])) {
     // Retrieve the idpk from the URL
@@ -278,7 +354,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
         <!-- Div for editing existing products -->
         <div id="editProductDiv" class="steps">
             <div align=center>
-                <h3>UPDATE</h3>
+                <h3>✏️ EDIT</h3>
             </div>
             <form id="editProductForm" action="index.php?content=products.php&action=updateDatabase&idpk=<?php echo $product['idpk']; ?>" method="post" enctype="multipart/form-data" onsubmit="event.preventDefault(); submitFormUpdateProduct();">
                 <!-- tell that this is the form for creating -->
@@ -322,39 +398,19 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                 ?>
                 
                 <br><br><br><br><br>
-                <?php if (isset($imagePaths[0]) && file_exists($imagePaths[0])): ?>
-                    <br><br><img src="<?php echo $imagePaths[0]; ?>" style="height:300px;"><br>
-                <?php endif; ?>
-                <input type="file" name="ProductPicture0" id="ProductPicture0" accept="image/*">
-                <label for="ProductPicture0"><br>Upload main product picture</label>
-                
-                <br><br>
-                <?php if (isset($imagePaths[1]) && file_exists($imagePaths[1])): ?>
-                    <br><br><img src="<?php echo $imagePaths[1]; ?>" style="height:300px;"><br>
-                <?php endif; ?>
-                <input type="file" name="ProductPicture1" id="ProductPicture1" accept="image/*">
-                <label for="ProductPicture1"><br>Upload additional product picture</label>
-                
-                <br><br>
-                <?php if (isset($imagePaths[2]) && file_exists($imagePaths[2])): ?>
-                    <br><br><img src="<?php echo $imagePaths[2]; ?>" style="height:300px;"><br>
-                <?php endif; ?>
-                <input type="file" name="ProductPicture2" id="ProductPicture2" accept="image/*">
-                <label for="ProductPicture2"><br>Upload additional product picture</label>
-                
-                <br><br>
-                <?php if (isset($imagePaths[3]) && file_exists($imagePaths[3])): ?>
-                    <br><br><img src="<?php echo $imagePaths[3]; ?>" style="height:300px;"><br>
-                <?php endif; ?>
-                <input type="file" name="ProductPicture3" id="ProductPicture3" accept="image/*">
-                <label for="ProductPicture3"><br>Upload additional product picture</label>
-                
-                <br><br>
-                <?php if (isset($imagePaths[4]) && file_exists($imagePaths[4])): ?>
-                    <br><br><img src="<?php echo $imagePaths[4]; ?>" style="height:300px;"><br>
-                <?php endif; ?>
-                <input type="file" name="ProductPicture4" id="ProductPicture4" accept="image/*">
-                <label for="ProductPicture4"><br>Upload additional product picture</label>
+                <?php for ($i = 0; $i < 5; $i++): ?>
+                    <?php if (isset($imagePaths[$i])): ?>
+                        <br><br>
+                        <img src="<?php echo $imagePaths[$i]; ?>" style="height:300px;"><br>
+                        <br><br><a href="index.php?content=products.php&action=deleteProductPicture&idpk=<?php echo htmlspecialchars($product['idpk']); ?>&slot=<?php echo $i; ?>" onclick="return confirm('Are you sure you want to delete this picture?');" style="opacity: 0.5;">❌ REMOVE</a>
+                        <br><br>
+                        <?php endif; ?>
+                    <input type="file" name="ProductPicture<?php echo $i; ?>" id="ProductPicture<?php echo $i; ?>" accept="image/*">
+                    <label for="ProductPicture<?php echo $i; ?>">
+                        <br><?php echo ($i === 0) ? "upload main product picture" : "upload additional product picture"; ?>
+                    </label>
+                    <br><br>
+                <?php endfor; ?>
 
                 <!-- Short Description -->
                 <br><br><br><br><br>
@@ -444,10 +500,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                 <br><br><br><br><br>
                 <div align=center>
                     <!-- Submit button for updating product -->
-                    <!-- <a href="javascript:void(0);" class="mainbutton" onclick="submitFormUpdateProduct()">SAVE</a> -->
+                    <!-- <a href="javascript:void(0);" class="mainbutton" onclick="submitFormUpdateProduct()">↗️ SAVE</a> -->
                     <?php
-                        // echo "<a href='index.php?content=products.php&action=updateDatabase&idpk={$product['idpk']}' class='mainbutton' onclick='submitFormUpdateProduct()'>SAVE</a>";
-                        echo "<a href='javascript:void(0);' class='mainbutton' onclick='submitFormUpdateProduct()'>SAVE</a>";
+                        // echo "<a href='index.php?content=products.php&action=updateDatabase&idpk={$product['idpk']}' class='mainbutton' onclick='submitFormUpdateProduct()'>↗️ SAVE</a>";
+                        echo "<a href='javascript:void(0);' class='mainbutton' onclick='submitFormUpdateProduct()'>↗️ SAVE</a>";
                     ?>
                 </div>
             </form>
@@ -980,7 +1036,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 
 
 <!-- Button to toggle showing the create product form -->
-<a href="javascript:void(0)" id="createNewProductButton" class="button" onclick="showCreateProduct()">CREATE NEW PRODUCT OR SERVICE</a>
+<a href="javascript:void(0)" id="createNewProductButton" class="button" onclick="showCreateProduct()">📦 CREATE NEW PRODUCT OR SERVICE</a>
 
 
 
@@ -990,7 +1046,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 <!-- Div for creating new products (hidden by default) -->
 <div id="createProductDiv" class="steps" style="display: none;">
     <div align=center>
-        <h3>CREATE</h3>
+        <h3>📦 CREATE</h3>
     </div>
     <form id="createProductForm" onsubmit="submitFormCreateProduct()" action="" method="post" enctype="multipart/form-data">
         <!-- tell that this is the form for creating -->
@@ -1108,7 +1164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         <br><br><br><br><br>
         <div align=center>
             <!-- Submit button for creating product -->
-            <a href="javascript:void(0);" class="mainbutton" onclick="submitFormCreateProduct()">SAVE</a>
+            <a href="javascript:void(0);" class="mainbutton" onclick="submitFormCreateProduct()">↗️ SAVE</a>
         </div>
     </form>
 </div>
@@ -1180,14 +1236,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 
                 echo "<tr>";
                 echo "<td>$truncatedName ({$product['idpk']})</td>";
-                echo "<td>$truncatedDescription</td>";
+                echo "<td><div style=\"opacity: 0.5;\">$truncatedDescription</div></td>";
                 echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$</td>";
                 echo "<td>$shippingPrice</td>";
-                echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>more</a></td>";
-                // echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>more</a></td>";
+                echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";
+                // echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>✏️ EDIT</a></td>";
                 // hidden field to transfer the idpk of the product or service
                     echo "<input type='hidden' class='editProductId' id='editProductId' value='{$product['idpk']}'>";
-                echo "<td>$truncatedPersonalNotes</td>";
+                echo "<td><div style=\"opacity: 0.5;\">$truncatedPersonalNotes</div></td>";
                 echo "</tr>";
                 echo "<tr></tr>"; // additional line after each product or service
             }
@@ -1211,14 +1267,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 
                 echo "<tr $opacityStyle>";
                 echo "<td>$truncatedName ({$product['idpk']})</td>";
-                echo "<td>$truncatedDescription</td>";
+                echo "<td><div style=\"opacity: 0.5;\">$truncatedDescription</div></td>";
                 echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$</td>";
                 echo "<td>$shippingPrice</td>";
-                echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>more</a></td>";
-                // echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>more</a></td>";
+                echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";
+                // echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>✏️ EDIT</a></td>";
                 // hidden field to transfer the idpk of the product or service
                     echo "<input type='hidden' class='editProductId' id='editProductId' value='{$product['idpk']}'>";
-                echo "<td>$truncatedPersonalNotes</td>";
+                echo "<td><div style=\"opacity: 0.5;\">$truncatedPersonalNotes</div></td>";
                 echo "</tr>";
                 echo "<tr></tr>"; // additional line after each product or service
             }
@@ -1226,7 +1282,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 
         // Display message only if there are no products at all
         if (empty($activeProducts) && empty($inactiveProducts)) {
-            echo "<tr><td colspan='5' align='center'>please <a href=\"index.php?content=products.php\">CREATE NEW PRODUCTS</a> so they can be shown here</td></tr>";
+            echo "<tr><td colspan='5' align='center'>please create new products and services so they can be shown here by clicking on the button above</td></tr>";
         }
 
         echo '</table>';

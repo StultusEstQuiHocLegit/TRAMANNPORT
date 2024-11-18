@@ -67,7 +67,7 @@ echo "<div class=\"content\">";
 
 
 <div class="login-container">
-    <h1>COME ON BOARD</h1> <!-- Main heading -->
+    <h1>🗝️ COME ON BOARD</h1> <!-- Main heading -->
 
     <?php if (isset($error_message)): ?>
         <?= htmlspecialchars($error_message) ?> <!-- Display error message -->
@@ -75,8 +75,8 @@ echo "<div class=\"content\">";
     <?php endif; ?>
 
     <div class="links"> <!-- Links for creating account -->
-        <br>
-        <a href="index.php?content=CreateAccount.php" class="mainbutton">CREATE AN ACCOUNT</a>
+        <br><br>
+        <a href="index.php?content=CreateAccount.php" class="mainbutton">⚙️ CREATE ACCOUNT</a>
 
         <br><br><br><br>
         <!-- <h3> - - - - - OR - - - - - </h3> -->
@@ -99,12 +99,12 @@ echo "<div class=\"content\">";
         <!-- </div> -->
         
         <br><br>
-        <a href="javascript:void(0);" class="mainbutton" onclick="submitForm()">LOG IN</a>
+        <a href="javascript:void(0);" class="mainbutton" onclick="submitForm()">🗝️ LOG IN</a>
     </form>
 
     <div class="links"> <!-- Links for forgot password -->
         <br><br><br>
-        <a href="index.php?content=ForgotPassword.php" style="opacity: 0.4;">FORGOT YOUR PASSWORD?</a>
+        <a href="index.php?content=ForgotPassword.php" style="opacity: 0.4;">🧠 FORGOT YOUR PASSWORD?</a>
     </div>
 </div>
 

@@ -91,6 +91,8 @@ try {
             include("account.php");
         } elseif ($content === 'ForgotPassword.php') {
             include("ForgotPassword.php");
+        } elseif ($content === 'menu.php') {
+            include("menu.php");
         } elseif ($content === 'logout.php') {
             echo "<script>window.location.href = 'logout.php';</script>";
         } else {
@@ -125,6 +127,8 @@ try {
             include("account.php");
         } elseif ($content === 'ForgotPassword.php') {
             include("ForgotPassword.php");
+        } elseif ($content === 'menu.php') {
+            include("menu.php");
         } elseif ($content === 'logout.php') {
             echo "<script>window.location.href = 'logout.php';</script>";
         } elseif ($content === 'YourWebsite.php') {

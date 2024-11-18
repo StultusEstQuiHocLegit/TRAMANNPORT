@@ -55,7 +55,7 @@ function submitForm() {
 </script>
 
 <div class="login-container">
-    <h1>FORGOT PASSWORD</h1> <!-- Main heading -->
+    <h1>🧠 FORGOT PASSWORD</h1> <!-- Main heading -->
 
     <?php if (isset($error_message)): ?>
         <?= htmlspecialchars($error_message) ?> <!-- Display error message -->
@@ -68,11 +68,11 @@ function submitForm() {
     <form id="forgotPasswordForm" action="" method="post"> <!-- Form -->
         <input type="email" id="email" name="email" placeholder="email" style="width: 300px;" required> <!-- Email input -->
         <br><br>
-        <a href="javascript:void(0);" class="mainbutton" onclick="submitForm()">GET NEW PASSWORD</a>
+        <a href="javascript:void(0);" class="mainbutton" onclick="submitForm()">✉️ GET NEW PASSWORD</a>
     </form>
 
     <div class="links"> <!-- Links for creating account and forgot password -->
-        <br><br><br><br><br><a href="index.php?content=login.php">BACK TO LOGIN</a>
+        <br><br><br><br><br><a href="index.php?content=login.php">🗝️ BACK TO LOGIN</a>
     </div>
 </div>
 

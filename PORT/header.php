@@ -29,6 +29,7 @@ body {
 <body>
 <div class="header">
     <a href="javascript:void(0);" title="TRAMANN" id="dropdownMenuLogo">
+    <div id="glowEffect"></div>
     
     <?php
             // Check if the user is logged in using cookies
@@ -79,78 +80,25 @@ body {
             }
     echo "</a><div id=\"dropdownMenu\">";
 
-            if ($isLoggedIn && $userRole !== null) {
-                // User is logged in
-                if ($userRole === 0) {
-                    // Show Explorer links
-                    echo "<br><a href=\"index.php?content=explore.php\">EXPLORE</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=cart.php\">SHOPPING CART</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=PreviousCarts.php\">PREVIOUS CARTS</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=account.php\">ACCOUNT</a>";
-                } elseif ($userRole === 1) {
-                    // Show Creator links
-                    echo "<br><a href=\"index.php?content=dashboard.php\">DASHBOARD</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=orders.php\">ORDERS</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=inventory.php\">INVENTORY</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=products.php\">PRODUCTS AND SERVICES</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=ExplorersCustomers.php\">EXPLORERS (CUSTOMERS)</a>";
-                    echo "<br>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=CreatorsSuppliers.php\">CREATORS (SUPPLIERS)</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=explore.php\">EXPLORE</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=cart.php\">SOURCING CART</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=PreviousCarts.php\">PREVIOUS CARTS</a>";
-                    echo "<br>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=accounting.php\">ACCOUNTING</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=help.php\">HELP</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=account.php\">ACCOUNT</a>";
-                    echo "<br>";
-                    echo "<br><a href=\"index.php?content=YourWebsite.php\">YOUR WEBSITE</a>";
-                }
-            } else {
-                // User is not logged in
-                echo "<br><a href=\"index.php?content=login.php\">COME ON BOARD</a>";
-            }
-        ?>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br><a href="https://github.com/StultusEstQuiHocLegit/TRAMANNPORT/" target="_blank">GITHUB</a>
-        <br>
-        <br>
-        <br>
-        <br><a href="mailto:hi@tramann-projects.com?subject=Hi  : )&body=Hi,%0D%0A%0D%0A%0D%0A[ContentOfYourMessage]%0D%0A%0D%0A%0D%0A%0D%0AWith best regards,%0D%0A[YourName]" title="Always at your service   : )">CONTACT US   : )</a>
-        <br>
-        <br>
-        <br>
-        <br><a href="../index.php">BACK TO TRAMANN PROJECTS</a>
-        <br>
-        <br>
-        <br>
-        <div style="opacity: 0.2;">
-            <br><a href="../imprint.php">IMPRINT</a>
-            <br>
-            <br><a href="../DataSecurity.php">DATA SECURITY</a>
-            <br>
-            <br><a href="../license.php">LICENSE</a>
-            <br>
-            <br>
-            <br>
-        </div>
+                                    // Query to check if there are any pending transactions (state = 0) for the user
+                                    $query = "SELECT COUNT(*) FROM transactions WHERE IdpkExplorer = :user_id AND state = 0";
+                                    $stmt = $pdo->prepare($query);
+                                    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                                    $stmt->execute();
+
+                                    // Get the result (number of pending transactions)
+                                    $pendingTransactions = $stmt->fetchColumn();
+
+                                    // Conditionally apply inline CSS for the "SHOPPING CART" link and the "SOURCING CART" link
+                                    // $borderStyle = ($pendingTransactions > 0) ? 'border: 3px solid yellow; padding: 2px;' : '';
+                                    // $borderStyle = ($pendingTransactions > 0) ? ';' : '';
+                                    $borderStyle = ($pendingTransactions > 0) ? 'background-color: #505050; padding: 5px;' : '';
+
+                                    // Conditionally display the number of pending transactions
+                                    $pendingText = ($pendingTransactions > 0) ? "($pendingTransactions)" : '';
+
+                                    include ("menu.php"); // Include the menu
+            ?>
     </div>
 </div>
 <!-- // ///////////////////////////////////////////// old version:
@@ -178,6 +126,15 @@ body {
 // for dropdown menu
 document.getElementById("dropdownMenuLogo").addEventListener("click", function(event) {
     event.stopPropagation(); // prevents the instant closing if there is a click on the dropdownMenuLogo
+
+    // Check the screen width for redirection
+    if (window.innerWidth <= 1024) {
+        // Redirect to the menu page
+        window.location.href = "index.php?content=menu.php";
+        return; // Exit the function to avoid further execution
+    }
+
+    // Toggle the dropdown menu visibility
     var dropdown = document.getElementById("dropdownMenu");
     if (dropdown.style.display === "block") {
         dropdown.style.display = "none";

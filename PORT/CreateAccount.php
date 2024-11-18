@@ -111,13 +111,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $personalToDoList = "Welcome on board, we are very happy to have you with us   : )\n\n" . 
                             "please mind the white TRAMANN logo in the top left corner of your screen," . 
                             "by clicking on it, you can open the menu\n\n" . 
-                            "your first to-dos are:\n" .
+                            "your first things to do are:\n" .
                             "- click through the pages in the menu and get familiar with TRAMANN PORT\n" . 
                             "- visit - ACCOUNT - and upload your logo\n" . 
                             "- head over to - PRODUCTS AND SERVICES - and start adding them\n" . 
                             "- go to - YOUR WEBSITE - and customize it\n" . 
                             "- tell your friends about your new account and website\n" . 
-                            "- replace these to-dos with your new own ones";
+                            "- replace these things to do with your new own ones";
 
         $personalCollectionOfLinks = "first, click on this field to start the editing mode," .
                                      "then add links to other distribution channels," . 
@@ -267,10 +267,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 <div class="registration-container">
-    <h1>CREATE ACCOUNT</h1> <!-- Main heading -->
+    <h1>⚙️ CREATE ACCOUNT</h1> <!-- Main heading -->
 
     <div> <!-- link for login instead -->
-        Already have an account? <a href="index.php?content=login.php">GO TO LOGIN!</a>
+        Already have an account? <a href="index.php?content=login.php">🗝️ GO TO LOGIN!</a>
         <br><br><br><br><br>
     </div>
 
@@ -447,7 +447,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
         
         <br><br><br><br><br>
-        <a href="javascript:void(0);" class="mainbutton" onclick="submitForm()">CREATE ACCOUNT</a>
+        <a href="javascript:void(0);" class="mainbutton" onclick="submitForm()">↗️ SAVE</a>
     </form>
 </div>
 

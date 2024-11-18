@@ -7,7 +7,7 @@
   powered by open source code and the spirit to change the world for good.
   <br>
   <br>
-  <br><a href="./index.php?content=login.php" class="mainbutton" title="Adventure awaits, off to new shores and unknown lands!"><h3>COME ON BOARD</h3></a>
+  <br><a href="./index.php?content=login.php" class="mainbutton" title="Adventure awaits, off to new shores and unknown lands!"><h3>🗝️ COME ON BOARD</h3></a>
   <br>
   <br>
   <br>
@@ -15,7 +15,7 @@
   <br>
   <br>
   <br>
-  <h3>ONLY 1% PER TRANSACTION, NO OTHER COSTS</h3>
+  <h3>🥇 ONLY 1% PER TRANSACTION, NO OTHER COSTS</h3>
     <table>
       <tr>
         <td width="50%"; style="text-align:center;">
@@ -40,7 +40,7 @@
     <br>
     <br>
     <br>
-  <h3>SIMPLE</h3>
+  <h3>🎯 SIMPLE</h3>
     Start exploring interesting new products in under five minutes.
     <br>
     <br>Start your own online business with shop and website in under 20 minutes.
@@ -49,7 +49,7 @@
     <br>
     <br>
     <br>
-  <h3>NO ADVERTISEMENT ON OUR PLATFORM</h3>
+  <h3>🚫 NO ADVERTISEMENT ON OUR PLATFORM</h3>
     We have no distracting advertisements, sponsored goods or commercials on our platform.
     Here only the quality of the products counts
     so that we all can focus on building great products for great people.
@@ -60,7 +60,7 @@
     <br>
     <br>
     <br>
-  <h3>TRUSTED BY THE WORLD (AT LEAST A PART OF IT ; ) )</h3>
+  <h3>🌐 TRUSTED BY THE WORLD (AT LEAST A PART OF IT ; ) )</h3>
     <div class="stats-container">
       <div class="stat-item">
         <span class="stat-number">over 20</span>
@@ -82,19 +82,19 @@
     <br>
     <br>
     <br>
-  <h3>OPEN SOURCE AND TRANSPARENT</h3>
+  <h3>✨ OPEN SOURCE AND TRANSPARENT</h3>
     Trust is the basis of all cooperation, business and progress as a whole.
     Trust is based on openness and transparency.
     That's why we have designed everything to be open.
     We want you to be able to understand, build and modify everything yourself.
     <br>
-    <br>You can find our source code on <a href="https://github.com/StultusEstQuiHocLegit/TRAMANNPORT/" target="_blank">GITHUB</a>.
+    <br>You can find our source code on <a href="https://github.com/StultusEstQuiHocLegit/TRAMANNPORT/" target="_blank">🔧 GITHUB</a>.
     <br>
     <br>
     <br>
     <br>
     <br>
-  <h3>BUILDING AND GROWING TOGETHER</h3>
+  <h3>🤝 BUILDING AND GROWING TOGETHER</h3>
     Together we can build a better future and enable a better, fairer
     and more transparent form of business and trade.
     <br>
@@ -102,4 +102,4 @@
   <br>
   <br>
   <br>
-  <br><a href="./index.php?content=login.php" class="mainbutton" title="Adventure awaits, off to new shores and unknown lands!"><h3>COME ON BOARD</h3></a>
+  <br><a href="./index.php?content=login.php" class="mainbutton" title="Adventure awaits, off to new shores and unknown lands!"><h3>🗝️ COME ON BOARD</h3></a>

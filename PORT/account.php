@@ -1,4 +1,57 @@
 <?php
+if (isset($_GET['action']) && $_GET['action'] === 'deleteProfilePicture' && isset($_GET['idpk'])) {
+    $idpk = $_COOKIE['user_id'];
+    $imageExtensions = ['png', 'jpg', 'jpeg', 'svg', 'gif'];
+    $uploadDir = './uploads/AccountPictures/';
+    $deleted = false;
+
+    foreach ($imageExtensions as $ext) {
+        $potentialPath = $uploadDir . $idpk . '.' . $ext;
+        if (file_exists($potentialPath)) {
+            if (unlink($potentialPath)) {
+                $deleted = true;
+                break;
+            }
+        }
+    }
+
+    if ($deleted) {
+        // echo "Profile picture successfully removed.";
+    } else {
+        // echo "No profile picture found to delete.";
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Check if the form was submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Initialize an array to hold error messages
@@ -6,7 +59,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Check required fields
     $requiredFields = [
-        'email', 
+        'email',
+        'password',
         'FirstName', 
         'LastName', 
         'street', 
@@ -88,10 +142,24 @@ try {
     $pdo = new PDO($dsn, $mysqlDbUser, $mysqlDbPassword);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Retrieve the form data
+    $existingPassword = $_POST['password']; // hidden field with the current hashed password
+    $newPassword = $_POST['NewPassword'];
+
+    // Decide which password to use
+    if (!empty($newPassword)) {
+        // If a new password is provided, hash it
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+    } else {
+        // Otherwise, use the existing hashed password
+        $hashedPassword = $existingPassword;
+    }
+
     // Prepare the update statement with all relevant fields
     $stmt = $pdo->prepare('
         UPDATE ExplorersAndCreators SET 
             email = :email,
+            password = :password,
             PhoneNumber = :PhoneNumber,
             FirstName = :FirstName,
             LastName = :LastName, 
@@ -135,6 +203,7 @@ try {
 
     // Bind parameters
     $stmt->bindParam(':email', $_POST['email'], PDO::PARAM_STR);
+    $stmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
     $stmt->bindParam(':PhoneNumber', $_POST['PhoneNumber'], PDO::PARAM_STR);
     $stmt->bindParam(':FirstName', $_POST['FirstName'], PDO::PARAM_STR);
     $stmt->bindParam(':LastName', $_POST['LastName'], PDO::PARAM_STR);
@@ -230,6 +299,19 @@ try {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script>
     function toggleCreatorFields() {
         var creatorFields = document.getElementById('creatorFields');
@@ -257,6 +339,8 @@ try {
             'IBAN'
         ];
 
+        
+        
         requiredFields.forEach(function(field) {
             const input = document.getElementById(field);
             if (!input.value.trim()) {
@@ -278,7 +362,7 @@ try {
 
 
 <div class="registration-container">
-    <h1>ACCOUNT</h1>
+    <h1>⚙️ ACCOUNT</h1>
 
     <form id="updateAccountForm" action="" method="post" enctype="multipart/form-data">
         <div class="steps">
@@ -289,7 +373,11 @@ try {
             <label for="email">email*<br><div style="opacity: 0.4;">(* means that this field is required)</div></label>
 
             <br>
-            <a href="index.php?content=ForgotPassword.php" style="opacity: 0.4;">CREATE NEW PASSWORD</a>
+            <!-- <a href="index.php?content=ForgotPassword.php" style="opacity: 0.4;">CREATE NEW PASSWORD</a> -->
+            <!-- hidden field to have a value if no other valie is given -->
+            <input type="hidden" id="password" name="password" value="<?php echo htmlspecialchars($user['password']); ?>" placeholder="something easy to remember, but hard to guess" style="width: 300px;" required>
+            <div style="opacity: 0.4;"><input type="text" id="NewPassword" name="NewPassword" placeholder="just enter if you want to change it" style="width: 300px;">
+            <label for="NewPassword">new password (if wished)</label></div>
 
             <br><br>
             <input type="number" id="PhoneNumber" name="PhoneNumber" value="<?php echo htmlspecialchars($user['PhoneNumber']); ?>" placeholder="not required, but it increases your security" style="width: 300px;">
@@ -322,6 +410,7 @@ try {
                 if ($profilePicturePath) {
                     // Output the image tag for the found profile picture
                     echo "<img src=\"$profilePicturePath\" style=\"height:150px;\">";
+                    echo "<br><br><a href=\"javascript:void(0);\" onclick=\"confirmRemoval()\" style='opacity: 0.5;'>❌ REMOVE</a>";
                 } else {
                     // If no profile picture is found, display nothing
                 }
@@ -491,15 +580,28 @@ try {
             </div>
         </div>
         <br><br><br><br><br>
-        <a href="javascript:void(0);" class="mainbutton" onclick="submitForm()">SAVE</a>
+        <a href="javascript:void(0);" class="mainbutton" onclick="submitForm()">↗️ SAVE</a>
     </form>
 </div>
 
 
 <br><br><br><br><br>
 <div style="opacity: 0.2;">
-    <a href="index.php?content=logout.php">LOGOUT</a>
+    <a href="index.php?content=logout.php">🚪 LOGOUT</a>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -515,6 +617,17 @@ try {
 
 
 <script>
+function confirmRemoval() {
+    const confirmation = confirm("Are you sure you want to remove your profile picture?");
+    if (confirmation) {
+        window.location.href = "index.php?content=account.php&action=deleteProfilePicture&idpk=<?php echo htmlspecialchars($idpk); ?>";
+    }
+}
+
+
+
+
+
 // // Function to update the display area with clickable shortened links
 // function updateDisplay() {
 //     const text = document.getElementById("LinksToSocialMediaAndOtherSites").value;
@@ -542,7 +655,7 @@ function updateDisplay() {
         const fullUrl = `https://${hostname}${pathname}`;
 
         // Remove 'www.' if present
-        const displayDomain = hostname.replace('www.', '');
+        const displayDomain = hostname.replace('www.', '').toUpperCase(); // Convert domain to uppercase
 
         // Remove TLDs from hostname
         const domainParts = displayDomain.split('.');
@@ -556,8 +669,8 @@ function updateDisplay() {
         const limitedDomain = cleanDomain.length > 20 ? cleanDomain.substring(0, 20) + '...' : cleanDomain;
         const limitedPageName = pageName.length > 20 ? pageName.substring(0, 20) + '...' : pageName;
 
-        // Create the display text
-        const displayText = pageName ? `${limitedDomain} (${limitedPageName})` : limitedDomain;
+        // Convert page name to uppercase if present
+        const displayText = pageName ? `${limitedDomain} (${limitedPageName.toUpperCase()})` : limitedDomain;
 
         return `<a href="${fullUrl}" target="_blank" class="link">${displayText}</a>`;
     });
