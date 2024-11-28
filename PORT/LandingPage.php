@@ -3,7 +3,7 @@
     <!-- An open source shopping platform that brings more value to buyers and sellers. -->
     Get your own online shop and website on our open source platform for just 1% per transaction.
   </p>
-  Start for free, only 1% per transaction, simple to use, no advertisement,
+  Start for free, only 3% per transaction, simple to use, no advertisement,
   powered by open source code and the spirit to change the world for good.
   <br>
   <br>
@@ -15,16 +15,16 @@
   <br>
   <br>
   <br>
-  <h3>🥇 ONLY 1% PER TRANSACTION, NO OTHER COSTS</h3>
+  <h3>🥇 ONLY 3% PER TRANSACTION, NO OTHER COSTS</h3>
     <table>
       <tr>
         <td width="50%"; style="text-align:center;">
     Most other platforms have confusing price structures with fixed fees,
     listing fees, transaction fees and much more, which usually add up to 15% to 30%.
-    We think this is far too high for a simple website and therefore only take 1%, quite simply,
+    We think this is far too high for a simple website and therefore only take 3%, quite simply,
     plus you can start your own shop and website for free.
     This leaves more value for explorers who are looking for products and creators who offer them.
-    <!-- We take only 1% per transaction, closing the gap between buyers and sellers and thus bringing them, bringing you more value. -->
+    <!-- We take only 3% per transaction, closing the gap between buyers and sellers and thus bringing them, bringing you more value. -->
     <br>
     <br>Buy at a better price and support your favorite creators.
     <br>
