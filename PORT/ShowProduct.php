@@ -301,7 +301,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['
         // Display the creator information in the table cell
         echo "<tr>";
         // Bottom left cell: CompanyName, Idpk, and level
-        echo "<td style='text-align: center;'><a href='index.php?content=explore.php&action=ShowCreator&idpk=" . $creatorId . "'>";
+        echo "<td style='text-align: center;'><a href='index.php?content=explore.php&action=ShowCreatorOrExplorer&idpk=" . $creatorId . "'>";
 
                 // Define the possible image file extensions
                 $imageExtensions = ['png', 'jpg', 'jpeg', 'svg', 'gif'];
@@ -324,7 +324,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['
                 // Display the profile picture if it exists
                 if ($profilePicturePath) {
                     // Output the image tag for the found profile picture
-                    echo "<img src=\"$profilePicturePath\" style=\"height:50px;\"><br>";
+                    echo "<img src=\"$profilePicturePath\" style=\"height:50px;\"><br><br>";
                 } else {
                     // If no profile picture is found, display nothing
                 }

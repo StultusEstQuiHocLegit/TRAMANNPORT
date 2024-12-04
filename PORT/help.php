@@ -1,6 +1,6 @@
-<h1>📖 HELP</h1>
+<h1>📖 HEEELP!</h1>
 
-<br>If you shouldn't be able to find anything helpful below, please feel free to <a href="mailto:hi@tramann-projects.com?subject=Hi  : )&body=Hi,%0D%0A%0D%0A%0D%0A[ContentOfYourMessage]%0D%0A%0D%0A%0D%0A%0D%0AWith best regards,%0D%0A[YourName]" title="Always at your service   : )">✉️ CONTACT US   : )</a>
+<br>If you shouldn't be able to find anything helpful below, please feel free to <a href="mailto:hi@tramann-projects.com?subject=Hi  : )&body=Hi,%0D%0A%0D%0A%0D%0A[ContentOfYourMessage]%0D%0A%0D%0A%0D%0A%0D%0AWith best regards,%0D%0A[YourName]" title="always at your service   : )">✉️ CONTACT US   : )</a>
 
 <br><br><br><br><br>
 
@@ -27,6 +27,48 @@
 
         // Data for the topics: an array of objects with title and content
         const topics = [
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// app donwload
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    title: '📱 APP DOWNLOAD',
+    content: `
+        Download our app (apk file for android phones) by visiting this page with your mobile phone and then click on <a href=\"./DownloadApp/TRAMANN.apk\">📱 DOWNLOAD APP</a>
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure CalendarEvents
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    title: '🧬 DATABASE STRUCTURE CALENDAR EVENTS',
+    content: `
+        <br>
+        <strong>table name: CalendarEvents</strong>
+        <br><br>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
+        <br><br><br>
+        <table>
+            <thead>
+                <tr><th>field name</th><th>type</th><th>r</th><th>description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>idpk</td><td>int, auto increment, primary key</td><td>s*</td><td></td></tr>
+                <tr><td>IdpkExplorerOrCreator</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>EventName</td><td>varchar(255)</td><td>e*</td><td></td></tr>
+                <tr><td>EventDescription</td><td>text</td><td>e</td><td></td></tr>
+                <tr><td>AllDay</td><td>tinyint</td><td>e*</td><td>(0 = no, 1 = yes (standard))</td></tr>
+                <tr><td>StartTime</td><td>int</td><td>e*</td><td></td></tr>
+                <tr><td>EndTime</td><td>int</td><td>e*</td><td></td></tr>
+                <tr><td>location</td><td>varchar(255)</td><td>e</td><td></td></tr>
+                <tr><td>CreatedOn</td><td>timestamp</td><td>s*</td><td></td></tr>
+                <tr><td>UpdatedOn</td><td>timestamp</td><td>s*</td><td></td></tr>
+            </tbody>
+        </table>
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure ExplorersAndCreators
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
     title: '🧬 DATABASE STRUCTURE EXPLORERSANDCREATORS',
     content: `
@@ -119,6 +161,9 @@
         </table>
     `
 },
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure ProductsAndServices
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
     title: '🧬 DATABASE STRUCTURE PRODUCTSANDSERVICES',
     content: `
@@ -150,12 +195,16 @@
                 <tr><td>ManageInventory</td><td>tinyint</td><td>e</td><td>(0 = no, 1 = yes (standard))</td></tr>
                 <tr><td>InventoryAvailable</td><td>int</td><td>e</td><td style="opacity: 0.5;">(0 for services or if inventory is not managed)</td></tr>
                 <tr><td>InventoryInProduction</td><td>int</td><td>e</td><td style="opacity: 0.5;">(0 for services or if inventory is not managed)</td></tr>
+                <tr><td>InventoryMinimumLevel</td><td>int</td><td>e</td><td style="opacity: 0.5;">(0 for services or if inventory is not managed)</td></tr>
                 <tr><td>PersonalNotes</td><td>text</td><td>e</td><td></td></tr>
                 <tr><td>state</td><td>tinyint</td><td>e*</td><td>(0 = inactive, 1 = active (standard))</td></tr>
             </tbody>
         </table>
     `
 },
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure transactions
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
     title: '🧬 DATABASE STRUCTURE TRANSACTIONS',
     content: `
@@ -187,6 +236,9 @@
         </table>
     `
 },
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure carts
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
     title: '🧬 DATABASE STRUCTURE CARTS',
     content: `
@@ -213,7 +265,7 @@
                     3 = pick up in store, 4 = best matching wished ideal delivery time)
                 </td></tr>
                 <tr><td>WishedIdealDeliveryOrPickUpTime</td><td>int</td><td>e</td><td style="opacity: 0.5;">
-                    (show only, if DeliveryType is 4, for 3 show OpeningHours (from database ExplorersAndCreators) also)
+                    (show only, if DeliveryType is 3 or 4, for 3 show OpeningHours (from database ExplorersAndCreators) also)
                 </td></tr>
 
                 <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
@@ -231,6 +283,9 @@
         </table>
     `
 },
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// page structure
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
     title: '📚 PAGE STRUCTURE',
     content: `
@@ -239,6 +294,7 @@
             <br>
             <br>account.php
             <br>accounting.php
+            <br>calendar.php
             <br>cart.php
             <br>CreateAccount.php
             <br>CreatorsSuppliers.php
@@ -258,17 +314,23 @@
             <br>orders.php
             <br>PreviousCarts.php
             <br>products.php
+            <br>SaveDataCalendarGetEvents.php
+            <br>SaveDataCalendarSaveEvents.php
             <br>SaveDataCart.php
             <br>SaveDataDashboard.php
             <br>SaveDataInventory.php
+            <br>SaveDataOrders.php
             <br>SaveDataShowProduct.php
             <br>search.php
-            <br>ShowCreator.php
+            <br>ShowCreatorOrExplorer.php
             <br>ShowProduct.php
             <br>YourWebsite.php
         </div>
     `
 },
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// process of ordering
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
     title: '⛓️ PROCESS OF ORDERING',
     content: `
@@ -281,8 +343,8 @@
                 <tr><td>1 = ordered</td><td>explorer (or other creator)</td><td>clicked on - BUY NOW - in cart.php, carts are created in the table - carts -, TRAMANN PORT payment system gets triggered, additional email is send to system</td></tr>
                 <tr><td>2 = paid</td><td>system</td><td>TRAMANN PORT payment system is processing the payment and updating the table - transactions - accordingly, orders are from now on displayed in PreviousCarts.php (for explorer (or other creator))</td></tr>
                 <tr><td>3 = orders transmitted to creators</td><td>creators</td><td>orders are now displayed in dashboard.php (preview) and orders.php (for creators, - state - can be updated there)</td></tr>
-                <tr><td>4 = creators producing or selecting</td><td>creators</td><td>orders are now displayed in dashboard.php (preview) and orders.php (for creators, - state - can be updated there)</td></tr>
-                <tr><td>5 = creators shipping</td><td>creators</td><td>orders are from now on displayed in order.php (with lower opacity (old orders))</td></tr>
+                <tr><td>4 = creators producing or selecting</td><td>creators</td><td>orders are now displayed in dashboard.php (preview) and orders.php (for creators, - state - can be updated there), quantities are updated automatically too</td></tr>
+                <tr><td>5 = creators shipping</td><td>creators</td><td>orders are from now on displayed in order.php (with lower opacity and no longer editable (old orders))</td></tr>
                 <tr><td> 6 = in customs</td><td>freight forwarders</td><td>shipping</td></tr>
                 <tr><td>7 = at distribution center</td><td>freight forwarders</td><td>shipping</td></tr>
                 <tr><td>8 = arriving</td><td>freight forwarders</td><td>shipping</td></tr>

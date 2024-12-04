@@ -1,5 +1,25 @@
 <h1>📦 PRODUCTS AND SERVICES</h1>
+
 <?php
+$preselectedOption = "your_products_services"; // add preselected search option
+
+include ("explore.php"); // include explore.php for exploring and searching
+echo "<br><br><br><br><br>";
+?>
+
+
+
+
+
+
+
+
+
+<?php
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// delete product picture
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 if (
     isset($_GET['action']) && $_GET['action'] === 'deleteProductPicture' &&
     isset($_GET['idpk']) && isset($_GET['slot'])
@@ -75,6 +95,9 @@ if (
 
 
 
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// update product in database
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Check if action and idpk are set
 if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GET['idpk'])) {
@@ -130,6 +153,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
     $manageInventory = isset($_POST['ManageInventory']) ? (int) $_POST['ManageInventory'] : 1; // Default to yes (1)
     $inventoryAvailable = isset($_POST['InventoryAvailable']) ? (int) $_POST['InventoryAvailable'] : null;
     $inventoryInProduction = isset($_POST['InventoryInProduction']) ? (int) $_POST['InventoryInProduction'] : null;
+    $inventoryMinimumLevel = isset($_POST['InventoryMinimumLevel']) ? (int) $_POST['InventoryMinimumLevel'] : null;
     $personalNotes = $_POST['PersonalNotes'];
     $state = $_POST['state'];
 
@@ -137,6 +161,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
     if ($manageInventory == 0 || $type == 3 || $type == 4) {
         $inventoryAvailable = 0; // Set InventoryAvailable to 0
         $inventoryInProduction = 0; // Set InventoryInProduction to 0
+        $inventoryMinimumLevel = 0; // Set InventoryMinimumLevel to 0
     }
 
     // Prepare your update query with IdpkCreator security check
@@ -157,6 +182,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
             ManageInventory = :manageInventory,
             InventoryAvailable = :inventoryAvailable,
             InventoryInProduction = :inventoryInProduction,
+            InventoryMinimumLevel = :inventoryMinimumLevel,
             PersonalNotes = :personalNotes,
             state = :state
         WHERE idpk = $idpk AND IdpkCreator = $user_id
@@ -178,6 +204,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
     $stmt->bindParam(':manageInventory', $manageInventory, PDO::PARAM_INT);
     $stmt->bindParam(':inventoryAvailable', $inventoryAvailable, PDO::PARAM_INT);
     $stmt->bindParam(':inventoryInProduction', $inventoryInProduction, PDO::PARAM_INT);
+    $stmt->bindParam(':inventoryMinimumLevel', $inventoryMinimumLevel, PDO::PARAM_INT);
     $stmt->bindParam(':personalNotes', $personalNotes);
     $stmt->bindParam(':state', $state);
 
@@ -261,6 +288,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
 
 
 
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////// user interface for updating product
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Check if action and idpk are set
 if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'])) {
@@ -484,6 +514,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                     <br><br>
                     <input type="number" id="InventoryInProduction" name="InventoryInProduction" value="<?php echo htmlspecialchars($product['InventoryInProduction']); ?>" placeholder="and how much is in production" style="width: 300px;" oninput="updateInventoryAvailable()">
                     <label for="InventoryInProduction">inventory in production</label>
+
+                    <br><br>
+                    <input type="number" id="InventoryMinimumLevel" name="InventoryMinimumLevel" value="<?php echo htmlspecialchars($product['InventoryMinimumLevel']); ?>" placeholder="get warnings if it drops below" style="width: 300px;">
+                    <label for="InventoryMinimumLevel">inventory minimum level</label>
                 </div>
         
                 <!-- Personal Notes -->
@@ -560,6 +594,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
 
 
 
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// create product in database
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     // Example array of required fields
@@ -609,12 +646,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     $manageInventory = isset($_POST['ManageInventory']) ? (int) $_POST['ManageInventory'] : 1; // Default to yes (1)
     $inventoryAvailable = isset($_POST['InventoryAvailable']) ? (int) $_POST['InventoryAvailable'] : null;
     $inventoryInProduction = isset($_POST['InventoryInProduction']) ? (int) $_POST['InventoryInProduction'] : null;
+    $inventoryMinimumLevel = isset($_POST['InventoryMinimumLevel']) ? (int) $_POST['InventoryMinimumLevel'] : null;
     $personalNotes = $_POST['PersonalNotes'];
 
     // Check conditions for setting inventory values
     if ($manageInventory == 0 || $type == 3 || $type == 4) {
         $inventoryAvailable = 0; // Set InventoryAvailable to 0
         $inventoryInProduction = 0; // Set InventoryInProduction to 0
+        $inventoryMinimumLevel = 0; // Set InventoryMinimumLevel to 0
     }
 
     // New fields
@@ -630,13 +669,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         AllowCommentsNotesSpecialRequests, type, SellingPriceProductOrServiceInDollars, WeightInKg, 
         DimensionsLengthInMm, DimensionsWidthInMm, DimensionsHeightInMm, 
         SellingPricePackagingAndShippingInDollars, ManageInventory, InventoryAvailable, 
-        InventoryInProduction, PersonalNotes, state
+        InventoryInProduction, InventoryMinimumLevel, PersonalNotes, state
     ) VALUES (
         :timestampCreation, :idpkCreator, :keywordsForSearch, :name, :shortDescription, :longDescription, 
         :allowComments, :type, :sellingPriceProductOrServiceInDollars, :weightInKg, 
         :dimensionsLengthInMm, :dimensionsWidthInMm, :dimensionsHeightInMm, 
         :sellingPricePackagingAndShippingInDollars, :manageInventory, :inventoryAvailable, 
-        :inventoryInProduction, :personalNotes, :state
+        :inventoryInProduction, :inventoryMinimumLevel, :personalNotes, :state
     )");
     
     // Bind the parameters
@@ -657,6 +696,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     $stmt->bindParam(':manageInventory', $manageInventory);
     $stmt->bindParam(':inventoryAvailable', $inventoryAvailable);
     $stmt->bindParam(':inventoryInProduction', $inventoryInProduction);
+    $stmt->bindParam(':inventoryMinimumLevel', $inventoryMinimumLevel);
     $stmt->bindParam(':personalNotes', $personalNotes);
     $stmt->bindParam(':state', $state);
     
@@ -734,6 +774,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 
 
 
+<!-- // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<!-- // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// some java script stuff -->
+<!-- // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 
 <script>
     // Function to show the create product form and hide others
@@ -1041,7 +1084,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 
 
 
-
+<!-- // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<!-- // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////// user interface for creating product -->
+<!-- // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 
 <!-- Div for creating new products (hidden by default) -->
 <div id="createProductDiv" class="steps" style="display: none;">
@@ -1154,6 +1199,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
             <br><br>
             <input type="number" id="InventoryInProduction" name="InventoryInProduction" placeholder="and how much is in production" style="width: 300px;">
             <label for="InventoryInProduction">inventory in production</label>
+
+            <br><br>
+            <input type="number" id="InventoryMinimumLevel" name="InventoryMinimumLevel" placeholder="get warnings if it drops below" style="width: 300px;">
+            <label for="InventoryMinimumLevel">inventory minimum level</label>
         </div>
 
         <!-- Personal Notes -->
@@ -1181,6 +1230,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 
 
 
+
+
+
+<!-- // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<!-- // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// listing products -->
+<!-- // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 
 <!-- Div for listing all products -->
 <div id="listProductDiv" class="steps">

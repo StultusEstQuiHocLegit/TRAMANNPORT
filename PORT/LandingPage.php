@@ -1,105 +1,161 @@
-<h1>TRAMANN PORT</h1>
-  <p>
+<h1 style="font-size: 3.4rem;">TRAMANN PORT</h1>
+<br>
+  <p style="font-size: 1.6rem;"><strong>
     <!-- An open source shopping platform that brings more value to buyers and sellers. -->
-    Get your own online shop and website on our open source platform for just 1% per transaction.
-  </p>
-  Start for free, only 3% per transaction, simple to use, no advertisement,
-  powered by open source code and the spirit to change the world for good.
-  <br>
-  <br>
-  <br><a href="./index.php?content=login.php" class="mainbutton" title="Adventure awaits, off to new shores and unknown lands!"><h3>🗝️ COME ON BOARD</h3></a>
+    <!-- Get your own online shop and ERP system on our open source platform for just 3% per transaction! -->
+    Get your own online shop and business management system on our open source platform for just 3% per transaction!
+</strong></p>
+  <!-- manage your products and services, orders, inventory, customer and supplier relationships, buying and selling, accounting, ... -->
   <br>
   <br>
   <br>
+  <br><a href="./index.php?content=login.php" class="mainbutton" title="Adventure awaits, off to new shores and unknown lands!"><h3 style="font-size: 1.6rem;">🗝️ COME ON BOARD</h3></a>
   <br>
   <br>
   <br>
   <br>
-  <h3>🥇 ONLY 3% PER TRANSACTION, NO OTHER COSTS</h3>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <!-- <h2>🥇 ONLY 3% PER TRANSACTION, NO OTHER COSTS</h2> -->
     <table>
       <tr>
-        <td width="50%"; style="text-align:center;">
-    Most other platforms have confusing price structures with fixed fees,
-    listing fees, transaction fees and much more, which usually add up to 15% to 30%.
-    We think this is far too high for a simple website and therefore only take 3%, quite simply,
-    plus you can start your own shop and website for free.
-    This leaves more value for explorers who are looking for products and creators who offer them.
-    <!-- We take only 3% per transaction, closing the gap between buyers and sellers and thus bringing them, bringing you more value. -->
-    <br>
-    <br>Buy at a better price and support your favorite creators.
-    <br>
-    <br>Sell at a better price and reach your people directly.
+        <td width="30%"; style="text-align:center;">
+          <h2>✨ OPEN SOURCE AND TRANSPARENT</h2>
         </td>
-        <td width="50%"; style="text-align:center;">
-          <img src="./img/TRAMANNPORTExplanationDiagram.png" width="100%">
+        <td width="10%"; style="text-align:center;">
+        </td>
+        <td width="60%";>
+          <h3>trust is the basis of business</h3>
+          <h3>trust is based on openess and transparency</h3>
+          <h3>so you can find our source code on <a href="https://github.com/StultusEstQuiHocLegit/TRAMANNPORT/" target="_blank">🔧 GITHUB</a></h3>
+          <h3>to be able to understand, build and modify everything yourself</h3>
+        </td>
+      </tr>
+      <tr height="150px";>
+      </tr>
+      <tr>
+        <td style="text-align:center;">
+          <h2>🥇 ONLY 3% PER TRANSACTION, NO OTHER COSTS</h2>
+        </td>
+        <td>
+        </td>
+        <td>
+          <h3>transparent pricing</h3>
+          <h3>aligned interests: we win if you win</h3>
+          <h3>more than 10x cheaper</h3>
+          <div style="opacity: 0.5;">(compared to average erp, transaction and dealer fees)</div>
+        </td>
+      </tr>
+      <tr height="150px";>
+      </tr>
+      <tr>
+        <td style="text-align:center;">
+          <h2>🎯 SIMPLE</h2>
+        </td>
+        <td>
+        </td>
+        <td>
+          <h3>start exploring in under 5 minutes</h3>
+          <div style="opacity: 0.5;">(normal explorer account)</div>
+          <h3>set up your business in under 20 minutes</h3>
+          <div style="opacity: 0.5;">(creator account for businesses)</div>
+        </td>
+      </tr>
+      <tr height="150px";>
+      </tr>
+      <tr>
+        <td style="text-align:center;">
+          <h2>🚫 NO ADVERTISEMENT ON OUR PLATFORM</h2>
+        </td>
+        <td>
+        </td>
+        <td>
+          <h3>no distracting advertisements, sponsored goods or commercials</h3>
+          <h3>only quality counts</h3>
+          <h3>enabling focus on building great products and services</h3>
+        </td>
+      </tr>
+      <tr height="150px";>
+      </tr>
+      <tr>
+        <td colspan="3" style="text-align:center;">
+          <h2>🌐 TRUSTED BY THE WORLD (AT LEAST A PART OF IT   ; ) )</h2>
+        </td>
+      </tr>
+      <tr height="30px";>
+      </tr>
+      <tr>
+        <td colspan="3" style="text-align:center;">
+          <table>
+            <tr>
+              <td width="33%"; style="text-align:center;">
+                <h2 style="font-size: 1.8rem;">over 20</h2>
+                <h3>explorers, searching for products</h3>
+              </td>
+              <td width="33%"; style="text-align:center;">
+                <h2 style="font-size: 1.8rem;">over 3</h2>
+                <h3>creators, offering their products</h3>
+              </td>
+              <td width="33%"; style="text-align:center;">
+                <h2 style="font-size: 1.8rem;">over 7,000$</h2>
+                <h3>in securely handled transactions</h3>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr height="150px";>
+      </tr>
+      <tr>
+        <td style="text-align:center;">
+          <h2>⚡ AUTOMATION AND SYNCHRONIZATION</h2>
+        </td>
+        <td>
+        </td>
+        <td>
+          <h3>manage your business with TRAMANN PORT</h3>
+          <h3>automatically get your own online shop</h3>
+          <h3>automatically connect with customers and suppliers</h3>
+          <h3>automatically synchronize all data sets</h3>
+        </td>
+      </tr>
+      <tr height="150px";>
+      </tr>
+      <tr>
+        <td colspan="3" style="text-align:center;">
+          <h2 style="font-size: 1.8rem;">"We take care of your busines stuff, so you can concentrate on building great products and services for great people."</h2>
+        </td>
+      </tr>
+      <tr height="150px";>
+      </tr>
+      <tr>
+        <td style="text-align:center;">
+          <h2>🤝 BUILDING AND GROWING TOGETHER</h2>
+        </td>
+        <td>
+        </td>
+        <td>
+          <h3>get a ⭐ dashboard for business overview and 📋 notes</h3>
+          <h3>manage your 📦 products (including 🏰 inventory) and services</h3>
+          <h3>handling 📝 orders and 🛒 payments over TRAMANN PORT too</h3>
+          <h3>use our smart 🔍 explore functionality to search</h3>
+          <h3>our 🗓️ calendar to plan and our 📱 app for mobile viewing</h3>
+          <h3>and there is a lot more to come ...</h3>
         </td>
       </tr>
     </table>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-  <h3>🎯 SIMPLE</h3>
-    Start exploring interesting new products in under five minutes.
-    <br>
-    <br>Start your own online business with shop and website in under 20 minutes.
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-  <h3>🚫 NO ADVERTISEMENT ON OUR PLATFORM</h3>
-    We have no distracting advertisements, sponsored goods or commercials on our platform.
-    Here only the quality of the products counts
-    so that we all can focus on building great products for great people.
-    To achieve this, we are also helping your business with calculations, your own dashboard,
-    inventory, customer and order management, enterprise resource planning (ERP) and other useful tools.
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-  <h3>🌐 TRUSTED BY THE WORLD (AT LEAST A PART OF IT ; ) )</h3>
-    <div class="stats-container">
-      <div class="stat-item">
-        <span class="stat-number">over 20</span>
-        explorers, searching for products
-      </div>
-      <div class="vertical-line"></div>
-      <div class="stat-item">
-        <span class="stat-number">over 3</span>
-        creators, offering their products
-      </div>
-      <div class="vertical-line"></div>
-      <div class="stat-item">
-        <span class="stat-number">over 7,000$</span>
-        in securely handled transactions
-      </div>
-    </div>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-  <h3>✨ OPEN SOURCE AND TRANSPARENT</h3>
-    Trust is the basis of all cooperation, business and progress as a whole.
-    Trust is based on openness and transparency.
-    That's why we have designed everything to be open.
-    We want you to be able to understand, build and modify everything yourself.
-    <br>
-    <br>You can find our source code on <a href="https://github.com/StultusEstQuiHocLegit/TRAMANNPORT/" target="_blank">🔧 GITHUB</a>.
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-  <h3>🤝 BUILDING AND GROWING TOGETHER</h3>
-    Together we can build a better future and enable a better, fairer
-    and more transparent form of business and trade.
-    <br>
-    <br>
   <br>
   <br>
   <br>
-  <br><a href="./index.php?content=login.php" class="mainbutton" title="Adventure awaits, off to new shores and unknown lands!"><h3>🗝️ COME ON BOARD</h3></a>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br><a href="./index.php?content=login.php" class="mainbutton" title="Adventure awaits, off to new shores and unknown lands!"><h3 style="font-size: 1.6rem;">🗝️ COME ON BOARD</h3></a>
+  <br><br><br><br><br><br><br><br><br><br>

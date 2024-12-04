@@ -17,13 +17,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         'country',
         'IBAN'
     ];
-
+    
     foreach ($requiredFields as $field) {
-        if (empty(trim($_POST[$field]))) {
+        // Check if the field is missing or only contains spaces
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') {
             $errors[] = ucfirst($field) . " is required.";
         }
     }
-
+    
     // If there are errors, stop the script and display them
     if (!empty($errors)) {
         foreach ($errors as $error) {
@@ -51,6 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $iban = trim($_POST['IBAN']);
     $phoneNumber = (int) trim($_POST['PhoneNumber']); // Cast to int
     $capitalInAccountInDollars = 0;
+    $darkmode = 0; // Default to no (0)
     $level = 0; // Default to new (0)
 
     // For creators
@@ -101,8 +103,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // adding notes and texts for the starting of the dashboard for the first time if the user is a creator
     if ($explorerOrCreator === 1) {
         $personalNotes = "make personal notes for yourself and your colleagues," . 
-                         "you could for example insert the notes from your last meeting here," . 
-                         "so everybody in your team can see them";
+                         " you could for example insert the notes from your last meeting here," . 
+                         " so everybody in your team can see them";
 
         $personalStrategicPlaningNotes = "plan your long-term business strategy,\n" . 
                                          "which new products you want to introduce,\n" . 
@@ -110,7 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $personalToDoList = "Welcome on board, we are very happy to have you with us   : )\n\n" . 
                             "please mind the white TRAMANN logo in the top left corner of your screen," . 
-                            "by clicking on it, you can open the menu\n\n" . 
+                            " by clicking on it, you can open the menu\n\n" . 
                             "your first things to do are:\n" .
                             "- click through the pages in the menu and get familiar with TRAMANN PORT\n" . 
                             "- visit - ACCOUNT - and upload your logo\n" . 
@@ -120,9 +122,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             "- replace these things to do with your new own ones";
 
         $personalCollectionOfLinks = "first, click on this field to start the editing mode," .
-                                     "then add links to other distribution channels," . 
-                                     "mail programs, social media, editing tools, ...," . 
-                                     "so you can quickly access everything from your dashboard.";
+                                     " then add links to other distribution channels," . 
+                                     " mail programs, social media, editing tools, ...," . 
+                                     " so you can quickly access everything from your dashboard.";
         } else {
             // insert NULL for explorers
             $personalNotes = null;
@@ -132,8 +134,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
     // Prepare the SQL statement for inserting data into ExplorersAndCreators table
-    $stmt = $pdo->prepare("INSERT INTO ExplorersAndCreators (TimestampCreation, email, password, PhoneNumber, FirstName, LastName, street, HouseNumber, ZIPCode, city, country, planet, IBAN, CapitalInAccountInDollars, ExplorerOrCreator, level, CompanyName, VATID, PhoneNumberForExplorersAsContact, EmailForExplorersAsContact, ShowAddressToExplorers, CanExplorersVisitYou, OpeningHoursMondayOpening, OpeningHoursMondayClosing, OpeningHoursTuesdayOpening, OpeningHoursTuesdayClosing, OpeningHoursWednesdayOpening, OpeningHoursWednesdayClosing, OpeningHoursThursdayOpening, OpeningHoursThursdayClosing, OpeningHoursFridayOpening, OpeningHoursFridayClosing, OpeningHoursSaturdayOpening, OpeningHoursSaturdayClosing, OpeningHoursSundayOpening, OpeningHoursSundayClosing, OpeningHoursNationalHolidaysOpening, OpeningHoursNationalHolidaysClosing, CloseOnlineShopIfPhysicalShopIsClosed, PhysicalShopClosedBecauseOfHolidaysClosing, PhysicalShopClosedBecauseOfHolidaysOpening, ShortDescription, LongDescription, LinksToSocialMediaAndOtherSites, PersonalNotes, PersonalStrategicPlaningNotes, PersonalToDoList, PersonalCollectionOfLinks) 
-                            VALUES (:timestampCreation, :email, :password, :phoneNumber, :firstName, :lastName, :street, :houseNumber, :zipCode, :city, :country, :planet, :iban, :capitalInAccountInDollars, :explorerOrCreator, :level, :companyName, :vatId, :phoneNumberForExplorersAsContact, :emailForExplorersAsContact, :showAddressToExplorers, :canExplorersVisitYou, :openingHoursMondayOpening, :openingHoursMondayClosing, :openingHoursTuesdayOpening, :openingHoursTuesdayClosing, :openingHoursWednesdayOpening, :openingHoursWednesdayClosing, :openingHoursThursdayOpening, :openingHoursThursdayClosing, :openingHoursFridayOpening, :openingHoursFridayClosing, :openingHoursSaturdayOpening, :openingHoursSaturdayClosing, :openingHoursSundayOpening, :openingHoursSundayClosing, :openingHoursNationalHolidaysOpening, :openingHoursNationalHolidaysClosing, :closeOnlineShopIfPhysicalShopIsClosed, :physicalShopClosedBecauseOfHolidaysClosing, :physicalShopClosedBecauseOfHolidaysOpening, :shortDescription, :longDescription, :linksToSocialMediaAndOtherSites, :personalNotes, :personalStrategicPlaningNotes, :personalToDoList, :personalCollectionOfLinks)");
+    $stmt = $pdo->prepare("INSERT INTO ExplorersAndCreators (TimestampCreation, email, password, PhoneNumber, FirstName, LastName, street, HouseNumber, ZIPCode, city, country, planet, IBAN, CapitalInAccountInDollars, darkmode, ExplorerOrCreator, level, CompanyName, VATID, PhoneNumberForExplorersAsContact, EmailForExplorersAsContact, ShowAddressToExplorers, CanExplorersVisitYou, OpeningHoursMondayOpening, OpeningHoursMondayClosing, OpeningHoursTuesdayOpening, OpeningHoursTuesdayClosing, OpeningHoursWednesdayOpening, OpeningHoursWednesdayClosing, OpeningHoursThursdayOpening, OpeningHoursThursdayClosing, OpeningHoursFridayOpening, OpeningHoursFridayClosing, OpeningHoursSaturdayOpening, OpeningHoursSaturdayClosing, OpeningHoursSundayOpening, OpeningHoursSundayClosing, OpeningHoursNationalHolidaysOpening, OpeningHoursNationalHolidaysClosing, CloseOnlineShopIfPhysicalShopIsClosed, PhysicalShopClosedBecauseOfHolidaysClosing, PhysicalShopClosedBecauseOfHolidaysOpening, ShortDescription, LongDescription, LinksToSocialMediaAndOtherSites, PersonalNotes, PersonalStrategicPlaningNotes, PersonalToDoList, PersonalCollectionOfLinks) 
+                            VALUES (:timestampCreation, :email, :password, :phoneNumber, :firstName, :lastName, :street, :houseNumber, :zipCode, :city, :country, :planet, :iban, :capitalInAccountInDollars, :darkmode, :explorerOrCreator, :level, :companyName, :vatId, :phoneNumberForExplorersAsContact, :emailForExplorersAsContact, :showAddressToExplorers, :canExplorersVisitYou, :openingHoursMondayOpening, :openingHoursMondayClosing, :openingHoursTuesdayOpening, :openingHoursTuesdayClosing, :openingHoursWednesdayOpening, :openingHoursWednesdayClosing, :openingHoursThursdayOpening, :openingHoursThursdayClosing, :openingHoursFridayOpening, :openingHoursFridayClosing, :openingHoursSaturdayOpening, :openingHoursSaturdayClosing, :openingHoursSundayOpening, :openingHoursSundayClosing, :openingHoursNationalHolidaysOpening, :openingHoursNationalHolidaysClosing, :closeOnlineShopIfPhysicalShopIsClosed, :physicalShopClosedBecauseOfHolidaysClosing, :physicalShopClosedBecauseOfHolidaysOpening, :shortDescription, :longDescription, :linksToSocialMediaAndOtherSites, :personalNotes, :personalStrategicPlaningNotes, :personalToDoList, :personalCollectionOfLinks)");
 
     // Bind parameters
     $stmt->bindParam(':timestampCreation', $timestampCreation);
@@ -150,6 +152,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bindParam(':planet', $planet);
     $stmt->bindParam(':iban', $iban);
     $stmt->bindParam(':capitalInAccountInDollars', $capitalInAccountInDollars);
+    $stmt->bindParam(':darkmode', $darkmode);
     $stmt->bindParam(':explorerOrCreator', $explorerOrCreator);
     $stmt->bindParam(':level', $level);
     $stmt->bindParam(':companyName', $companyName);

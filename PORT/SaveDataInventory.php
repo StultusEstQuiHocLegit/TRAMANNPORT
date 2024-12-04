@@ -17,32 +17,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Validate field names to prevent SQL injection
-    if (!in_array($field, ['InventoryAvailable', 'InventoryInProduction'])) {
-        echo "Invalid field";
+    if (!in_array($field, ['InventoryAvailable', 'InventoryInProduction', 'InventoryMinimumLevel', 'PersonalNotes'])) {
+        echo "invalid field";
         exit;
     }
-
+    
     try {
-        // If the field being updated is Inventory In Production
-        if ($field === 'InventoryInProduction') {
-            // First, update the Inventory In Production
-            $stmt = $pdo->prepare("UPDATE ProductsAndServices SET InventoryInProduction = :value WHERE idpk = :id");
+        if ($field === 'PersonalNotes') {
+            // For updating Personal Notes
+            $stmt = $pdo->prepare("UPDATE ProductsAndServices SET PersonalNotes = :value WHERE idpk = :id AND IdpkCreator = $user_id");
+            $stmt->bindParam(':value', $value, PDO::PARAM_STR); // Note: Use PARAM_STR for text fields
+            $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
+            $stmt->execute();
+        } else if ($field === 'InventoryMinimumLevel') {
+            // Same logic as before for Inventory In Production
+            $stmt = $pdo->prepare("UPDATE ProductsAndServices SET InventoryMinimumLevel = :value WHERE idpk = :id AND IdpkCreator = $user_id");
             $stmt->bindParam(':value', $value, PDO::PARAM_INT);
             $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
             $stmt->execute();
-
-            // Now update Inventory Available if provided
+        } else if ($field === 'InventoryInProduction') {
+            // Same logic as before for Inventory In Production
+            $stmt = $pdo->prepare("UPDATE ProductsAndServices SET InventoryInProduction = :value WHERE idpk = :id AND IdpkCreator = $user_id");
+            $stmt->bindParam(':value', $value, PDO::PARAM_INT);
+            $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
+            $stmt->execute();
+    
             if ($updatedAvailable !== null) {
-                $stmt = $pdo->prepare("UPDATE ProductsAndServices SET InventoryAvailable = :updatedAvailable WHERE idpk = :id");
+                $stmt = $pdo->prepare("UPDATE ProductsAndServices SET InventoryAvailable = :updatedAvailable WHERE idpk = :id AND IdpkCreator = $user_id");
                 $stmt->bindParam(':updatedAvailable', $updatedAvailable, PDO::PARAM_INT);
                 $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
                 $stmt->execute();
             }
-
         } else {
-            // For direct updates to Inventory Available
-            $stmt = $pdo->prepare("UPDATE ProductsAndServices SET $field = :value WHERE idpk = :id");
+            // For InventoryAvailable and other direct updates
+            $stmt = $pdo->prepare("UPDATE ProductsAndServices SET $field = :value WHERE idpk = :id AND IdpkCreator = $user_id");
             $stmt->bindParam(':value', $value, PDO::PARAM_INT);
             $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
             $stmt->execute();

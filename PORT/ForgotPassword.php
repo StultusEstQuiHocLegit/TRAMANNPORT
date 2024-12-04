@@ -30,12 +30,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Send an email to the user with the new password
             $subject = "TRAMANN PORT - new password";
-            $message = "Hi : )<br><br>Your new password is: $newPassword<br><br>Always at your service,<br>TRAMANN PROJECTS";
+            $message = "Hi : )<br><br>Your new password is: $newPassword<br><br>(You can change this password after login by clicking on - ⚙️ ACCOUNT - in the menu, then enter a new one, which is easier to remember (but still hard to guess of course), scroll down and click on - ↗️ SAVE - to save the changes)<br><br>Always at your service,<br>TRAMANN PROJECTS";
             $headers = "From: hi@tramann-projects.com\r\n";
             $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 
             if (mail($email, $subject, $message, $headers)) {
-                $success_message = "A new password has been sent to your email. Please check your inbox (and spam folder) and enter your new password at <a href=\"index.php?content=login.php\">LOGIN</a>.";
+                $success_message = "A new password has been sent to your email. Please check your inbox (and spam folder).";
             } else {
                 $error_message = "There was an error sending the email. Please try again later. If the problem persists, please call us so we can fix it.";
             }
