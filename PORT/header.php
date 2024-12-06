@@ -11,6 +11,10 @@ session_start(); // Start the session
   	<header>
   	<!-- <link rel="stylesheet" type="text/css" href="../style.css"> -->
   	<link rel="icon" type="image/png" href="../logos/favicon.png">
+
+    <!-- PWA (progressive web app) -->
+    <link rel="../manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
 </header>
 
 <style type="text/css">
@@ -71,31 +75,14 @@ body {
                     }
                 } catch (PDOException $e) {
                     // Handle database errors
-                    echo "Database error: " . $e->getMessage();
+                    echo "database error: " . $e->getMessage();
                 }
             } else {
                 echo '<img id="menuIcon" src="../logos/TramannLogo.png" height="40" alt="TRAMANN">'; // Light mode logo
                 echo '<link rel="stylesheet" type="text/css" href="../style.css">'; // Dark mode stylesheet
                 echo '<link rel="stylesheet" type="text/css" href="../StyleLightmode.css">'; // Light mode stylesheet adding to the existing one
             }
-    echo "</a><div id=\"dropdownMenu\">";
-
-                                    // Query to check if there are any pending transactions (state = 0) for the user
-                                    $query = "SELECT COUNT(*) FROM transactions WHERE IdpkExplorer = :user_id AND state = 0";
-                                    $stmt = $pdo->prepare($query);
-                                    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-                                    $stmt->execute();
-
-                                    // Get the result (number of pending transactions)
-                                    $pendingTransactions = $stmt->fetchColumn();
-
-                                    // Conditionally apply inline CSS for the "SHOPPING CART" link and the "SOURCING CART" link
-                                    // $borderStyle = ($pendingTransactions > 0) ? 'border: 3px solid yellow; padding: 2px;' : '';
-                                    // $borderStyle = ($pendingTransactions > 0) ? ';' : '';
-                                    $borderStyle = ($pendingTransactions > 0) ? 'background-color: #505050; padding: 5px;' : '';
-
-                                    // Conditionally display the number of pending transactions
-                                    $pendingText = ($pendingTransactions > 0) ? "($pendingTransactions)" : '';
+    echo "</a><div style=\"height: 5px;\"></div> <div id=\"dropdownMenu\">";
 
                                     include ("menu.php"); // Include the menu
             ?>
@@ -128,7 +115,7 @@ document.getElementById("dropdownMenuLogo").addEventListener("click", function(e
     event.stopPropagation(); // prevents the instant closing if there is a click on the dropdownMenuLogo
 
     // Check the screen width for redirection
-    if (window.innerWidth <= 1024) {
+    if (window.innerWidth <= 1025) { // for devices with a small screen
         // Redirect to the menu page
         window.location.href = "index.php?content=menu.php";
         return; // Exit the function to avoid further execution

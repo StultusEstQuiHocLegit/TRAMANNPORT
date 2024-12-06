@@ -1,6 +1,24 @@
 <h1>📖 HEEELP!</h1>
 
-<br>If you shouldn't be able to find anything helpful below, please feel free to <a href="mailto:hi@tramann-projects.com?subject=Hi  : )&body=Hi,%0D%0A%0D%0A%0D%0A[ContentOfYourMessage]%0D%0A%0D%0A%0D%0A%0D%0AWith best regards,%0D%0A[YourName]" title="always at your service   : )">✉️ CONTACT US   : )</a>
+<br>If you shouldn't be able to find anything helpful below, please feel free to
+<?php
+// Determine sender name
+$senderName = $user['ExplorerOrCreator'] == 0 
+? "{$user['FirstName']} {$user['LastName']} ({$user['idpk']})" 
+: "{$user['CompanyName']} ({$user['idpk']})";
+
+// Prepare the dynamic link
+$contactEmail = "hi@tramann-projects.com";
+$emailSubject = "TRAMANN PORT - $senderName needs heeelp!";
+$emailBody = "Hi,\n\n\n[ContentOfYourMessage]\n\n\n\nWith best regards,\n$senderName";
+
+// Encode the subject and body for URL-safe usage
+$mailtoSubject = rawurlencode($emailSubject);
+$mailtoBody = rawurlencode($emailBody);
+
+// Output the link
+echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body=' . $mailtoBody . '" title="always at your service   : )">✉️ CONTACT US   : )</a>';
+?>
 
 <br><br><br><br><br>
 

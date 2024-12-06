@@ -174,17 +174,17 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorer' && iss
                     echo "<td style='width: 20px;'></td>";
                         // Determine recipient name
                         $recipientName = $ExplorersAndCreators['ExplorerOrCreator'] == 0 
-                            ? " {$ExplorersAndCreators['FirstName']}" 
-                            : "";
+                        ? $ExplorersAndCreators['FirstName'] 
+                        : '';
                         // Determine sender name
-                        $senderName = $ExplorersAndCreators['ExplorerOrCreator'] == 0 
-                            ? "{$user['FirstName']} {$user['LastName']} ({$user['idpk']})" 
-                            : "({$user['CompanyName']} ({$user['idpk']}))";      
-                        // Generate mailto link
+                        $senderName = $user['ExplorerOrCreator'] == 0 
+                        ? "{$user['FirstName']} {$user['LastName']} ({$user['idpk']})" 
+                        : "{$user['CompanyName']} ({$user['idpk']})";
+                        // Prepare email subject and body
                         $emailSubject = "TRAMANN PORT - Hi from $senderName";
-                        $emailBody = "Hi$recipientName,%0D%0A%0D%0A[ContentOfYourMessage]%0D%0A%0D%0ASincerely yours,%0D%0A$senderName";
-                        $emailLink = "mailto:{$ExplorersAndCreators['EmailForExplorersAsContact']}?subject=" . urlencode($emailSubject) . "&body=" . urlencode($emailBody);
-                        // Generate tel link
+                        $emailBody = "Hi" . ($recipientName ? " $recipientName" : "") . ",\n\n\n[ContentOfYourMessage]\n\n\n\nSincerely yours,\n$senderName";
+                        // URL-encode the subject and body
+                        $emailLink = "mailto:{$ExplorersAndCreators['EmailForExplorersAsContact']}?subject=" . rawurlencode($emailSubject) . "&body=" . rawurlencode($emailBody);                        // Generate tel link
                         $telLink = "tel:{$ExplorersAndCreators['PhoneNumberForExplorersAsContact']}";
                     echo "<td><a href='$emailLink'>{$ExplorersAndCreators['EmailForExplorersAsContact']}</a><br><br><a href='$telLink'>{$ExplorersAndCreators['PhoneNumberForExplorersAsContact']}</a></td>";
                 echo "</tr>";
@@ -338,17 +338,17 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorer' && iss
                     echo "<td style='width: 20px;'></td>";
                         // Determine recipient name
                         $recipientName = $ExplorersAndCreators['ExplorerOrCreator'] == 0 
-                            ? " {$ExplorersAndCreators['FirstName']}" 
-                            : "";
+                        ? $ExplorersAndCreators['FirstName'] 
+                        : '';
                         // Determine sender name
-                        $senderName = $ExplorersAndCreators['ExplorerOrCreator'] == 0 
-                            ? "{$user['FirstName']} {$user['LastName']} ({$user['idpk']})" 
-                            : "({$user['CompanyName']} ({$user['idpk']}))";  
-                        // Generate mailto link
+                        $senderName = $user['ExplorerOrCreator'] == 0 
+                        ? "{$user['FirstName']} {$user['LastName']} ({$user['idpk']})" 
+                        : "{$user['CompanyName']} ({$user['idpk']})";
+                        // Prepare email subject and body
                         $emailSubject = "TRAMANN PORT - Hi from $senderName";
-                        $emailBody = "Hi$recipientName,%0D%0A%0D%0A[ContentOfYourMessage]%0D%0A%0D%0ASincerely yours,%0D%0A$senderName";
-                        $emailLink = "mailto:{$ExplorersAndCreators['EmailForExplorersAsContact']}?subject=" . urlencode($emailSubject) . "&body=" . urlencode($emailBody);
-                        // Generate tel link
+                        $emailBody = "Hi" . ($recipientName ? " $recipientName" : "") . ",\n\n\n[ContentOfYourMessage]\n\n\n\nSincerely yours,\n$senderName";
+                        // URL-encode the subject and body
+                        $emailLink = "mailto:{$ExplorersAndCreators['EmailForExplorersAsContact']}?subject=" . rawurlencode($emailSubject) . "&body=" . rawurlencode($emailBody);                        // Generate tel link
                         $telLink = "tel:{$ExplorersAndCreators['PhoneNumber']}";
                     echo "<td><a href='$emailLink'>{$ExplorersAndCreators['email']}</a><br><br><a href='$telLink'>{$ExplorersAndCreators['PhoneNumber']}</a></td>";
                 echo "</tr>";

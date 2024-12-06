@@ -87,8 +87,12 @@ try {
             include("cart.php");
         } elseif ($content === 'PreviousCarts.php') {
             include("PreviousCarts.php");
+        } elseif ($content === 'help.php') {
+            include("help.php");
         } elseif ($content === 'account.php') {
             include("account.php");
+        } elseif ($content === 'calendar.php') {
+            include("calendar.php");
         } elseif ($content === 'ForgotPassword.php') {
             include("ForgotPassword.php");
         } elseif ($content === 'menu.php') {
@@ -125,6 +129,8 @@ try {
             include("help.php");
         } elseif ($content === 'account.php') {
             include("account.php");
+        } elseif ($content === 'calendar.php') {
+            include("calendar.php");
         } elseif ($content === 'ForgotPassword.php') {
             include("ForgotPassword.php");
         } elseif ($content === 'menu.php') {
@@ -142,3 +148,4 @@ try {
 echo "<br><br><br><br><br><br><br><br><br><br>";
 echo "</div>";
 ?>
+

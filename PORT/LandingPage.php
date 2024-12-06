@@ -83,9 +83,9 @@
       </tr>
       <tr height="150px";>
       </tr>
-      <tr>
+      <!-- <tr>
         <td colspan="3" style="text-align:center;">
-          <h2>🌐 TRUSTED BY THE WORLD (AT LEAST A PART OF IT   ; ) )</h2>
+          <h2>🌐 TRUSTED BY THE WORLD</h2>
         </td>
       </tr>
       <tr height="30px";>
@@ -111,7 +111,7 @@
         </td>
       </tr>
       <tr height="150px";>
-      </tr>
+      </tr> -->
       <tr>
         <td style="text-align:center;">
           <h2>⚡ AUTOMATION AND SYNCHRONIZATION</h2>
@@ -146,7 +146,15 @@
           <h3>handling 📝 orders and 🛒 payments over TRAMANN PORT too</h3>
           <h3>use our smart 🔍 explore functionality to search</h3>
           <h3>our 🗓️ calendar to plan and our 📱 app for mobile viewing</h3>
+          <h3>check your 👥 explorers (customers) and fellow 🏭 creators (suppliers)</h3>
           <h3>and there is a lot more to come ...</h3>
+        </td>
+      </tr>
+      <tr height="150px";>
+      </tr>
+      <tr>
+        <td colspan="3" style="text-align:center;">
+        <a href="mailto:hi@tramann-projects.com?subject=TRAMANN PORT - Hi  : )&body=Hi,%0D%0A%0D%0A%0D%0AI am interested in TRAMANN PORT, could you please tell me more about it?%0D%0AI am especially interested in [Cookies?].%0D%0A%0D%0ACan we maybe have a video chat?%0D%0AI have time on:%0D%0A[date, StartTime - EndTime]%0D%0A[date, StartTime - EndTime]%0D%0A[date, StartTime - EndTime]%0D%0A[date, StartTime - EndTime]%0D%0A[date, StartTime - EndTime]%0D%0A...%0D%0A%0D%0AI am located in [YourCity] (we need this to recalculate the times according to time zones).%0D%0A%0D%0AOur business is called [YourCompanyName] (only if you have one).%0D%0A%0D%0A[AddFurtherQuestionsAndRequestsHere]%0D%0A%0D%0A%0D%0A%0D%0AWith best regards,%0D%0A[YourName]" title="always at your service   : )"><h3>👾 CLICK HERE IF YOU WANT TO TALK TO A HUMAN FIRST</h3></a>
         </td>
       </tr>
     </table>

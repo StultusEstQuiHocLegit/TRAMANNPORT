@@ -1,7 +1,16 @@
+<?php
+// Check for preselected search option
+$preselectedOption = $preselectedOption ?? '';
+// echo "test $preselectedOption"; // This should output the value
+// Check for preselected viewing
+$preselectedViewing = $preselectedViewing ?? '';
+// echo "test $preselectedViewing"; // This should output the value
+?>
+
 <br><br>
 
 <div style="display: flex; width: 100%; justify-content: center; align-items: center;">
-    <input type="search" id="SearchBar" name="SearchBar" placeholder="explore ..." style="width: 300px;">
+    <input type="search" id="SearchBar" name="SearchBar" placeholder="explore ..." style="width: 100%; font-weight: bold; font-size: 1.2rem;">
 </div>
 <br>
 <div style="display: flex; width: 100%; justify-content: center; align-items: center;">
@@ -11,11 +20,40 @@
 </div>
 <div id="SearchOptionsDiv">
     <br>
-    <select id="SearchOptions" class="search-dropdown">
-        <option value="products_services">search for products and services</option>
-        <option value="creators_explorers">search for creators and explorers</option>
-        <option value="transactions">search for transactions</option>
-        <option value="carts">search for carts</option>
+    <select id="SearchOptions" class="search-dropdown" style="width: 300px;">
+        <option value="products_services" <?php echo ($preselectedOption === 'products_services') ? 'selected' : ''; ?>>
+            search for products and services
+        </option> <!-- // all products and services -->
+
+        <?php if ($userRole === 1) { ?>
+            <option value="your_products_services" <?php echo ($preselectedOption === 'your_products_services') ? 'selected' : ''; ?>>
+                search for your products and services
+            </option> <!-- // add this for creators -->
+        <?php } ?>
+        
+        <option value="creators_explorers" <?php echo ($preselectedOption === 'creators_explorers') ? 'selected' : ''; ?>>
+            search for creators and explorers
+        </option> <!-- // all creators and explorers (for the latter only the ones you had transactions with) -->
+        
+        <?php if ($userRole === 1) { ?>
+            <option value="your_explorers_customers" <?php echo ($preselectedOption === 'your_explorers_customers') ? 'selected' : ''; ?>>
+                search for your explorers (customers)
+            </option> <!-- // add this for creators -->
+        <?php } ?>
+        
+        <?php if ($userRole === 1) { ?>
+            <option value="your_creators_suppliers" <?php echo ($preselectedOption === 'your_creators_suppliers') ? 'selected' : ''; ?>>
+                search for your creators (suppliers)
+            </option> <!-- // add this for creators -->
+        <?php } ?>
+        
+        <option value="transactions" <?php echo ($preselectedOption === 'transactions') ? 'selected' : ''; ?>>
+            search for transactions
+        </option> <!-- // only the ones you are involved in -->
+        
+        <option value="carts" <?php echo ($preselectedOption === 'carts') ? 'selected' : ''; ?>>
+            search for carts
+        </option> <!-- // only the ones you are involved in -->
     </select>
 </div>
 
@@ -25,6 +63,15 @@
 echo "<div id=\"ShowProduct\">";
     include ("ShowProduct.php");
 echo "</div>";
+
+
+
+
+
+echo "<div id=\"ShowCreatorOrExplorer\">";
+    include ("ShowCreatorOrExplorer.php");
+echo "</div>";
+
 
 
 
@@ -68,22 +115,28 @@ echo "<div id=\"FeedAndResults\"></div>";
     // Hide the dropdown when the page loads
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('SearchOptionsDiv').style.display = 'none';
+
+        // Add an event listener to the search input field for the Enter key
+        const searchInput = document.getElementById('SearchBar');
+        searchInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission or default behavior
+                StartSearch(); // Trigger the search function
+            }
+        });
     });
+
 
     function StartSearch() {
         const searchQuery = document.getElementById('SearchBar').value;
         const selectedOption = document.getElementById('SearchOptions').value;
+        const selectedViewing = "<?php echo $preselectedViewing; ?>";
 
-        // Hide the ShowProduct div when the search is started
         document.getElementById('ShowProduct').style.display = 'none';
+        document.getElementById('ShowCreatorOrExplorer').style.display = 'none';
 
-        // Perform your search logic here using searchQuery and selectedOption
-        console.log('Search Query:', searchQuery);
-        console.log('Selected Option:', selectedOption);
-
-        // Make an AJAX call to the server-side script to search the database
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'search.php', true); // Adjust the URL to your actual PHP script
+        xhr.open('POST', 'search.php', true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         xhr.onreadystatechange = function() {
@@ -92,6 +145,7 @@ echo "<div id=\"FeedAndResults\"></div>";
             }
         };
 
-        xhr.send('query=' + encodeURIComponent(searchQuery));
+        xhr.send('query=' + encodeURIComponent(searchQuery) + '&preselectedOption=' + encodeURIComponent(selectedOption) + '&preselectedViewing=' + encodeURIComponent(selectedViewing));
+
     }
 </script>
