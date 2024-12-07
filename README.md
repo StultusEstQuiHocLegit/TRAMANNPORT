@@ -1,5 +1,5 @@
 # TRAMANN PORT
-An open source business platform that brings more value to buyers and sellers.
+<h3>Get your own online shop and business management system on our open source platform for just 3% per transaction!<h3>
 <br>
 <br>Our project is open source, you are currently viewing the corresponding repository
 <br>and you can find the code in the folder namend - PORT -.
