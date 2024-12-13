@@ -266,7 +266,7 @@ try {
                 echo "<td>{$formattedDeliveryType}</td>";
             }            
             echo "<td><a href='#' onclick='ShowCart(event, {$cart['CartNumber']}, this)' data-state='more'>👁️ MORE</a></td>";
-            echo "<td></td>";
+            // echo "<td></td>";
             echo "</tr>";
         
             
@@ -307,11 +307,11 @@ try {
                 echo "<tr class='cart-products cart-products-{$cart['CartNumber']}' style='opacity: {$opacity}; display: none;'>";
                 echo "<td></td>";
                 echo "<td>{$product['TransactionId']}</td>";
-                echo "<td title='{$productName} ({$product['ProductId']})'>{$truncatedName} ({$product['ProductId']}){$commentsNotes}</td>";
+                echo "<td title='{$productName} ({$product['ProductId']})'><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['ProductId']}'>$truncatedName ({$product['ProductId']})</a><br>{$commentsNotes}</td>";
                 echo "<td style='font-weight: bold; font-size: 1.5rem;'>{$product['Quantity']}x </td>";
                 echo "<td>{$product['TotalPrice']}$</td>";
                 echo "<td title='(0 = collecting, 1 = ordered, 2 = paid, 3 = orders transmitted to creators, 4 = creators producing or selecting, 5 = creators shipping, 6 = in customs, 7 = at distribution center, 8 = arriving, 9 = finished)'>{$translatedTransactionState}</td>";
-                echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['ProductId']}'>👁️ MORE</a></td>";
+                // echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['ProductId']}'>👁️ MORE</a></td>";
         
                 if ($isActive) {
                     echo "<td><a href='index.php?content=PreviousCarts.php' onclick='addToCartGlow(event, {$product['ProductId']})' class='mainbutton'>🛒 REPICK</a></td>";

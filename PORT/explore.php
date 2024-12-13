@@ -10,13 +10,15 @@ $preselectedViewing = $preselectedViewing ?? '';
 <br><br>
 
 <div style="display: flex; width: 100%; justify-content: center; align-items: center;">
-    <input type="search" id="SearchBar" name="SearchBar" placeholder="explore ..." style="width: 100%; font-weight: bold; font-size: 1.2rem;">
+    <input type="search" id="SearchBar" name="SearchBar" placeholder="explore ..." style="width: 100%; font-weight: bold; font-size: 1.2rem;" autofocus>
 </div>
 <br>
 <div style="display: flex; width: 100%; justify-content: center; align-items: center;">
     <a href="javascript:void(0)" id="StartSearchButton" class="mainbutton" onclick="StartSearch()"">🔍 SEARCH</a>
     <div style="width: 5px;"></div>
-    <a href="javascript:void(0)" id="ShowSearchOptionsDiv" class="button" onclick="ShowSearchOptionsDiv()"">v</a>
+    <?php if ($preselectedViewing === '') { ?>
+        <a href="javascript:void(0)" id="ShowSearchOptionsDiv" class="button" onclick="ShowSearchOptionsDiv()">v</a>
+    <?php } ?>
 </div>
 <div id="SearchOptionsDiv">
     <br>

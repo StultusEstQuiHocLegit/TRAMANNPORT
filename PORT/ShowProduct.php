@@ -256,10 +256,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['
         echo "<tr>";
         // Top left cell: Selling price and packaging/shipping price
             // Function to format the shipping price
-            function formatShippingPrice($shippingPrice) {
+            function formatShippingPriceForDisplay($shippingPrice) {
                 return (!empty($shippingPrice) && $shippingPrice != 0) ? "(+$shippingPrice\$)" : '';
             }
-            $shippingPrice = formatShippingPrice($product['SellingPricePackagingAndShippingInDollars']);
+            $shippingPrice = formatShippingPriceForDisplay($product['SellingPricePackagingAndShippingInDollars']);
         echo "<td style='text-align: center;'>";
         echo "{$product['SellingPriceProductOrServiceInDollars']}$ $shippingPrice";
         echo "</td>";
@@ -344,7 +344,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['
         echo "<td style='text-align: center; opacity: 0.5;'>";
         if ($product['ManageInventory'] == 1) {
             echo ($product['InventoryAvailable'] > 0 ? "available: " . htmlspecialchars($product['InventoryAvailable']) : "can be produced") . "<br>";
-            echo ($product['InventoryInProduction'] > 0 ? "in production: " . htmlspecialchars($product['InventoryInProduction']) : "can be produced");
+            echo ($product['InventoryInProduction'] > 0 ? "in production or reordered: " . htmlspecialchars($product['InventoryInProduction']) : "can be produced");
         } else {
             echo "can be produced";
         }

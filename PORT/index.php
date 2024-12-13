@@ -109,6 +109,8 @@ try {
             include("dashboard.php");
         } elseif ($content === 'orders.php') {
             include("orders.php");
+        } elseif ($content === 'ManualSelling.php') {
+            include("ManualSelling.php");
         } elseif ($content === 'inventory.php') {
             include("inventory.php");
         } elseif ($content === 'products.php') {
@@ -123,6 +125,8 @@ try {
             include("cart.php");
         } elseif ($content === 'PreviousCarts.php') {
             include("PreviousCarts.php");
+        } elseif ($content === 'ManualBuying.php') {
+            include("ManualBuying.php");
         } elseif ($content === 'accounting.php') {
             include("accounting.php");
         } elseif ($content === 'help.php') {

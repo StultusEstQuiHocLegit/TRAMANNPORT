@@ -23,6 +23,8 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 <br><br><br><br><br>
 
 
+<div id="groups"></div>
+<br><br>
 <div id="topics"></div>
 
 
@@ -49,6 +51,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// app donwload
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
+    group: 'GETTING STARTED',
     title: '📱 APP DOWNLOAD',
     content: `
         Download our app (apk file for android phones) by visiting this page with your mobile phone and then click on <a href=\"./DownloadApp/TRAMANN.apk\">📱 DOWNLOAD APP</a>
@@ -58,6 +61,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure CalendarEvents
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
+    group: 'DATABASE STRUCTURE',
     title: '🧬 DATABASE STRUCTURE CALENDAR EVENTS',
     content: `
         <br>
@@ -88,6 +92,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure ExplorersAndCreators
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
+    group: 'DATABASE STRUCTURE',
     title: '🧬 DATABASE STRUCTURE EXPLORERSANDCREATORS',
     content: `
         <br>
@@ -183,6 +188,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // /////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure ProductsAndServices
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
+    group: 'DATABASE STRUCTURE',
     title: '🧬 DATABASE STRUCTURE PRODUCTSANDSERVICES',
     content: `
         <br>
@@ -224,6 +230,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure transactions
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
+    group: 'DATABASE STRUCTURE',
     title: '🧬 DATABASE STRUCTURE TRANSACTIONS',
     content: `
         <br>
@@ -238,10 +245,10 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
             <tbody>
                 <tr><td>idpk</td><td>int, auto increment, primary key</td><td>s*</td><td></td></tr>
                 <tr><td>TimestampCreation</td><td>int</td><td>s*</td><td></td></tr>
-                <tr><td>IdpkExplorer</td><td>int</td><td>s*</td><td></td></tr>
-                <tr><td>IdpkProductOrService</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>IdpkExplorer</td><td>int</td><td>s*</td><td style="opacity: 0.5;">(0 for manual selling)</td></tr>
+                <tr><td>IdpkProductOrService</td><td>int</td><td>s*</td><td style="opacity: 0.5;">(0 for manual buying)</td></tr>
                 <tr><td>IdpkCart</td><td>int</td><td>s*</td><td></td></tr>
-                <tr><td>quantity</td><td>int</td><td>e*</td><td></td></tr>
+                <tr><td>quantity</td><td>int</td><td>e*</td><td style="opacity: 0.5;">(0 for manual buying)</td></tr>
                 <tr><td>AmountInDollars</td><td>decimal(10,2)</td><td>s*</td><td>(total amount (already multiplied with the quantity), because prices can change)</td></tr>
                 <tr><td>state</td><td>tinyint</td><td>e*</td><td>
                     (0 = collecting, 1 = ordered, 2 = paid, 3 = orders transmitted to creators, 
@@ -258,6 +265,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure carts
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
+    group: 'DATABASE STRUCTURE',
     title: '🧬 DATABASE STRUCTURE CARTS',
     content: `
         <br>
@@ -272,7 +280,9 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
             <tbody>
                 <tr><td>idpk</td><td>int, auto increment, primary key</td><td>s*</td><td></td></tr>
                 <tr><td>TimestampCreation</td><td>int</td><td>s*</td><td></td></tr>
-                <tr><td>IdpkExplorerOrCreator</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>IdpkExplorerOrCreator</td><td>int</td><td>s*</td><td style="opacity: 0.5;">(0 for manual selling)</td></tr>
+                <tr><td>manual</td><td>tinyint</td><td>s*</td><td>(0 = no (standard), 1 = yes)</td></tr>
+                <tr><td>IfManualFurtherInformation</td><td>text</td><td>e</td><td></td></tr>
 
                 <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
                 <tr style='opacity: 0.5;'><td>if the ProductsAndServices aren't restaurant food (type)</td><td></td><td></td><td></td></tr>
@@ -305,6 +315,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// page structure
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
+    group: 'OTHER TECHNICAL STUFF',
     title: '📚 PAGE STRUCTURE',
     content: `
         <div class="steps">
@@ -316,7 +327,6 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
             <br>cart.php
             <br>CreateAccount.php
             <br>CreatorsSuppliers.php
-            <br>CreatorWebsite.php
             <br>dashboard.php
             <br>explore.php
             <br>ExplorersCustomers.php
@@ -328,6 +338,8 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
             <br>LandingPage.php
             <br>login.php
             <br>logout.php
+            <br>ManualBuying.php
+            <br>ManualSelling.php
             <br>menu.php
             <br>orders.php
             <br>PreviousCarts.php
@@ -337,6 +349,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
             <br>SaveDataCart.php
             <br>SaveDataDashboard.php
             <br>SaveDataInventory.php
+            <br>SaveDataManualSellingOrBuying.php
             <br>SaveDataOrders.php
             <br>SaveDataShowProduct.php
             <br>search.php
@@ -350,6 +363,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// process of ordering
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
+    group: 'OTHER TECHNICAL STUFF',
     title: '⛓️ PROCESS OF ORDERING',
     content: `
         <table>
@@ -396,53 +410,92 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 
 
 
-        // Function to toggle visibility of the div content
-        function toggleVisibility(event, topicId) {
-            event.preventDefault(); // Prevent the link from being executed (page reload)
+// Extract unique groups
+const groupsSet = new Set(topics.map(t => t.group));
+const groups = Array.from(groupsSet);
 
-            var contentDiv = document.getElementById(topicId);
-            if (contentDiv.style.display === "none" || contentDiv.style.display === "") {
-                contentDiv.style.display = "block"; // Show content
-            } else {
-                contentDiv.style.display = "none"; // Hide content
-            }
-        }
+// Toggle visibility of topic content
+function toggleTopicContent(event, contentId) {
+    event.preventDefault();
+    const contentDiv = document.getElementById(contentId);
+    if (contentDiv.style.display === "none" || contentDiv.style.display === "") {
+        contentDiv.style.display = "block";
+    } else {
+        contentDiv.style.display = "none";
+    }
+}
 
-        // Dynamically generate topic content
-        window.onload = function() {
-            const topicsContainer = document.getElementById('topics');
-            topics.forEach((topic, index) => {
-                // Create a div to hold each topic
-                const topicDiv = document.createElement('div');
-                const topicId = `topic${index + 1}`;
-            
-                // Create the link with the topic title
-                const topicLink = document.createElement('a');
-                topicLink.href = "#"; // Set the href to "#" but we will prevent its default behavior
-                topicLink.onclick = (event) => toggleVisibility(event, topicId); // Prevent page reload and toggle visibility
+// Toggle visibility of a group's topics
+function toggleGroupTopics(event, groupName) {
+    event.preventDefault();
+    const topicsContainer = document.getElementById('topics');
+    const alreadyShown = topicsContainer.getAttribute('data-current-group');
 
-                const topicTitle = document.createElement('h3');
-                topicTitle.textContent = topic.title;
-                topicLink.appendChild(topicTitle);
-            
-                // Create the div for the content
-                const contentDiv = document.createElement('div');
-                contentDiv.id = topicId;
-                contentDiv.classList.add('entry');
-                contentDiv.innerHTML = topic.content;
-            
-                // Append the link and content to the topic div
-                topicDiv.appendChild(topicLink);
-                topicDiv.appendChild(contentDiv);
-            
-                // Append the topic div to the main container
-                topicsContainer.appendChild(topicDiv);
-            });
-        
-            // Hide all entries by default using JavaScript (in case of fallback)
-            const entries = document.querySelectorAll('.entry');
-            entries.forEach(entry => {
-                entry.style.display = 'none';  // Ensure all entries are hidden by default
-            });
-        };
-    </script>
+    // If the same group is clicked again, hide it
+    if (alreadyShown === groupName) {
+        topicsContainer.innerHTML = '';
+        topicsContainer.removeAttribute('data-current-group');
+        return;
+    }
+
+    // Clear and show topics for the selected group
+    topicsContainer.innerHTML = '';
+    topicsContainer.setAttribute('data-current-group', groupName);
+
+    // Filter topics by this group
+    const groupTopics = topics.filter(t => t.group === groupName);
+
+    groupTopics.forEach((topic, index) => {
+        // Create a container for the topic
+        const topicDiv = document.createElement('div');
+        topicDiv.style.marginLeft = '20px';
+
+        // Create clickable title
+        const topicLink = document.createElement('a');
+        topicLink.href = '#';
+        const topicId = `topic${groupName.replace(/\s/g, '')}${index}`;
+        topicLink.onclick = (e) => toggleTopicContent(e, topicId);
+        topicLink.innerHTML = `<h3>${topic.title}</h3>`;
+
+        // Create content div
+        const contentDiv = document.createElement('div');
+        contentDiv.id = topicId;
+        contentDiv.classList.add('entry');
+        contentDiv.style.display = 'none';
+        contentDiv.innerHTML = topic.content;
+
+        topicDiv.appendChild(topicLink);
+        topicDiv.appendChild(contentDiv);
+        topicsContainer.appendChild(topicDiv);
+    });
+}
+
+// On window load: show groups first
+window.onload = function() {
+    const groupsContainer = document.getElementById('groups');
+    const topicsContainer = document.getElementById('topics');
+
+    // Sort groups alphabetically
+    groups.sort();
+
+    groups.forEach((groupName) => {
+        const groupLink = document.createElement('a');
+        groupLink.classList.add('button'); // Add the "button" class
+        groupLink.style.marginRight = '10px'; // Add some spacing
+        groupLink.href = '#';
+        groupLink.innerHTML = ` ${groupName} `;
+        groupLink.onclick = (e) => toggleGroupTopics(e, groupName);
+
+        groupsContainer.appendChild(groupLink);
+    });
+
+    // Open the "GETTING STARTED" group by default if it exists
+    if (groups.includes("GETTING STARTED")) {
+        // Create a dummy event object since toggleGroupTopics expects an event
+        const dummyEvent = { preventDefault: () => {} };
+        toggleGroupTopics(dummyEvent, "GETTING STARTED");
+    }
+};
+
+
+</script>

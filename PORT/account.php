@@ -121,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         foreach ($errors as $error) {
             echo $error . "<br>";
         }
-        echo "<br><br><a href=\"index.php?content=account.php\">GO BACK</a>";
+        echo "<br><br><a href=\"index.php?content=account.php\">◀️ GO BACK</a>";
         exit; // Stop further processing
     }
 
@@ -261,10 +261,10 @@ try {
 
     // Execute the statement
     if ($stmt->execute()) {
-        echo "<br><br><br>Account updated successfully!<br><br><a href=\"index.php?content=account.php\">CONTINUE</a>";
+        echo "<br><br><br>Account updated successfully.<br><br><a href=\"index.php?content=account.php\">▶️ CONTINUE</a>";
     } else {
         echo "Error updating account.";
-        echo "<br><br><br>There was an unespected error updating your account. Please try again or contact an administrator so we can fix the problem.<br><br><a href=\"index.php?content=account.php\">CONTINUE</a>";
+        echo "<br><br><br>There was an unespected error updating your account. Please try again or contact an administrator so we can fix the problem.<br><br><a href=\"index.php?content=account.php\">▶️ CONTINUE</a>";
     }
 
 } catch (PDOException $e) {

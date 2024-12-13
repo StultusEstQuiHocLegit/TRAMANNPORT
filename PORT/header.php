@@ -103,7 +103,7 @@ body {
     <div style="opacity: 0.08;"><a href="../imprint.php">IMPRINT</a> - <a href="../DataSecurity.php">DATA SECURITY</a> - <a href="../license.php">LICENSE</a></div>
 </footer>
 -->
-<div id="cookie-container">
+<div id="cookie-container" style="<?php echo $isLoggedIn ? 'display: none;' : ''; ?>">
     <div id="cookie-content">
         <div id="cookie-sentences">To give you the best user experience on our websites, we use cookies.<br>By continuing to use our websites, you consent to the use of cookies.</div>
         <button id="close-cookie">&times;</button>

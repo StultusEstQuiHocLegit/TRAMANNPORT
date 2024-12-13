@@ -118,20 +118,20 @@ function displayCreatorsSuppliersRow($product, $highlight = false, $user_id = nu
             // Display the profile picture if it exists
             if ($profilePicturePath) {
                 // Output the image tag for the found profile picture
-                echo "<img src=\"$profilePicturePath\" style=\"height:50px;\">";
+                echo "<a href='index.php?content=explore.php&action=ShowCreatorOrExplorer&idpk={$product['idpk']}'><img src=\"$profilePicturePath\" style=\"height:50px;\"></a>";
             } else {
                 // If no profile picture is found, display nothing
             }
         echo "</td>";
-        echo "<td>{$product['CompanyName']} ({$product['idpk']})</td>";
+        echo "<td><a href='index.php?content=explore.php&action=ShowCreatorOrExplorer&idpk={$product['idpk']}'>{$product['CompanyName']} ({$product['idpk']})</a></td>";
         echo "<td style=\"opacity: 0.6;\"><div title=\"" . htmlspecialchars($product['ShortDescription']) . "\">$truncatedShortDescription</div><br>$address</td>";
     } else { // explorer
         echo "<td></td>";
-        echo "<td>{$product['FirstName']} {$product['LastName']} ({$product['idpk']})</td>";
+        echo "<td><a href='index.php?content=explore.php&action=ShowCreatorOrExplorer&idpk={$product['idpk']}'>{$product['FirstName']} {$product['LastName']} ({$product['idpk']})</a></td>";
         echo "<td style=\"opacity: 0.6;\">$address</td>";
     }
     
-    echo "<td><a href='index.php?content=explore.php&action=ShowCreatorOrExplorer&idpk={$product['idpk']}'>👁️ MORE</a></td>";  // show link
+    // echo "<td><a href='index.php?content=explore.php&action=ShowCreatorOrExplorer&idpk={$product['idpk']}'>👁️ MORE</a></td>";  // show link
 
     echo "</tr>";
 }

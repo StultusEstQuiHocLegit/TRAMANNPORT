@@ -59,9 +59,9 @@ try {
             e.LastName AS BuyerLastName
         FROM carts c
         INNER JOIN transactions t ON t.IdpkCart = c.idpk
-        INNER JOIN ExplorersAndCreators e ON c.IdpkExplorerOrCreator = e.idpk
+        LEFT JOIN ExplorersAndCreators e ON c.IdpkExplorerOrCreator = e.idpk
         INNER JOIN ProductsAndServices p ON t.IdpkProductOrService = p.idpk
-        WHERE p.IdpkCreator = :user_id AND t.state >= 3
+        WHERE (p.IdpkCreator = :user_id AND t.state >= 3)
         GROUP BY c.TimestampCreation, c.idpk, e.CompanyName, e.FirstName, e.LastName
         ORDER BY c.TimestampCreation DESC
     ");
@@ -111,34 +111,36 @@ try {
             
             // Fetch products along with customer details for the current cart
             $stmt = $pdo->prepare("
-            SELECT 
-                p.idpk AS ProductId,
-                p.name AS ProductName,
-                t.idpk AS TransactionId,
-                t.quantity AS Quantity,
-                t.AmountInDollars AS TotalPrice,
-                t.CommentsNotesSpecialRequests AS commentsNotesSpecialRequests,
-                t.state AS TransactionState,
-                p.state AS ProductState,
-                CONCAT('uploads/ProductPictures/', p.idpk, '_0.jpg') AS Image,
-                -- Fetch customer information
-                ec.idpk AS BuyerId,
-                ec.CompanyName,
-                ec.FirstName,
-                ec.LastName,
-                c.IdpkExplorerOrCreator,
-                ec.ExplorerOrCreator,
-                -- Fetch address details
-                ec.country,
-                ec.city,
-                ec.ZIPCode,
-                ec.street,
-                ec.HouseNumber
-            FROM transactions t
-            INNER JOIN ProductsAndServices p ON t.IdpkProductOrService = p.idpk
-            INNER JOIN carts c ON t.IdpkCart = c.idpk
-            INNER JOIN ExplorersAndCreators ec ON c.IdpkExplorerOrCreator = ec.idpk
-            WHERE t.IdpkCart = :cart_id
+                SELECT 
+                    c.manual AS manual,
+                    c.IfManualFurtherInformation AS ifManualFurtherInformation,
+                    p.idpk AS ProductId,
+                    p.name AS ProductName,
+                    t.idpk AS TransactionId,
+                    t.quantity AS Quantity,
+                    t.AmountInDollars AS TotalPrice,
+                    t.CommentsNotesSpecialRequests AS commentsNotesSpecialRequests,
+                    t.state AS TransactionState,
+                    p.state AS ProductState,
+                    CONCAT('uploads/ProductPictures/', p.idpk, '_0.jpg') AS Image,
+                    -- Fetch customer information
+                    ec.idpk AS BuyerId,
+                    ec.CompanyName,
+                    ec.FirstName,
+                    ec.LastName,
+                    c.IdpkExplorerOrCreator,
+                    ec.ExplorerOrCreator,
+                    -- Fetch address details
+                    ec.country,
+                    ec.city,
+                    ec.ZIPCode,
+                    ec.street,
+                    ec.HouseNumber
+                FROM transactions t
+                INNER JOIN ProductsAndServices p ON t.IdpkProductOrService = p.idpk
+                INNER JOIN carts c ON t.IdpkCart = c.idpk
+                LEFT JOIN ExplorersAndCreators ec ON c.IdpkExplorerOrCreator = ec.idpk
+                WHERE t.IdpkCart = :cart_id
             ");
             $stmt->execute(['cart_id' => $cart['CartNumber']]);
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -193,22 +195,35 @@ try {
 
 
 
-            // Determine the customer display name
-            $customerDisplayName = ($product['ExplorerOrCreator'] == 1) 
-                ? $product['CompanyName'] 
-                : $product['FirstName'] . ' ' . $product['LastName'];
-            // Combine the address details
-            $customerAddress = "{$product['country']}, {$product['city']}, {$product['ZIPCode']}, {$product['street']} {$product['HouseNumber']}";
-            echo "<tr id='cart-buyer-details cart-{$cart['CartNumber']}' style='opacity: {$cartOpacityClass}; font-weight: bold;'>";
-            echo "<td></td>";
-            echo "<td></td>";
-            echo "<td colspan='5'>" . $customerDisplayName . " (" . $product['BuyerId'] . "), " . $customerAddress . "</td>";
-            // echo "<td></td>";
-            // echo "<td></td>";
-            // echo "<td colspan='4'>{$customerAddress}</td>";          
-            // echo "<td></td>";
-            echo "<td></td>";
-            echo "</tr>";
+            if ($product['manual'] == 1) {    
+                echo "<tr id='cart-buyer-details cart-{$cart['CartNumber']}' style='opacity: {$cartOpacityClass}; font-weight: bold;'>";
+                echo "<td></td>";
+                echo "<td></td>";
+                echo "<td colspan='5'>{$product['ifManualFurtherInformation']}</td>";
+                // echo "<td></td>";
+                // echo "<td></td>";
+                // echo "<td colspan='4'>{$customerAddress}</td>";          
+                // echo "<td></td>";
+                echo "<td></td>";
+                echo "</tr>";
+            } else {
+                // Determine the customer display name
+                $customerDisplayName = ($product['ExplorerOrCreator'] == 1) 
+                    ? $product['CompanyName'] 
+                    : $product['FirstName'] . ' ' . $product['LastName'];
+                // Combine the address details
+                $customerAddress = "{$product['country']}, {$product['city']}, {$product['ZIPCode']}, {$product['street']} {$product['HouseNumber']}";
+                echo "<tr id='cart-buyer-details cart-{$cart['CartNumber']}' style='opacity: {$cartOpacityClass}; font-weight: bold;'>";
+                echo "<td></td>";
+                echo "<td></td>";
+                echo "<td colspan='5'><a href='index.php?content=explore.php&action=ShowCreatorOrExplorer&idpk={$product['BuyerId']}'>" . $customerDisplayName . " (" . $product['BuyerId'] . ")</a>, " . $customerAddress . "</td>";
+                // echo "<td></td>";
+                // echo "<td></td>";
+                // echo "<td colspan='4'>{$customerAddress}</td>";          
+                // echo "<td></td>";
+                echo "<td></td>";
+                echo "</tr>";
+            }
 
 
         
@@ -252,7 +267,7 @@ try {
                 echo "</tr></tr><tr id='cart-products-{$product['TransactionId']}' class='cart-products cart-products-{$cart['CartNumber']}' style='opacity: {$opacity}; display: none;'>";
                 echo "<td></td>";
                 echo "<td>{$product['TransactionId']}</td>";
-                echo "<td title='{$productName} ({$product['ProductId']})'>{$truncatedName} ({$product['ProductId']}){$commentsNotes}</td>";
+                echo "<td title='{$productName} ({$product['ProductId']})'><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['ProductId']}'>$truncatedName ({$product['ProductId']})</a><br>{$commentsNotes}</td>";
                 echo "<td style='font-weight: bold; font-size: 1.5rem;'>{$product['Quantity']}x </td>";
                 echo "<td>{$product['TotalPrice']}$</td>";
                 echo "<td title='(0 = collecting, 1 = ordered, 2 = paid, 3 = orders transmitted to creators, 4 = creators producing or selecting, 5 = creators shipping, 6 = in customs, 7 = at distribution center, 8 = arriving, 9 = finished)'>{$translatedTransactionState}</td>";
@@ -270,7 +285,8 @@ try {
                     }
                 echo "</td>";
 
-                echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['ProductId']}'>👁️ MORE</a></td>";
+                // echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['ProductId']}'>👁️ MORE</a></td>";
+                echo "<td></td>";
         
                 echo "</tr>";
             }

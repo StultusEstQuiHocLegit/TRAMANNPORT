@@ -314,7 +314,7 @@ function displayProductRow($product, $transaction = null, $user_id = null) {
     // echo "<input type=\"number\" id=\"quantity\" name=\"quantity\" value=\"$quantity\" placeholder=\"quantity\"></td>";
 
     echo "<td>";
-    echo "$truncatedName ({$product['idpk']})<br><div style=\"opacity: 0.5;\">$truncatedDescription</div>";
+    echo "<a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a><br><div style=\"opacity: 0.5;\">$truncatedDescription</div>";
     echo "<div style=\"position: relative; display: flex; align-items: flex-end;\">";
     // echo "<input type=\"text\" id=\"CommentsNotesSpecialRequests\" name=\"CommentsNotesSpecialRequests\" value=\"$commentsNotesSpecialRequests\" placeholder=\"comments, notes, special requests\" style=\"width: 90%;\" onchange=\"updateCartData({$product['idpk']}, 'CommentsNotesSpecialRequests', this.value)\">";
         // Check if AllowCommentsNotesSpecialRequests is set to 1 (yes)
@@ -342,7 +342,7 @@ function displayProductRow($product, $transaction = null, $user_id = null) {
     echo "</div></td>";
 
     // Links
-    echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>👁️ MORE</a></td>";
+    // echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>👁️ MORE</a></td>";
     echo "<td><a href=\"javascript:void(0);\" onclick=\"confirmRemoval({$product['idpk']}, '{$product['name']}')\" style='opacity: 0.5;'>❌ REMOVE</a></td>";
     
     // End the table row

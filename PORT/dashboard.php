@@ -160,7 +160,7 @@ $explorers_percentage = number_format($explorers_percentage, 0) . "%";
 
 
 
-<h1>⭐ DASHBOARD</h1>
+<h1>⭐ DASHBOARD <span id="additionalIcon"></span></h1>
 <div class="stats-container">
     <div class="stat-item">
         <span class="stat-number"><?= $revenue_24h ?>$ (<?= $revenue_24h_percentage ?>)</span>
@@ -214,22 +214,25 @@ $stmt = $pdo->prepare("
         e.FirstName AS BuyerFirstName,
         e.LastName AS BuyerLastName,
         e.CompanyName AS CompanyName,
-        e.idpk AS ExplorerOrCreatorId,  -- Add this line to get the idpk of Explorer/Creator
+        e.idpk AS ExplorerOrCreatorId,
         p.name AS ProductName,
+        p.idpk AS ProductIdpk,
         t.quantity AS Quantity,
         t.AmountInDollars AS TotalAmount,
         t.CommentsNotesSpecialRequests AS Comments,
+        c.manual AS manual,
+        c.IfManualFurtherInformation AS IfManualFurtherInformation,
         c.DeliveryType AS DeliveryType,
         c.WishedIdealDeliveryOrPickUpTime AS WishedTime
     FROM transactions t
     INNER JOIN carts c ON t.IdpkCart = c.idpk
-    INNER JOIN ExplorersAndCreators e ON c.IdpkExplorerOrCreator = e.idpk
+    LEFT JOIN ExplorersAndCreators e ON c.IdpkExplorerOrCreator = e.idpk
     INNER JOIN ProductsAndServices p ON t.IdpkProductOrService = p.idpk
-    WHERE t.state = 3 OR t.state = 4 -- orders transmitted to creators OR creators producing or selecting
+    WHERE (p.IdpkCreator = :user_id AND (t.state = 3 OR t.state = 4))
     ORDER BY c.TimestampCreation DESC
-    LIMIT 8 -- Adjust this to show the number of orders you want
+    LIMIT 5
 ");
-$stmt->execute();
+$stmt->execute(['user_id' => $user_id]);
 $newestOrders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Initialize order list output
@@ -237,10 +240,11 @@ $orderList = "";
 
 // Check if there are any orders in the database
 if (empty($newestOrders)) {
-    $orderList = "There are no orders yet, scroll down to your to do list and pick some tasks or do more advertising."; // Display message if no orders are found
+    $orderList = "<div style=\"opacity: 0.4;\">There are no orders yet, you can scroll down to your to do list and pick some tasks from there.</div>"; // Display message if no orders are found
+    $orderList .= '<br><a href="index.php?content=orders.php">📝 VIEW ALL ORDERS AND MANAGE THEM</a>';
 } else {
     // Set the total number of orders to display
-    $totalOrders = 8;
+    $totalOrders = 5;
 
     // Loop through each order and display the details with adjusted opacity behavior
     for ($i = 0; $i < $totalOrders; $i++) {
@@ -251,8 +255,18 @@ if (empty($newestOrders)) {
         }
     
         // Display buyer name (company or individual)
-        $buyerName = isset($order['CompanyName']) && !empty($order['CompanyName']) ? $order['CompanyName'] . " (" . $order['ExplorerOrCreatorId'] . ")" : 
-                     (isset($order['BuyerFirstName']) && isset($order['BuyerLastName']) ? $order['BuyerFirstName'] . " " . $order['BuyerLastName'] . " (" . $order['ExplorerOrCreatorId'] . ")" : 'Unknown Buyer');
+        // $buyerName = isset($order['CompanyName']) && !empty($order['CompanyName']) ? $order['CompanyName'] . " (" . $order['ExplorerOrCreatorId'] . ")" : 
+                    //  (isset($order['BuyerFirstName']) && isset($order['BuyerLastName']) ? $order['BuyerFirstName'] . " " . $order['BuyerLastName'] . " (" . $order['ExplorerOrCreatorId'] . ")" : 'manual');
+        // Display buyer name (company, individual, or manual)
+        $buyerName = isset($order['manual']) && $order['manual'] == 1 
+        ? (strlen($order['IfManualFurtherInformation']) > 30 
+            ? substr($order['IfManualFurtherInformation'], 0, 30) . "..." 
+            : $order['IfManualFurtherInformation']) . " (manual)"
+        : (isset($order['CompanyName']) && !empty($order['CompanyName']) 
+            ? $order['CompanyName'] . " (" . $order['ExplorerOrCreatorId'] . ")" 
+            : (isset($order['BuyerFirstName']) && isset($order['BuyerLastName']) 
+                ? $order['BuyerFirstName'] . " " . $order['BuyerLastName'] . " (" . $order['ExplorerOrCreatorId'] . ")" 
+                : 'manual'));
         
         // Format delivery type
         $deliveryType = '';
@@ -271,9 +285,9 @@ if (empty($newestOrders)) {
         $wishedDeliveryTime = isset($order['WishedTime']) && $order['WishedTime'] ? date('Y-m-d H:i:s', $order['WishedTime']) : 'Not specified';
     
         // Adjust opacity based on the order position
-        if ($i < 6) {
+        if ($i < 3) {
             $opacity = 1.0; // Full opacity for the first 6 orders
-        } elseif ($i < 7) {
+        } elseif ($i < 4) {
             $opacity = 0.6; // Opacity for the 7th order
         } else {
             $opacity = 0.3; // Opacity for the 8th order
@@ -284,8 +298,10 @@ if (empty($newestOrders)) {
     
         // Build the order display
         $orderList .= "<div style=\"opacity: {$opacity};\">";
-        $orderList .= htmlspecialchars($buyerName ?? 'Unknown Buyer') . " bought ";
-        $orderList .= htmlspecialchars($order['ProductName'] ?? 'Unknown Product') . " (" . intval($order['Quantity']) . "x) ";
+        $orderList .= htmlspecialchars($buyerName ?? 'unknown') . " bought ";
+            $productName = htmlspecialchars($order['ProductName'] ?? 'unknown');
+            $truncatedName = strlen($productName) > 50 ? substr($productName, 0, 47) . "..." : $productName;
+        $orderList .= "<span title='{$productName} ({$order['ProductIdpk']})'>{$truncatedName} ({$order['ProductIdpk']}), quantity: " . intval($order['Quantity']) . ",</span> ";
         $orderList .= "in cart " . intval($order['CartNumber']) . " on ";
         $orderList .= date('Y-m-d H:i:s', $order['CartTimestamp']) . " ";
         $orderList .= "for combined " . $formattedAmount . "$";
@@ -312,7 +328,7 @@ if (empty($newestOrders)) {
 
 
 
-<br><br><br><br><br>
+<br><br>
 <h3>📝 NEWEST ORDERS</h3>
 <!-- <div class="steps">
     MaxMustermann bought ReallyGreatProduct (2x) in the cart CartNumber on the TimestampHere for XX$ with the following comments: CommentsHere
@@ -331,8 +347,95 @@ if (empty($newestOrders)) {
 
 
 
+<?php
+// Fetch events from today, tomorrow, and the day after tomorrow
+$stmt = $pdo->prepare("
+    SELECT 
+        EventName, 
+        StartTime, 
+        EndTime, 
+        Location, 
+        EventDescription,
+        AllDay
+    FROM CalendarEvents
+    WHERE DATE(FROM_UNIXTIME(StartTime)) BETWEEN CURDATE() AND CURDATE() + INTERVAL 2 DAY
+      AND IdpkExplorerOrCreator = :user_id
+    ORDER BY StartTime ASC
+");
+$stmt->execute(['user_id' => $user_id]);
+$events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-<br><br><br><br><br>
+// Initialize the event list output
+$calendarList = "";
+
+// Check if there are any events
+if (empty($events)) {
+    $calendarList = "<div style=\"opacity: 0.4;\">There are no upcoming calendar events within the next days.</div>"; // Message if no events are found
+    $calendarList .= '<br><a href="index.php?content=calendar.php">🗓️ VIEW CALENDAR</a>';
+} else {
+    foreach ($events as $event) {
+        // Determine the event date category: today, tomorrow, or the day after
+        $eventDate = date('Y-m-d', $event['StartTime']);
+        $today = date('Y-m-d');
+        $tomorrow = date('Y-m-d', strtotime('+1 day'));
+        $dayAfterTomorrow = date('Y-m-d', strtotime('+2 days'));
+
+        if ($eventDate === $today) {
+            $dateLabel = "today,";
+            $opacity = 1.0;
+        } elseif ($eventDate === $tomorrow) {
+            $dateLabel = "tomorrow,";
+            $opacity = 0.6;
+        } else {
+            $dateLabel = "the day after tomorrow,";
+            $opacity = 0.3;
+        }
+
+        // Format start and end times (only if it's not an all-day event)
+        $timeRange = "";
+        if (empty($event['IsAllDay']) || $event['IsAllDay'] == 0) {
+            $startTime = date('H:i', $event['StartTime']);
+            $endTime = date('H:i', $event['EndTime']);
+            $timeRange = " {$startTime}-{$endTime}";
+        }
+
+        // Format location (only show if it's not empty)
+        $location = !empty($event['Location']) ? " ({$event['Location']})" : "";
+
+        // Format description (truncate to 50 characters and add hover title for the full text)
+        $description = htmlspecialchars($event['EventDescription'] ?? "no description");
+        $truncatedDescription =  strlen($description) > 50 ? substr($description, 0, 47) . "..." : $description;
+
+        // Build the event entry
+        $calendarList .= "<div style=\"opacity: {$opacity};\">";
+        $calendarList .= "{$dateLabel}{$timeRange}{$location}";
+        $calendarList .= ", <span title=\"{$description}\">{$truncatedDescription}</span>";
+        $calendarList .= "</div><br>";
+    }
+
+    // Add the "VIEW CALENDAR" link at the end
+    $calendarList .= '<a href="index.php?content=calendar.php">🗓️ VIEW CALENDAR</a>';
+}
+?>
+
+
+
+
+
+
+<br><br>
+<h3>🗓️ UPCOMING CALENDAR EVENTS</h3>
+<div class="steps">
+    <?php echo $calendarList; ?>
+</div>
+
+
+
+
+
+
+
+<br><br>
 <h3>📋 TO DO LIST</h3>
 <textarea id="PersonalToDoList" rows="16" style="width: 100%;" oninput="saveData('PersonalToDoList', this.value)"><?php echo htmlspecialchars(trim($user['PersonalToDoList'] ?? '')); ?></textarea>
 <br>
@@ -352,7 +455,7 @@ if (empty($newestOrders)) {
     <!-- Display will be dynamically updated here -->
 </div>
 <!-- </div> -->
-<br>
+<!-- <br> -->
 <br>
 <h3>📒 NOTES</h3>
 <textarea id="PersonalNotes" rows="16" style="width: 100%;" oninput="saveData('PersonalNotes', this.value)"><?php echo htmlspecialchars(trim($user['PersonalNotes'] ?? '')); ?></textarea>
@@ -365,10 +468,12 @@ if (empty($newestOrders)) {
 
 
 <?php
-echo "<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>";
+echo "<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>";
 echo "<h3>🧭 MENU</h3>";
-include ("menu.php"); // Include the menu
+include ("menu.php"); // include the menu
 ?>
+
+
 
 
 
@@ -516,5 +621,117 @@ function saveData(fieldName, value) {
         }
     };
 }
-</script>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Function to dynamically load an icon and tooltip based on the current date and time
+function loadAdditionalIcon() {
+    const iconElement = document.getElementById('additionalIcon');
+    const currentDate = new Date();
+    const hours = currentDate.getHours();
+    const month = currentDate.getMonth() + 1; // JavaScript months are 0-based
+    const day = currentDate.getDate();
+
+    let iconHTML = '';
+    let titleText = '';
+
+    // Time-based icons
+    if (hours >= 6 && hours < 9) {
+        iconHTML = '☀️'; // Rising Sun
+        titleText = 'good morning   : )';
+    } else if (hours >= 21 || hours < 6) {
+        iconHTML = '🌙'; // Moon
+        titleText = 'good night   : )';
+    } else {
+        // Day-based themes
+        const dateKey = `${month}-${day}`;
+        const dayThemes = {
+            '1-1': { icon: '🎉', title: 'happy new year   : )' },
+            '1-2': { icon: '🚀', title: 'happy science fiction day   : )' },
+            '1-6': { icon: '👑', title: 'happy epiphany   : )' },
+            '1-14': { icon: '🪁', title: 'happy makar sankranti   : )' },
+            '1-16': { icon: '🐉', title: 'happy appreciate a dragon day   : )' },
+            '1-25': { icon: '🐇', title: 'happy lunar new year   : )' },
+            '2-2': { icon: '🦫', title: 'happy groundhog day   : )' },
+            '2-9': { icon: '🍕', title: 'happy national pizza day   : )' },
+            '2-14': { icon: '❤️', title: 'happy valentine’s day   : )' },
+            '2-20': { icon: '🪁', title: 'happy kite flying day   : )' },
+            '3-14': { icon: '🥧', title: 'happy pi day   : )' },
+            '3-17': { icon: '☘️', title: 'happy st. patrick’s day   : )' },
+            '3-20': { icon: '🌞', title: 'happy first day of spring   : )' },
+            '3-23': { icon: '🦉', title: 'happy world meteorological day   : )' },
+            '4-1': { icon: '😂', title: 'happy april fools’ day   : )' },
+            '4-20': { icon: '🍀', title: 'happy earth day eve   : )' },
+            '4-22': { icon: '🔵', title: 'happy earth day   : )' },
+            '4-26': { icon: '👽', title: 'happy alien day   : )' },
+            '4-30': { icon: '🎷', title: 'happy international jazz day   : )' },
+            '5-1': { icon: '🛠️', title: 'happy labor day   : )' },
+            '5-4': { icon: '🌌', title: 'may the fourth be with you   : )' },
+            '5-5': { icon: '🎉', title: 'happy cinco de mayo   : )' },
+            '5-25': { icon: '🧻', title: 'happy towel day   : )' },
+            '6-8': { icon: '🌊', title: 'happy world oceans day   : )' },
+            '6-21': { icon: '☀️', title: 'happy summer solstice   : )' },
+            '6-30': { icon: '☄️', title: 'happy asteroid day   : )' },
+            '7-4': { icon: '🎆', title: 'happy independence day   : )' },
+            '7-20': { icon: '🌕', title: 'happy moon landing day   : )' },
+            '8-9': { icon: '📚', title: 'happy book lovers day   : )' },
+            '8-12': { icon: '🌌', title: 'happy perseid meteor shower viewing day   : )' },
+            '9-12': { icon: '💻', title: 'happy programmers’ day   : )' },
+            '9-19': { icon: '🏴‍☠️', title: 'talk like a pirate day   : )' },
+            '9-21': { icon: '🕊️', title: 'happy international day of peace   : )' },
+            '10-1': { icon: '🎼', title: 'happy international music day   : )' },
+            '10-4': { icon: '🐾', title: 'happy world animal day   : )' },
+            '10-23': { icon: '⚗️', title: 'happy mole day   : )' },
+            '10-31': { icon: '🎃', title: 'happy halloween   : )' },
+            '11-1': { icon: '🕯️', title: 'happy all saints’ day   : )' },
+            '11-07': { icon: '🎂', title: 'happy TRAMANN PORT first release day   : )' },
+            '11-11': { icon: '🎖️', title: 'veterans day   : )' },
+            '11-13': { icon: '🤝', title: 'happy world kindness day   : )' },
+            '11-24': { icon: '🦃', title: 'happy thanksgiving   : )' },
+            '12-1': { icon: '⛄️', title: 'happy first day of winter   : )' },
+            '12-4': { icon: '🛰️', title: 'happy world space exploration day   : )' },
+            '12-8': { icon: '⏳', title: 'happy pretend to be a time traveler day   : )' },
+            '12-10': { icon: '📜', title: 'happy human rights day   : )' },
+            '12-24': { icon: '🎄', title: 'merry christmas eve   : )' },
+            '12-25': { icon: '🎁', title: 'merry christmas   : )' },
+            '12-31': { icon: '🎆', title: 'happy new year’s eve   : )' },
+        };
+
+        // Default day-time icon
+        const defaultTheme = { icon: '⭐', title: 'have a great day   : )' };
+
+        const selectedTheme = dayThemes[dateKey] || defaultTheme;
+        iconHTML = selectedTheme.icon;
+        titleText = selectedTheme.title;
+    }
+
+    // Set the selected icon and tooltip into the element
+    iconElement.innerHTML = iconHTML;
+    iconElement.title = titleText;
+}
+
+// Run the function on page load
+document.addEventListener('DOMContentLoaded', loadAdditionalIcon);
+</script>

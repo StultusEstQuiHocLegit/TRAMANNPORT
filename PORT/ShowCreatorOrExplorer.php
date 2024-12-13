@@ -1,6 +1,174 @@
 <?php
+// Function to truncate text based on specified limits
+function truncateText($text, $limit) {
+    return (strlen($text) > $limit) ? substr($text, 0, $limit) . '...' : $text;
+}
+
+// Function to format the shipping price
+function formatShippingPrice($shippingPrice) {
+    return (!empty($shippingPrice) && $shippingPrice != 0) ? "(+$shippingPrice\$)" : '';
+}
+
+
+
+
+
+// Function to display a product row
+function displayCreatorOrExplorerProductRow($product, $highlight = false) {
+    $truncatedName = truncateText($product['name'], 50);
+    $truncatedDescription = truncateText($product['ShortDescription'], 100);
+    $shippingPrice = formatShippingPrice($product['SellingPricePackagingAndShippingInDollars']);
+
+    $user_id = isset($_COOKIE['user_id']) ? (int)$_COOKIE['user_id'] : null;
+
+    // Determine if the user can manage this product
+    $canManage = ($product['IdpkCreator'] == $user_id);
+
+    // Reduce the opacity for inactive (0) products or services
+    $rowOpacity = ($product['state'] == 0) ? '0.4' : '1.0';
+
+    echo "<tr style='opacity: $rowOpacity;'>";
+    if ($canManage) {
+        echo "<td style='width: 1px; background-color: yellow;'></td>"; // Yellow block column
+    } else {
+        echo "<td></td>";
+    }
+
+    // Image handling
+    $uploadDir = "uploads/ProductPictures/" . htmlspecialchars($product['idpk']) . "_";
+    $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    $imagePaths = [];
+
+    for ($i = 0; $i < 5; $i++) {
+        foreach ($validExtensions as $extension) {
+            $filePath = "{$uploadDir}{$i}.{$extension}";
+            if (file_exists($filePath)) {
+                $imagePaths[] = $filePath;
+                break;
+            }
+        }
+    }
+
+    if (isset($imagePaths[0]) && file_exists($imagePaths[0])) {
+        echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'><img src=\"" . htmlspecialchars($imagePaths[0]) . "\" style=\"height:100px;\"></a></td>";
+    } else {
+        echo "<td></td>";
+    }
+
+    echo "<td title=\"" . htmlspecialchars($product['name']) . " ({$product['idpk']})\"><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a><br><div title=\"" . htmlspecialchars($product['ShortDescription']) . "\" style=\"opacity: 0.5;\">$truncatedDescription</div></td>";
+    echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$ $shippingPrice</td>";
+    
+    // Links
+    // echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>👁️ MORE</a></td>";
+    if ($canManage) {
+        echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";
+    } else {
+        echo "<td><a href='index.php?content=explore.php' onclick='addToCartGlow(event, {$product['idpk']})'>🛒 ADD TO CART</a></td>";
+    }
+    echo "</tr>";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Check if action and idpk are set
-if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorer' && isset($_GET['idpk'])) {
+if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorerProductsAndServices' && isset($_GET['idpk'])) {
+    // Retrieve the idpk from the URL
+    $idpk = intval($_GET['idpk']);
+    
+    try {
+        // Check if the user with this idpk is a Creator
+        $query = "SELECT ExplorerOrCreator FROM ExplorersAndCreators WHERE idpk = :idpk";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam(':idpk', $idpk, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Verify if the user exists and is a Creator (ExplorerOrCreator = 1)
+        if ($user && intval($user['ExplorerOrCreator']) === 1) {
+            // Fetch active Products and Services for the Creator
+            $sql = "SELECT * 
+                    FROM ProductsAndServices 
+                    WHERE IdpkCreator = :idpk AND state = 1";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':idpk', $idpk, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Fetch all matching records
+            $productsAndServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($productsAndServices) {
+                echo '<table>'; // Open the table for results
+                
+                foreach ($productsAndServices as $product) {
+                    displayCreatorOrExplorerProductRow($product, false, $idpk);
+                }
+
+                echo '</table>'; // Close the table
+            } else {
+                echo "We are very sorry, but we couldn't find any active products or services from this creator.";
+            }
+        }
+    } catch (PDOException $e) {
+        // Handle database errors (e.g., log the error and display a user-friendly message)
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Check if action and idpk are set
+} elseif (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorer' && isset($_GET['idpk'])) {
     // Retrieve the idpk from the URL
     $idpk = intval($_GET['idpk']);
 
@@ -190,6 +358,29 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorer' && iss
                 echo "</tr>";
             echo "</table>";
 
+            // echo "<a href='index.php?content=explore.php&action=ShowCreatorOrExplorerProductsAndServices&idpk={$ExplorersAndCreators['idpk']}' class='mainbutton'>👁️ OUR PRODUCTS AND SERVICES</a>";
+
+            // Check if the user is a Creator and has entries in ProductsAndServices
+            try {
+                // Query to check if the user is a Creator and has active Products or Services
+                $sql = "SELECT COUNT(*) AS productCount 
+                        FROM ProductsAndServices 
+                        WHERE IdpkCreator = :idpk AND state = 1";
+
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':idpk', $idpk, PDO::PARAM_INT);
+                $stmt->execute();
+            
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+                // Display the link if there are active Products or Services
+                if ($result && intval($result['productCount']) > 0) {
+                    echo "<a href='index.php?content=explore.php&action=ShowCreatorOrExplorerProductsAndServices&idpk={$idpk}' class='mainbutton'>👁️ OUR PRODUCTS AND SERVICES</a>";
+                }
+            } catch (PDOException $e) {
+                // Handle database errors (e.g., log the error and display a user-friendly message)
+            }
+
 
 
 
@@ -260,45 +451,146 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorer' && iss
             echo "<br><br><br><br>{$ExplorersAndCreators['LongDescription']}";
 
 
-            echo "<br><br><br><br><br><strong>🔗 LINKS</strong>";
-            echo "<div id=\"LinksToSocialMediaAndOtherSites\" name=\"LinksToSocialMediaAndOtherSites\" style=\"text-align: left;\">";
 
             $text = htmlspecialchars(trim($ExplorersAndCreators['LinksToSocialMediaAndOtherSites'] ?? ''));
+
+            // Only process and display if there are links
+            if (!empty($text)) {
+                echo "<br><br><br><br><br><strong>🔗 LINKS</strong>";
+                echo "<div id=\"LinksToSocialMediaAndOtherSites\" name=\"LinksToSocialMediaAndOtherSites\" style=\"text-align: left;\">";
             
-            // Regular expression to match valid URLs
-            $urlRegex = '/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})([\/\w\-\.?&=]*)/';
+                // Regular expression to match valid URLs
+                $urlRegex = '/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})([\/\w\-\.?&=]*)/';
+                
+                // Replace URLs with clickable links
+                $formattedText = preg_replace_callback($urlRegex, function ($matches) {
+                    $hostname = $matches[1];
+                    $pathname = $matches[2] ?? '';
+                
+                    // Create the full URL for the link
+                    $fullUrl = "https://$hostname$pathname";
+                
+                    // Remove 'www.' if present
+                    $displayDomain = strtoupper(str_replace('www.', '', $hostname)); // Convert domain to uppercase
+                
+                    // Remove TLDs from hostname
+                    $domainParts = explode('.', $displayDomain);
+                    $cleanDomain = count($domainParts) > 1 ? implode('.', array_slice($domainParts, 0, -1)) : $displayDomain;
+                
+                    // Get the last part of the pathname for the page name
+                    $pathParts = array_filter(explode('/', $pathname));
+                    $pageName = end($pathParts) ? explode('?', end($pathParts))[0] : ''; // Get the last part without query or fragment
+                
+                    // Limit lengths for display
+                    $limitedDomain = strlen($cleanDomain) > 20 ? substr($cleanDomain, 0, 20) . '...' : $cleanDomain;
+                    $limitedPageName = strlen($pageName) > 20 ? substr($pageName, 0, 20) . '...' : $pageName;
+                
+                    // Convert page name to uppercase if present
+                    $displayText = $pageName ? "$limitedDomain ($limitedPageName)" : $limitedDomain;
+                
+                    return "<a href=\"$fullUrl\" target=\"_blank\" class=\"link\">$displayText</a><br>";
+                }, $text);
+
+                echo $formattedText;
+                echo "</div>";
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // Define the base path for uploaded images
+            $uploadDir = "uploads/CreatorWebsitePictures/";
+            $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+
+            // User ID
+            $explorersAndCreatorsId = htmlspecialchars($ExplorersAndCreators['idpk']);
+
+            // Flag to check if any website content exists
+            $hasWebsiteContent = false;
+
+            // Check for content in slots 1 to 10
+            for ($i = 1; $i <= 10; $i++) {
+                $heading = $ExplorersAndCreators['Heading' . $i] ?? null;
+                $text = $ExplorersAndCreators['Text' . $i] ?? null;
             
-            // Replace URLs with clickable links
-            $formattedText = preg_replace_callback($urlRegex, function ($matches) {
-                $hostname = $matches[1];
-                $pathname = $matches[2] ?? '';
+                // Check if an image exists for this slot
+                foreach ($validExtensions as $ext) {
+                    $filePath = "{$uploadDir}{$explorersAndCreatorsId}_{$i}.{$ext}";
+                    if (file_exists($filePath)) {
+                        $hasWebsiteContent = true;
+                        break 2; // Exit both loops if content is found
+                    }
+                }
             
-                // Create the full URL for the link
-                $fullUrl = "https://$hostname$pathname";
+                // Check for heading or text
+                if ($heading || $text) {
+                    $hasWebsiteContent = true;
+                    break; // Exit loop if content is found
+                }
+            }
+
+            // Display the website section only if content exists
+            if ($hasWebsiteContent) {
+                echo "<br><br><br><br><br>";
+                echo "<br><br><br><br><br><h3>🌐 WEBSITE</h3><br><br>";
             
-                // Remove 'www.' if present
-                $displayDomain = strtoupper(str_replace('www.', '', $hostname)); // Convert domain to uppercase
-            
-                // Remove TLDs from hostname
-                $domainParts = explode('.', $displayDomain);
-                $cleanDomain = count($domainParts) > 1 ? implode('.', array_slice($domainParts, 0, -1)) : $displayDomain;
-            
-                // Get the last part of the pathname for the page name
-                $pathParts = array_filter(explode('/', $pathname));
-                $pageName = end($pathParts) ? explode('?', end($pathParts))[0] : ''; // Get the last part without query or fragment
-            
-                // Limit lengths for display
-                $limitedDomain = strlen($cleanDomain) > 20 ? substr($cleanDomain, 0, 20) . '...' : $cleanDomain;
-                $limitedPageName = strlen($pageName) > 20 ? substr($pageName, 0, 20) . '...' : $pageName;
-            
-                // Convert page name to uppercase if present
-                $displayText = $pageName ? "$limitedDomain ($limitedPageName)" : $limitedDomain;
-            
-                return "<a href=\"$fullUrl\" target=\"_blank\" class=\"link\">$displayText</a><br>";
-            }, $text);
-            
-            echo $formattedText;
-            echo "</div>";
+                // Loop through slots 1 to 10 to display content
+                for ($i = 1; $i <= 10; $i++) {
+                    $heading = $ExplorersAndCreators['Heading' . $i] ?? null;
+                    $text = $ExplorersAndCreators['Text' . $i] ?? null;
+                
+                    // Check if an image exists for this slot
+                    $imagePath = '';
+                    foreach ($validExtensions as $ext) {
+                        $filePath = "{$uploadDir}{$explorersAndCreatorsId}_{$i}.{$ext}";
+                        if (file_exists($filePath)) {
+                            $imagePath = $filePath;
+                            break; // Stop checking other extensions
+                        }
+                    }
+                
+                    // Display content if available
+                    if ($imagePath || $heading || $text) {
+                        echo "<div>";
+                        if ($imagePath) {
+                            echo "<img src='$imagePath' style='width:100%;'><br><br>";
+                        }
+                    
+                        if ($heading) {
+                            echo "<h3>" . htmlspecialchars($heading) . "</h3>";
+                        }
+                    
+                        if ($text) {
+                            echo "" . nl2br(htmlspecialchars($text)) . "<br><br><br><br><br>";
+                        }
+                        echo "</div>";
+                    }
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
             
 
 

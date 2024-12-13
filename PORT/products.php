@@ -512,8 +512,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                     <label for="InventoryAvailable">inventory available</label>
         
                     <br><br>
-                    <input type="number" id="InventoryInProduction" name="InventoryInProduction" value="<?php echo htmlspecialchars($product['InventoryInProduction']); ?>" placeholder="and how much is in production" style="width: 300px;" oninput="updateInventoryAvailable()">
-                    <label for="InventoryInProduction">inventory in production</label>
+                    <input type="number" id="InventoryInProduction" name="InventoryInProduction" value="<?php echo htmlspecialchars($product['InventoryInProduction']); ?>" placeholder="and how much is in production or reordered" style="width: 300px;" oninput="updateInventoryAvailable()">
+                    <label for="InventoryInProduction">inventory in production or reordered</label>
 
                     <br><br>
                     <input type="number" id="InventoryMinimumLevel" name="InventoryMinimumLevel" value="<?php echo htmlspecialchars($product['InventoryMinimumLevel']); ?>" placeholder="get warnings if it drops below" style="width: 300px;">
@@ -1197,8 +1197,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
             <label for="InventoryAvailable">inventory available</label>
 
             <br><br>
-            <input type="number" id="InventoryInProduction" name="InventoryInProduction" placeholder="and how much is in production" style="width: 300px;">
-            <label for="InventoryInProduction">inventory in production</label>
+            <input type="number" id="InventoryInProduction" name="InventoryInProduction" placeholder="and how much is in production or reordered" style="width: 300px;">
+            <label for="InventoryInProduction">inventory in production or reordered</label>
 
             <br><br>
             <input type="number" id="InventoryMinimumLevel" name="InventoryMinimumLevel" placeholder="get warnings if it drops below" style="width: 300px;">
@@ -1290,11 +1290,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
                                 : '';
 
                 echo "<tr>";
-                echo "<td>$truncatedName ({$product['idpk']})</td>";
+                echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a></td>";
                 echo "<td><div style=\"opacity: 0.5;\">$truncatedDescription</div></td>";
                 echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$</td>";
                 echo "<td>$shippingPrice</td>";
-                echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";
+                // echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";
                 // echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>✏️ EDIT</a></td>";
                 // hidden field to transfer the idpk of the product or service
                     echo "<input type='hidden' class='editProductId' id='editProductId' value='{$product['idpk']}'>";
@@ -1321,11 +1321,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
                                 : '';
 
                 echo "<tr $opacityStyle>";
-                echo "<td>$truncatedName ({$product['idpk']})</td>";
+                echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a></td>";
                 echo "<td><div style=\"opacity: 0.5;\">$truncatedDescription</div></td>";
                 echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$</td>";
                 echo "<td>$shippingPrice</td>";
-                echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";
+                // echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";
                 // echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>✏️ EDIT</a></td>";
                 // hidden field to transfer the idpk of the product or service
                     echo "<input type='hidden' class='editProductId' id='editProductId' value='{$product['idpk']}'>";
