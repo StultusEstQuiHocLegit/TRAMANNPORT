@@ -83,6 +83,8 @@ try {
         // Explorer
         if ($content === 'explore.php') {
             include("explore.php");
+        } elseif ($content === 'TRAMANNAIConnection.php') {
+            include("TRAMANNAIConnection.php");
         } elseif ($content === 'cart.php') {
             include("cart.php");
         } elseif ($content === 'PreviousCarts.php') {
@@ -121,6 +123,8 @@ try {
             include("CreatorsSuppliers.php");
         } elseif ($content === 'explore.php') {
             include("explore.php");
+        } elseif ($content === 'TRAMANNAIConnection.php') {
+            include("TRAMANNAIConnection.php");
         } elseif ($content === 'cart.php') {
             include("cart.php");
         } elseif ($content === 'PreviousCarts.php') {

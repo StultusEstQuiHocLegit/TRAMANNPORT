@@ -78,6 +78,22 @@ echo "</div>";
 
 
 
+echo "<div id=\"ShowTransactions\">";
+    include ("ShowTransactions.php");
+echo "</div>";
+
+
+
+
+
+echo "<div id=\"ShowCarts\">";
+    include ("ShowCarts.php");
+echo "</div>";
+
+
+
+
+
 echo "<div id=\"FeedAndResults\"></div>";
 ?>
 

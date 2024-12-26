@@ -1,11 +1,18 @@
 <h1>📦 PRODUCTS AND SERVICES</h1>
 
 <?php
+include ("ExchangeRates.php"); // include ExchangeRates.php for recalculation of prices
+
+
+
+
+
 $preselectedOption = "your_products_services"; // add preselected search option
 
 include ("explore.php"); // include explore.php for exploring and searching
 echo "<br><br><br><br><br>";
 ?>
+
 
 
 
@@ -150,6 +157,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
     $dimensionsWidthInMm = isset($_POST['DimensionsWidthInMm']) ? round((float) str_replace(',', '.', $_POST['DimensionsWidthInMm']), 2) : null;
     $dimensionsHeightInMm = isset($_POST['DimensionsHeightInMm']) ? round((float) str_replace(',', '.', $_POST['DimensionsHeightInMm']), 2) : null;
     $sellingPricePackagingAndShippingInDollars = isset($_POST['SellingPricePackagingAndShippingInDollars']) ? round((float) str_replace(',', '.', $_POST['SellingPricePackagingAndShippingInDollars']), 2) : null;
+    $taxesInPercent = isset($_POST['TaxesInPercent']) ? round((float) str_replace(',', '.', $_POST['TaxesInPercent']), 2) : null;
     $manageInventory = isset($_POST['ManageInventory']) ? (int) $_POST['ManageInventory'] : 1; // Default to yes (1)
     $inventoryAvailable = isset($_POST['InventoryAvailable']) ? (int) $_POST['InventoryAvailable'] : null;
     $inventoryInProduction = isset($_POST['InventoryInProduction']) ? (int) $_POST['InventoryInProduction'] : null;
@@ -179,6 +187,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
             DimensionsHeightInMm = :dimensionsHeight,
             SellingPriceProductOrServiceInDollars = :sellingPrice,
             SellingPricePackagingAndShippingInDollars = :shippingPrice,
+            TaxesInPercent = :taxesInPercent,
             ManageInventory = :manageInventory,
             InventoryAvailable = :inventoryAvailable,
             InventoryInProduction = :inventoryInProduction,
@@ -201,6 +210,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
     $stmt->bindParam(':dimensionsHeight', $dimensionsHeightInMm, PDO::PARAM_STR);
     $stmt->bindParam(':sellingPrice', $sellingPriceProductOrServiceInDollars, PDO::PARAM_STR);
     $stmt->bindParam(':shippingPrice', $sellingPricePackagingAndShippingInDollars, PDO::PARAM_STR);
+    $stmt->bindParam(':taxesInPercent', $taxesInPercent, PDO::PARAM_STR);
     $stmt->bindParam(':manageInventory', $manageInventory, PDO::PARAM_INT);
     $stmt->bindParam(':inventoryAvailable', $inventoryAvailable, PDO::PARAM_INT);
     $stmt->bindParam(':inventoryInProduction', $inventoryInProduction, PDO::PARAM_INT);
@@ -490,14 +500,32 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                 </div>
         
                     <br><br><br><br><br>
-                    <input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['SellingPriceProductOrServiceInDollars'])); ?>" placeholder="price the explorer should pay" style="width: 300px;" required>
+                    <input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['SellingPriceProductOrServiceInDollars'])); ?>" placeholder="price the explorer should pay" style="width: 300px;" oninput="updatePriceCurrency('SellingPriceProductOrServiceInDollars')" required>
                     <label for="SellingPriceProductOrServiceInDollars">selling price (in USD)*</label>
+                    <?php
+                        if ($ExchangeRateCurrencyCode !== "USD") {
+                            echo "<br><br>";
+                            echo "<input type=\"number\" id=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" name=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" placeholder=\"price the explorer should pay\" style=\"width: 300px; opacity: 0.3;\" oninput=\"updatePriceCurrency('SellingPriceProductOrServiceInDollarsInOtherCurrency')\">";
+                            echo "<label for=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" style='opacity: 0.3;'>selling price (in $ExchangeRateCurrencyCode)</label>";
+                        }
+                    ?>
                 <!-- Div for Selling Price (only for products/food) -->
                 <div id="priceAttributes" style="display: none;">
                     <br><br>
-                    <input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['SellingPricePackagingAndShippingInDollars'])); ?>" placeholder="only if you want to separate" style="width: 300px;">
+                    <input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['SellingPricePackagingAndShippingInDollars'])); ?>" placeholder="only if you want to separate" style="width: 300px;" oninput="updatePriceCurrency('SellingPricePackagingAndShippingInDollars')">
                     <label for="SellingPricePackagingAndShippingInDollars">selling price of packaging and shipping (in USD)</label>
+                    <?php
+                        if ($ExchangeRateCurrencyCode !== "USD") {
+                            echo "<br><br>";
+                            echo "<input type=\"number\" id=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" name=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" placeholder=\"only if you want to separate\" style=\"width: 300px; opacity: 0.3;\" oninput=\"updatePriceCurrency('SellingPricePackagingAndShippingInDollarsInOtherCurrency')\">";
+                            echo "<label for=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" style='opacity: 0.3;'>selling price of packaging and shipping (in $ExchangeRateCurrencyCode)</label>";
+                        }
+                    ?>
                 </div>
+
+                <br><br>
+                <input type="number" id="TaxesInPercent" name="TaxesInPercent" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['TaxesInPercent'])); ?>" placeholder="% for uncle sam" style="width: 300px;" oninput="updateLiveCalculations()">
+                <label for="TaxesInPercent">taxes (in %)<br><div id="LiveCalculations" style="opacity: 0.4;"></div></label>
         
                 <!-- Checkbox for Manage Inventory -->
                     <input type="hidden" name="ManageInventory" value="0">
@@ -643,6 +671,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     $dimensionsWidthInMm = isset($_POST['DimensionsWidthInMm']) ? round((float) str_replace(',', '.', $_POST['DimensionsWidthInMm']), 2) : null;
     $dimensionsHeightInMm = isset($_POST['DimensionsHeightInMm']) ? round((float) str_replace(',', '.', $_POST['DimensionsHeightInMm']), 2) : null;
     $sellingPricePackagingAndShippingInDollars = isset($_POST['SellingPricePackagingAndShippingInDollars']) ? round((float) str_replace(',', '.', $_POST['SellingPricePackagingAndShippingInDollars']), 2) : null;
+    $taxesInPercent = isset($_POST['TaxesInPercent']) ? round((float) str_replace(',', '.', $_POST['TaxesInPercent']), 2) : null;
     $manageInventory = isset($_POST['ManageInventory']) ? (int) $_POST['ManageInventory'] : 1; // Default to yes (1)
     $inventoryAvailable = isset($_POST['InventoryAvailable']) ? (int) $_POST['InventoryAvailable'] : null;
     $inventoryInProduction = isset($_POST['InventoryInProduction']) ? (int) $_POST['InventoryInProduction'] : null;
@@ -668,13 +697,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         TimestampCreation, IdpkCreator, KeywordsForSearch, name, ShortDescription, LongDescription, 
         AllowCommentsNotesSpecialRequests, type, SellingPriceProductOrServiceInDollars, WeightInKg, 
         DimensionsLengthInMm, DimensionsWidthInMm, DimensionsHeightInMm, 
-        SellingPricePackagingAndShippingInDollars, ManageInventory, InventoryAvailable, 
+        SellingPricePackagingAndShippingInDollars, TaxesInPercent, ManageInventory, InventoryAvailable, 
         InventoryInProduction, InventoryMinimumLevel, PersonalNotes, state
     ) VALUES (
         :timestampCreation, :idpkCreator, :keywordsForSearch, :name, :shortDescription, :longDescription, 
         :allowComments, :type, :sellingPriceProductOrServiceInDollars, :weightInKg, 
         :dimensionsLengthInMm, :dimensionsWidthInMm, :dimensionsHeightInMm, 
-        :sellingPricePackagingAndShippingInDollars, :manageInventory, :inventoryAvailable, 
+        :sellingPricePackagingAndShippingInDollars, :taxesInPercent, :manageInventory, :inventoryAvailable, 
         :inventoryInProduction, :inventoryMinimumLevel, :personalNotes, :state
     )");
     
@@ -693,6 +722,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     $stmt->bindParam(':dimensionsWidthInMm', $dimensionsWidthInMm);
     $stmt->bindParam(':dimensionsHeightInMm', $dimensionsHeightInMm);
     $stmt->bindParam(':sellingPricePackagingAndShippingInDollars', $sellingPricePackagingAndShippingInDollars);
+    $stmt->bindParam(':taxesInPercent', $taxesInPercent);
     $stmt->bindParam(':manageInventory', $manageInventory);
     $stmt->bindParam(':inventoryAvailable', $inventoryAvailable);
     $stmt->bindParam(':inventoryInProduction', $inventoryInProduction);
@@ -1175,14 +1205,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         </div>
 
             <br><br><br><br><br>
-            <input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" placeholder="price the explorer should pay" style="width: 300px;" required>
+            <input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" placeholder="price the explorer should pay" style="width: 300px;" oninput="updatePriceCurrency('SellingPriceProductOrServiceInDollars')" required>
             <label for="SellingPriceProductOrServiceInDollars">selling price (in USD)*</label>
+            <?php
+                if ($ExchangeRateCurrencyCode !== "USD") {
+                    echo "<br><br>";
+                    echo "<input type=\"number\" id=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" name=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" placeholder=\"price the explorer should pay\" style=\"width: 300px; opacity: 0.3;\" oninput=\"updatePriceCurrency('SellingPriceProductOrServiceInDollarsInOtherCurrency')\">";
+                    echo "<label for=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" style='opacity: 0.3;'>selling price (in $ExchangeRateCurrencyCode)</label>";
+                }
+            ?>
         <!-- Div for Selling Price (only for products/food) -->
         <div id="priceAttributes" style="display: none;">
             <br><br>
-            <input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" placeholder="only if you want to separate" style="width: 300px;">
+            <input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" placeholder="only if you want to separate" style="width: 300px;" oninput="updatePriceCurrency('SellingPricePackagingAndShippingInDollars')">
             <label for="SellingPricePackagingAndShippingInDollars">selling price of packaging and shipping (in USD)</label>
+            <?php
+                if ($ExchangeRateCurrencyCode !== "USD") {
+                    echo "<br><br>";
+                    echo "<input type=\"number\" id=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" name=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" placeholder=\"only if you want to separate\" style=\"width: 300px; opacity: 0.3;\" oninput=\"updatePriceCurrency('SellingPricePackagingAndShippingInDollarsInOtherCurrency')\">";
+                    echo "<label for=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" style='opacity: 0.3;'>selling price of packaging and shipping (in $ExchangeRateCurrencyCode)</label>";
+                }
+            ?>
         </div>
+
+            <br><br>
+            <input type="number" id="TaxesInPercent" name="TaxesInPercent" placeholder="% for uncle sam" style="width: 300px;" oninput="updateLiveCalculations()">
+            <label for="TaxesInPercent">taxes (in %)<br><div id="LiveCalculations" style="opacity: 0.4;"></div></label>
 
         <!-- Checkbox for Manage Inventory -->
             <input type="hidden" name="ManageInventory" value="0">
@@ -1362,3 +1410,137 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 <?php
 }
 ?>
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    // JavaScript variables for PHP values
+    const exchangeRateCurrencyCode = "<?php echo $ExchangeRateCurrencyCode; ?>";
+    const exchangeRate = parseFloat("<?php echo $ExchangeRateOneDollarIsEqualTo; ?>");
+
+    let isUpdating = false; // Prevent circular updates
+
+    // Initialize fields with calculated values based on existing database data
+    document.addEventListener('DOMContentLoaded', () => {
+        const sellingPriceUSD = document.getElementById('SellingPriceProductOrServiceInDollars');
+        const sellingPriceOther = document.getElementById('SellingPriceProductOrServiceInDollarsInOtherCurrency');
+        const shippingPriceUSD = document.getElementById('SellingPricePackagingAndShippingInDollars');
+        const shippingPriceOther = document.getElementById('SellingPricePackagingAndShippingInDollarsInOtherCurrency');
+
+        if (exchangeRateCurrencyCode !== "USD") {
+            // Initialize selling price fields
+            if (sellingPriceUSD && !isNaN(parseFloat(sellingPriceUSD.value))) {
+                sellingPriceOther.value = (parseFloat(sellingPriceUSD.value) * exchangeRate).toFixed(2);
+            } else if (sellingPriceOther && !isNaN(parseFloat(sellingPriceOther.value))) {
+                sellingPriceUSD.value = (parseFloat(sellingPriceOther.value) / exchangeRate).toFixed(2);
+            }
+
+            // Initialize shipping price fields
+            if (shippingPriceUSD && !isNaN(parseFloat(shippingPriceUSD.value))) {
+                shippingPriceOther.value = (parseFloat(shippingPriceUSD.value) * exchangeRate).toFixed(2);
+            } else if (shippingPriceOther && !isNaN(parseFloat(shippingPriceOther.value))) {
+                shippingPriceUSD.value = (parseFloat(shippingPriceOther.value) / exchangeRate).toFixed(2);
+            }
+        }
+
+        updateLiveCalculations(); // Perform initial live calculations
+    });
+
+    function updatePriceCurrency(changedField) {
+        if (isUpdating) return; // Prevent circular updates
+        isUpdating = true;
+
+        const sellingPriceUSD = document.getElementById('SellingPriceProductOrServiceInDollars');
+        const sellingPriceOther = document.getElementById('SellingPriceProductOrServiceInDollarsInOtherCurrency');
+        const shippingPriceUSD = document.getElementById('SellingPricePackagingAndShippingInDollars');
+        const shippingPriceOther = document.getElementById('SellingPricePackagingAndShippingInDollarsInOtherCurrency');
+
+        if (changedField === 'SellingPriceProductOrServiceInDollars') {
+            const usdValue = parseFloat(sellingPriceUSD.value);
+            if (!isNaN(usdValue)) {
+                sellingPriceOther.value = (usdValue * exchangeRate).toFixed(2);
+            } else {
+                sellingPriceOther.value = '';
+            }
+        } else if (changedField === 'SellingPriceProductOrServiceInDollarsInOtherCurrency') {
+            const otherCurrencyValue = parseFloat(sellingPriceOther.value);
+            if (!isNaN(otherCurrencyValue)) {
+                sellingPriceUSD.value = (otherCurrencyValue / exchangeRate).toFixed(2);
+            } else {
+                sellingPriceUSD.value = '';
+            }
+        } else if (changedField === 'SellingPricePackagingAndShippingInDollars') {
+            const usdValue = parseFloat(shippingPriceUSD.value);
+            if (!isNaN(usdValue)) {
+                shippingPriceOther.value = (usdValue * exchangeRate).toFixed(2);
+            } else {
+                shippingPriceOther.value = '';
+            }
+        } else if (changedField === 'SellingPricePackagingAndShippingInDollarsInOtherCurrency') {
+            const otherCurrencyValue = parseFloat(shippingPriceOther.value);
+            if (!isNaN(otherCurrencyValue)) {
+                shippingPriceUSD.value = (otherCurrencyValue / exchangeRate).toFixed(2);
+            } else {
+                shippingPriceUSD.value = '';
+            }
+        }
+
+        updateLiveCalculations(); // Update live calculations after price update
+        isUpdating = false;
+    }
+
+    function updateLiveCalculations() {
+        const sellingPriceInput = document.getElementById('SellingPriceProductOrServiceInDollars');
+        const shippingPriceInput = document.getElementById('SellingPricePackagingAndShippingInDollars');
+        const taxesInput = document.getElementById('TaxesInPercent');
+        const liveCalculationsDiv = document.getElementById('LiveCalculations');
+
+        if (!liveCalculationsDiv) {
+            console.error('LiveCalculations element not found.');
+            return;
+        }
+
+        const sellingPrice = parseFloat(sellingPriceInput?.value) || 0;
+        const shippingPrice = parseFloat(shippingPriceInput?.value) || 0;
+        const taxesPercent = parseFloat(taxesInput?.value) || 0;
+
+        const combinedValue = sellingPrice + shippingPrice;
+        const contributionPercent = <?php echo isset($ContributionForTRAMANNPORT) ? json_encode($ContributionForTRAMANNPORT) : json_encode($ContributionForTRAMANNPORT); ?>;
+        const contributionValue = (combinedValue * contributionPercent) / 100;
+        const netPrice = combinedValue + contributionValue;
+        const taxesValue = (netPrice * taxesPercent) / 100;
+        const grossPrice = netPrice + taxesValue;
+
+        const isUSD = exchangeRateCurrencyCode === "USD";
+        const convertValue = (value) => (isUSD ? value : value * exchangeRate);
+
+        const combinedValueConverted = convertValue(combinedValue);
+        const contributionValueConverted = convertValue(contributionValue);
+        const netPriceConverted = convertValue(netPrice);
+        const taxesValueConverted = convertValue(taxesValue);
+        const grossPriceConverted = convertValue(grossPrice);
+
+        liveCalculationsDiv.innerHTML = `
+            <br>(combined value for you: ${combinedValue.toFixed(2)}$, 
+            adding ${contributionValue.toFixed(2)}$ (${contributionPercent}%) contribution for TRAMANN PORT, 
+            total net price therefore: ${netPrice.toFixed(2)}$, 
+            adding ${taxesValue.toFixed(2)}$ (${taxesPercent}%) taxes, 
+            total gross price therefore: ${grossPrice.toFixed(2)}$)
+            ${!isUSD ? `
+            <br><br><div style="opacity: 0.5;">(in ${exchangeRateCurrencyCode}: combined value for you: ${combinedValueConverted.toFixed(2)}, 
+            adding ${contributionValueConverted.toFixed(2)} (${contributionPercent}%) contribution for TRAMANN PORT, 
+            total net price therefore: ${netPriceConverted.toFixed(2)}, 
+            adding ${taxesValueConverted.toFixed(2)} (${taxesPercent}%) taxes, 
+            total gross price therefore: ${grossPriceConverted.toFixed(2)})</div>` : ''}
+        `;
+    }
+</script>

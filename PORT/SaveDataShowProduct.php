@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idpk']) && isset($_PO
             echo json_encode(["success" => true, "message" => "Transaction quantity updated successfully."]);
         } else {
             // No existing transaction, insert a new one
-            $stmt = $pdo->prepare("INSERT INTO transactions (TimestampCreation, IdpkExplorer, IdpkProductOrService, quantity, state) VALUES (?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO transactions (TimestampCreation, IdpkExplorer, IdpkProductOrService, quantity, ForTRAMANNPORTInDollars, TaxesInDollars, state) VALUES (?, ?, ?, ?, 0, 0, ?)");
             $stmt->execute([$timestamp, $user_id, $idpk, $quantity, $state]);
             echo json_encode(["success" => true, "message" => "Transaction added successfully."]);
         }

@@ -129,148 +129,210 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 
-   // If no errors, prepare to update the database
-try {
-    // Validate CloseOnlineShopIfPhysicalShopIsClosed based on CanExplorersVisitYou
-    if (isset($_POST['CanExplorersVisitYou']) && $_POST['CanExplorersVisitYou'] == '0') {
-        // If CanExplorersVisitYou is '0', set CloseOnlineShopIfPhysicalShopIsClosed to '0'
-        $_POST['CloseOnlineShopIfPhysicalShopIsClosed'] = '0';
+    // If no errors, prepare to update the database
+    try {
+        // Validate CloseOnlineShopIfPhysicalShopIsClosed based on CanExplorersVisitYou
+        if (isset($_POST['CanExplorersVisitYou']) && $_POST['CanExplorersVisitYou'] == '0') {
+            // If CanExplorersVisitYou is '0', set CloseOnlineShopIfPhysicalShopIsClosed to '0'
+            $_POST['CloseOnlineShopIfPhysicalShopIsClosed'] = '0';
+        }
+
+        // Connection to the database (ensure this is already established in your script)
+        $dsn = "mysql:host=$mysqlDbServer;dbname=$mysqlDbName;charset=utf8";
+        $pdo = new PDO($dsn, $mysqlDbUser, $mysqlDbPassword);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // Retrieve the form data
+        $existingPassword = $_POST['password']; // hidden field with the current hashed password
+        $newPassword = $_POST['NewPassword'];
+
+        // Decide which password to use
+        if (!empty($newPassword)) {
+            // If a new password is provided, hash it
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        } else {
+            // Otherwise, use the existing hashed password
+            $hashedPassword = $existingPassword;
+        }
+
+
+
+
+
+        // insert the updating of the table ProductsAndServices here
+
+
+
+
+
+        // Prepare the update statement with all relevant fields
+        $stmt = $pdo->prepare('
+            UPDATE ExplorersAndCreators SET 
+                email = :email,
+                password = :password,
+                PhoneNumber = :PhoneNumber,
+                FirstName = :FirstName,
+                LastName = :LastName, 
+                street = :street, 
+                HouseNumber = :HouseNumber, 
+                ZIPCode = :ZIPCode, 
+                city = :city, 
+                country = :country, 
+                planet = :planet, 
+                IBAN = :IBAN,
+                darkmode = :darkmode,
+                OpeningHoursMondayOpening = :OpeningHoursMondayOpening,
+                OpeningHoursMondayClosing = :OpeningHoursMondayClosing,
+                OpeningHoursTuesdayOpening = :OpeningHoursTuesdayOpening,
+                OpeningHoursTuesdayClosing = :OpeningHoursTuesdayClosing,
+                OpeningHoursWednesdayOpening = :OpeningHoursWednesdayOpening,
+                OpeningHoursWednesdayClosing = :OpeningHoursWednesdayClosing,
+                OpeningHoursThursdayOpening = :OpeningHoursThursdayOpening,
+                OpeningHoursThursdayClosing = :OpeningHoursThursdayClosing,
+                OpeningHoursFridayOpening = :OpeningHoursFridayOpening,
+                OpeningHoursFridayClosing = :OpeningHoursFridayClosing,
+                OpeningHoursSaturdayOpening = :OpeningHoursSaturdayOpening,
+                OpeningHoursSaturdayClosing = :OpeningHoursSaturdayClosing,
+                OpeningHoursSundayOpening = :OpeningHoursSundayOpening,
+                OpeningHoursSundayClosing = :OpeningHoursSundayClosing,
+                OpeningHoursNationalHolidaysOpening = :OpeningHoursNationalHolidaysOpening,
+                OpeningHoursNationalHolidaysClosing = :OpeningHoursNationalHolidaysClosing,
+                CompanyName = :CompanyName,
+                VATID = :VATID,
+                PhoneNumberForExplorersAsContact = :PhoneNumberForExplorersAsContact,
+                EmailForExplorersAsContact = :EmailForExplorersAsContact,
+                ShortDescription = :ShortDescription,
+                LongDescription = :LongDescription,
+                LinksToSocialMediaAndOtherSites = :LinksToSocialMediaAndOtherSites,
+                ExplorerOrCreator = :ExplorerOrCreator,
+                ShowAddressToExplorers = :ShowAddressToExplorers,
+                CanExplorersVisitYou = :CanExplorersVisitYou,
+                CloseOnlineShopIfPhysicalShopIsClosed = :CloseOnlineShopIfPhysicalShopIsClosed
+            WHERE idpk = :id
+        ');
+
+        // Bind parameters
+        $stmt->bindParam(':email', $_POST['email'], PDO::PARAM_STR);
+        $stmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
+        $stmt->bindParam(':PhoneNumber', $_POST['PhoneNumber'], PDO::PARAM_STR);
+        $stmt->bindParam(':FirstName', $_POST['FirstName'], PDO::PARAM_STR);
+        $stmt->bindParam(':LastName', $_POST['LastName'], PDO::PARAM_STR);
+        $stmt->bindParam(':street', $_POST['street'], PDO::PARAM_STR);
+        $stmt->bindParam(':HouseNumber', $_POST['HouseNumber'], PDO::PARAM_INT);
+        $stmt->bindParam(':ZIPCode', $_POST['ZIPCode'], PDO::PARAM_STR);
+        $stmt->bindParam(':city', $_POST['city'], PDO::PARAM_STR);
+        $stmt->bindParam(':country', $_POST['country'], PDO::PARAM_STR);
+        $stmt->bindParam(':planet', $_POST['planet'], PDO::PARAM_STR);
+        $stmt->bindParam(':IBAN', $_POST['IBAN'], PDO::PARAM_STR);
+        $stmt->bindParam(':darkmode', $_POST['darkmode'], PDO::PARAM_STR);
+
+        // Bind opening hours
+        $stmt->bindParam(':OpeningHoursMondayOpening', $_POST['OpeningHoursMondayOpening'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursMondayClosing', $_POST['OpeningHoursMondayClosing'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursTuesdayOpening', $_POST['OpeningHoursTuesdayOpening'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursTuesdayClosing', $_POST['OpeningHoursTuesdayClosing'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursWednesdayOpening', $_POST['OpeningHoursWednesdayOpening'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursWednesdayClosing', $_POST['OpeningHoursWednesdayClosing'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursThursdayOpening', $_POST['OpeningHoursThursdayOpening'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursThursdayClosing', $_POST['OpeningHoursThursdayClosing'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursFridayOpening', $_POST['OpeningHoursFridayOpening'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursFridayClosing', $_POST['OpeningHoursFridayClosing'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursSaturdayOpening', $_POST['OpeningHoursSaturdayOpening'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursSaturdayClosing', $_POST['OpeningHoursSaturdayClosing'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursSundayOpening', $_POST['OpeningHoursSundayOpening'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursSundayClosing', $_POST['OpeningHoursSundayClosing'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursNationalHolidaysOpening', $_POST['OpeningHoursNationalHolidaysOpening'], PDO::PARAM_STR);
+        $stmt->bindParam(':OpeningHoursNationalHolidaysClosing', $_POST['OpeningHoursNationalHolidaysClosing'], PDO::PARAM_STR);
+
+        // Bind other text fields
+        $stmt->bindParam(':CompanyName', $_POST['CompanyName'], PDO::PARAM_STR);
+        $stmt->bindParam(':VATID', $_POST['VATID'], PDO::PARAM_STR);
+        $stmt->bindParam(':PhoneNumberForExplorersAsContact', $_POST['PhoneNumberForExplorersAsContact'], PDO::PARAM_STR);
+        $stmt->bindParam(':EmailForExplorersAsContact', $_POST['EmailForExplorersAsContact'], PDO::PARAM_STR);
+        $stmt->bindParam(':ShortDescription', $_POST['ShortDescription'], PDO::PARAM_STR);
+        $stmt->bindParam(':LongDescription', $_POST['LongDescription'], PDO::PARAM_STR);
+        $stmt->bindParam(':LinksToSocialMediaAndOtherSites', $_POST['LinksToSocialMediaAndOtherSites'], PDO::PARAM_STR);
+
+        // Handle checkbox values
+        $explorerOrCreator = isset($_POST['ExplorerOrCreator']) ? (int) $_POST['ExplorerOrCreator'] : 0; // Default to 0 for Explorer
+        $showAddressToExplorers = isset($_POST['ShowAddressToExplorers']) ? (int) $_POST['ShowAddressToExplorers'] : 0;
+        $canExplorersVisitYou = isset($_POST['CanExplorersVisitYou']) ? (int) $_POST['CanExplorersVisitYou'] : 0;
+        $closeOnlineShopIfPhysicalShopIsClosed = isset($_POST['CloseOnlineShopIfPhysicalShopIsClosed']) ? (int) $_POST['CloseOnlineShopIfPhysicalShopIsClosed'] : 0;
+
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        // Handle state changes for ProductsAndServices
+        $productQuery = "UPDATE ProductsAndServices SET state = :state WHERE IdpkCreator = :user_id";
+        $stateChange = $pdo->prepare($productQuery);
+        $stateChange->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+
+        if ($explorerOrCreator === 0) { // User switched to Explorer
+            // Fetch current inactive products
+            $inactiveStmt = $pdo->prepare("SELECT idpk FROM ProductsAndServices WHERE IdpkCreator = :user_id AND state = 0");
+            $inactiveStmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+            $inactiveStmt->execute();
+            $inactiveProducts = $inactiveStmt->fetchAll(PDO::FETCH_COLUMN);
+        
+            // Pass inactive product IDs to JavaScript
+            $inactiveProductsJson = !empty($inactiveProducts) ? json_encode($inactiveProducts) : null;
+        
+            // Update all products to inactive
+            $inactiveState = 0;
+            $stateChange->bindParam(':state', $inactiveState, PDO::PARAM_INT);
+            $stateChange->execute();
+        } elseif ($explorerOrCreator === 1) { // User switched to Creator
+            // Parse the cookie data for inactive products
+            $inactiveProducts = isset($_COOKIE['inactive_products_to_php']) ? json_decode($_COOKIE['inactive_products_to_php'], true) : [];
+        
+            // Update all products to active, excluding those previously inactive
+            $activeState = 1;
+            $stateChange->bindParam(':state', $activeState, PDO::PARAM_INT);
+            $stateChange->execute();
+        
+            // Revert previously inactive products to inactive
+            if (!empty($inactiveProducts)) {
+                $placeholders = implode(",", array_fill(0, count($inactiveProducts), "?"));
+                $revertStmt = $pdo->prepare("UPDATE ProductsAndServices SET state = 0 WHERE idpk IN ($placeholders)");
+                $revertStmt->execute($inactiveProducts);
+            }
+        }
+
+
+
+
+
+        
+
+        // Ensure that all values are bound to the statement
+        $stmt->bindParam(':ExplorerOrCreator', $explorerOrCreator, PDO::PARAM_INT);
+        $stmt->bindParam(':ShowAddressToExplorers', $showAddressToExplorers, PDO::PARAM_INT);
+        $stmt->bindParam(':CanExplorersVisitYou', $canExplorersVisitYou, PDO::PARAM_INT);
+        $stmt->bindParam(':CloseOnlineShopIfPhysicalShopIsClosed', $closeOnlineShopIfPhysicalShopIsClosed, PDO::PARAM_INT);
+
+        // Assuming user_id is stored in a cookie
+        $user_id = $_COOKIE['user_id'];
+        $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
+
+        // Execute the statement
+        if ($stmt->execute()) {
+            echo "<br><br><br>Account updated successfully.<br><br><a href=\"index.php?content=account.php\">▶️ CONTINUE</a>";
+        } else {
+            echo "Error updating account.";
+            echo "<br><br><br>There was an unespected error updating your account. Please try again or contact an administrator so we can fix the problem.<br><br><a href=\"index.php?content=account.php\">▶️ CONTINUE</a>";
+        }
+
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+        exit();
     }
-
-    // Connection to the database (ensure this is already established in your script)
-    $dsn = "mysql:host=$mysqlDbServer;dbname=$mysqlDbName;charset=utf8";
-    $pdo = new PDO($dsn, $mysqlDbUser, $mysqlDbPassword);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // Retrieve the form data
-    $existingPassword = $_POST['password']; // hidden field with the current hashed password
-    $newPassword = $_POST['NewPassword'];
-
-    // Decide which password to use
-    if (!empty($newPassword)) {
-        // If a new password is provided, hash it
-        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-    } else {
-        // Otherwise, use the existing hashed password
-        $hashedPassword = $existingPassword;
-    }
-
-    // Prepare the update statement with all relevant fields
-    $stmt = $pdo->prepare('
-        UPDATE ExplorersAndCreators SET 
-            email = :email,
-            password = :password,
-            PhoneNumber = :PhoneNumber,
-            FirstName = :FirstName,
-            LastName = :LastName, 
-            street = :street, 
-            HouseNumber = :HouseNumber, 
-            ZIPCode = :ZIPCode, 
-            city = :city, 
-            country = :country, 
-            planet = :planet, 
-            IBAN = :IBAN,
-            darkmode = :darkmode,
-            OpeningHoursMondayOpening = :OpeningHoursMondayOpening,
-            OpeningHoursMondayClosing = :OpeningHoursMondayClosing,
-            OpeningHoursTuesdayOpening = :OpeningHoursTuesdayOpening,
-            OpeningHoursTuesdayClosing = :OpeningHoursTuesdayClosing,
-            OpeningHoursWednesdayOpening = :OpeningHoursWednesdayOpening,
-            OpeningHoursWednesdayClosing = :OpeningHoursWednesdayClosing,
-            OpeningHoursThursdayOpening = :OpeningHoursThursdayOpening,
-            OpeningHoursThursdayClosing = :OpeningHoursThursdayClosing,
-            OpeningHoursFridayOpening = :OpeningHoursFridayOpening,
-            OpeningHoursFridayClosing = :OpeningHoursFridayClosing,
-            OpeningHoursSaturdayOpening = :OpeningHoursSaturdayOpening,
-            OpeningHoursSaturdayClosing = :OpeningHoursSaturdayClosing,
-            OpeningHoursSundayOpening = :OpeningHoursSundayOpening,
-            OpeningHoursSundayClosing = :OpeningHoursSundayClosing,
-            OpeningHoursNationalHolidaysOpening = :OpeningHoursNationalHolidaysOpening,
-            OpeningHoursNationalHolidaysClosing = :OpeningHoursNationalHolidaysClosing,
-            CompanyName = :CompanyName,
-            VATID = :VATID,
-            PhoneNumberForExplorersAsContact = :PhoneNumberForExplorersAsContact,
-            EmailForExplorersAsContact = :EmailForExplorersAsContact,
-            ShortDescription = :ShortDescription,
-            LongDescription = :LongDescription,
-            LinksToSocialMediaAndOtherSites = :LinksToSocialMediaAndOtherSites,
-            ExplorerOrCreator = :ExplorerOrCreator,
-            ShowAddressToExplorers = :ShowAddressToExplorers,
-            CanExplorersVisitYou = :CanExplorersVisitYou,
-            CloseOnlineShopIfPhysicalShopIsClosed = :CloseOnlineShopIfPhysicalShopIsClosed
-        WHERE idpk = :id
-    ');
-
-    // Bind parameters
-    $stmt->bindParam(':email', $_POST['email'], PDO::PARAM_STR);
-    $stmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
-    $stmt->bindParam(':PhoneNumber', $_POST['PhoneNumber'], PDO::PARAM_STR);
-    $stmt->bindParam(':FirstName', $_POST['FirstName'], PDO::PARAM_STR);
-    $stmt->bindParam(':LastName', $_POST['LastName'], PDO::PARAM_STR);
-    $stmt->bindParam(':street', $_POST['street'], PDO::PARAM_STR);
-    $stmt->bindParam(':HouseNumber', $_POST['HouseNumber'], PDO::PARAM_INT);
-    $stmt->bindParam(':ZIPCode', $_POST['ZIPCode'], PDO::PARAM_STR);
-    $stmt->bindParam(':city', $_POST['city'], PDO::PARAM_STR);
-    $stmt->bindParam(':country', $_POST['country'], PDO::PARAM_STR);
-    $stmt->bindParam(':planet', $_POST['planet'], PDO::PARAM_STR);
-    $stmt->bindParam(':IBAN', $_POST['IBAN'], PDO::PARAM_STR);
-    $stmt->bindParam(':darkmode', $_POST['darkmode'], PDO::PARAM_STR);
-
-    // Bind opening hours
-    $stmt->bindParam(':OpeningHoursMondayOpening', $_POST['OpeningHoursMondayOpening'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursMondayClosing', $_POST['OpeningHoursMondayClosing'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursTuesdayOpening', $_POST['OpeningHoursTuesdayOpening'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursTuesdayClosing', $_POST['OpeningHoursTuesdayClosing'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursWednesdayOpening', $_POST['OpeningHoursWednesdayOpening'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursWednesdayClosing', $_POST['OpeningHoursWednesdayClosing'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursThursdayOpening', $_POST['OpeningHoursThursdayOpening'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursThursdayClosing', $_POST['OpeningHoursThursdayClosing'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursFridayOpening', $_POST['OpeningHoursFridayOpening'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursFridayClosing', $_POST['OpeningHoursFridayClosing'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursSaturdayOpening', $_POST['OpeningHoursSaturdayOpening'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursSaturdayClosing', $_POST['OpeningHoursSaturdayClosing'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursSundayOpening', $_POST['OpeningHoursSundayOpening'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursSundayClosing', $_POST['OpeningHoursSundayClosing'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursNationalHolidaysOpening', $_POST['OpeningHoursNationalHolidaysOpening'], PDO::PARAM_STR);
-    $stmt->bindParam(':OpeningHoursNationalHolidaysClosing', $_POST['OpeningHoursNationalHolidaysClosing'], PDO::PARAM_STR);
-
-    // Bind other text fields
-    $stmt->bindParam(':CompanyName', $_POST['CompanyName'], PDO::PARAM_STR);
-    $stmt->bindParam(':VATID', $_POST['VATID'], PDO::PARAM_STR);
-    $stmt->bindParam(':PhoneNumberForExplorersAsContact', $_POST['PhoneNumberForExplorersAsContact'], PDO::PARAM_STR);
-    $stmt->bindParam(':EmailForExplorersAsContact', $_POST['EmailForExplorersAsContact'], PDO::PARAM_STR);
-    $stmt->bindParam(':ShortDescription', $_POST['ShortDescription'], PDO::PARAM_STR);
-    $stmt->bindParam(':LongDescription', $_POST['LongDescription'], PDO::PARAM_STR);
-    $stmt->bindParam(':LinksToSocialMediaAndOtherSites', $_POST['LinksToSocialMediaAndOtherSites'], PDO::PARAM_STR);
-
-    // Handle checkbox values
-    $explorerOrCreator = isset($_POST['ExplorerOrCreator']) ? (int) $_POST['ExplorerOrCreator'] : 0; // Default to 0 for Explorer
-    $showAddressToExplorers = isset($_POST['ShowAddressToExplorers']) ? (int) $_POST['ShowAddressToExplorers'] : 0;
-    $canExplorersVisitYou = isset($_POST['CanExplorersVisitYou']) ? (int) $_POST['CanExplorersVisitYou'] : 0;
-    $closeOnlineShopIfPhysicalShopIsClosed = isset($_POST['CloseOnlineShopIfPhysicalShopIsClosed']) ? (int) $_POST['CloseOnlineShopIfPhysicalShopIsClosed'] : 0;
-    
-    // Ensure that all values are bound to the statement
-    $stmt->bindParam(':ExplorerOrCreator', $explorerOrCreator, PDO::PARAM_INT);
-    $stmt->bindParam(':ShowAddressToExplorers', $showAddressToExplorers, PDO::PARAM_INT);
-    $stmt->bindParam(':CanExplorersVisitYou', $canExplorersVisitYou, PDO::PARAM_INT);
-    $stmt->bindParam(':CloseOnlineShopIfPhysicalShopIsClosed', $closeOnlineShopIfPhysicalShopIsClosed, PDO::PARAM_INT);
-
-    // Assuming user_id is stored in a cookie
-    $user_id = $_COOKIE['user_id'];
-    $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
-
-    // Execute the statement
-    if ($stmt->execute()) {
-        echo "<br><br><br>Account updated successfully.<br><br><a href=\"index.php?content=account.php\">▶️ CONTINUE</a>";
-    } else {
-        echo "Error updating account.";
-        echo "<br><br><br>There was an unespected error updating your account. Please try again or contact an administrator so we can fix the problem.<br><br><a href=\"index.php?content=account.php\">▶️ CONTINUE</a>";
-    }
-
-} catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();
-    exit();
-}
 
 } else {
 ?>
@@ -577,6 +639,9 @@ try {
                 </div>
                 <label for="LinksToSocialMediaAndOtherSites">links to social media and other sites<br><div style="opacity: 0.4;">(click on the small field right above to start the editing mode)</div></label>
 
+                <br><br><br><br><br>
+                TRAMANN API key: <span id="apiKey"><?php echo htmlspecialchars($user['APIKey']); ?> </span><a href="#" id="copyLink" onclick="copyAPIKey(event)">👀 COPY</a>
+
             </div>
         </div>
         <br><br><br><br><br>
@@ -719,4 +784,68 @@ updateDisplay();
 
 // Event listener for detecting clicks outside the textarea to close edit mode
 document.addEventListener("click", closeEditMode);
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // JavaScript functions for managing cookies
+    function setCookie(name, value, days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        var expires = 'expires=' + date.toUTCString();
+        document.cookie = name + '=' + encodeURIComponent(value) + ';' + expires + ';path=/';
+    }
+
+    function getCookie(name) {
+        var value = '; ' + document.cookie;
+        var parts = value.split('; ' + name + '=');
+        if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+        return null;
+    }
+
+    // Handle Explorer state: Save inactive products to a cookie
+    <?php if (isset($inactiveProductsJson)) : ?>
+        var inactiveProducts = <?php echo $inactiveProductsJson; ?>;
+        if (inactiveProducts) {
+            setCookie('inactive_products', JSON.stringify(inactiveProducts), 3650); // 10 years
+        }
+    <?php endif; ?>
+
+    // Handle Creator state: Pass inactive products from cookie to PHP
+    var inactiveProducts = getCookie('inactive_products');
+    if (inactiveProducts) {
+        document.cookie = 'inactive_products_to_php=' + encodeURIComponent(inactiveProducts) + '; path=/';
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+function copyAPIKey(event) {
+    event.preventDefault(); // Prevent default link behavior
+    
+    // Get the API key
+    const apiKey = document.getElementById('apiKey').innerText;
+    // Copy to clipboard
+    navigator.clipboard.writeText(apiKey).then(() => {
+        // Change the link text to "COPIED"
+        const copyLink = document.getElementById('copyLink');
+        copyLink.textContent = '✔️ COPIED';
+        // Optionally reset back to "COPY" after a short delay
+        setTimeout(() => {
+            copyLink.textContent = '👀 COPY';
+        }, 3000);
+    }).catch(err => {
+        console.error('Failed to copy API key:', err);
+    });
+}
 </script>

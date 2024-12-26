@@ -1,9 +1,15 @@
 <?php
+include ("ExchangeRates.php"); // include ExchangeRates.php for recalculation of prices
+
+
+
+
+
 if (isset($_GET['action']) && $_GET['action'] === 'buy') {
 
     // Get and sanitize inputs
-    $deliveryType = isset($_GET['deliveryType']) ? htmlspecialchars($_GET['deliveryType']) : null; // Sanitize the delivery type
-    $wishedDeliveryTime = isset($_GET['wishedDeliveryTime']) ? htmlspecialchars($_GET['wishedDeliveryTime']) : null; // Sanitize the delivery time
+    $deliveryType = isset($_GET['deliveryType']) ? htmlspecialchars($_GET['deliveryType']) : null;
+    $wishedDeliveryTime = isset($_GET['wishedDeliveryTime']) ? htmlspecialchars($_GET['wishedDeliveryTime']) : null;
 
     // Retrieve all pending transactions for this user
     $stmt = $pdo->prepare("
@@ -15,10 +21,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'buy') {
     $stmt->execute([$user_id]);
     $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Initialize the total amount
+    // Initialize the total amounts
     $TotalAmount = 0;
+    $TotalTaxes = 0;
+    $TotalNetPrice = 0;
+    $ForTRAMANNPORT = 0;
 
-    // Initialize an array to store product details
     $cartProducts = [];
     $transactionIds = []; // To store IDs of the transactions being processed
 
@@ -29,7 +37,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'buy') {
 
         // Fetch product details from ProductsAndServices table
         $productStmt = $pdo->prepare("
-            SELECT SellingPriceProductOrServiceInDollars, SellingPricePackagingAndShippingInDollars 
+            SELECT SellingPriceProductOrServiceInDollars, SellingPricePackagingAndShippingInDollars, TaxesInPercent 
             FROM ProductsAndServices 
             WHERE idpk = ?
         ");
@@ -37,28 +45,38 @@ if (isset($_GET['action']) && $_GET['action'] === 'buy') {
         $product = $productStmt->fetch(PDO::FETCH_ASSOC);
 
         if ($product) {
-            // Multiply product prices by the quantity and calculate the total
             $productPrice = $product['SellingPriceProductOrServiceInDollars'] * $quantity;
             $shippingPrice = $product['SellingPricePackagingAndShippingInDollars'] * $quantity;
             $amountInDollars = $productPrice + $shippingPrice;
 
-            // Add to the total amount
-            $TotalAmount += $amountInDollars;
+            // Calculate TRAMANN PORT fees (3%)
+            $forTRAMANNPORTInDollars = $amountInDollars * ($ContributionForTRAMANNPORT / 100);
 
-            // Store the transaction details with the product in the array
-            $product['transaction'] = $transaction;
-            $cartProducts[] = $product;
+            // Calculate taxes if applicable
+            $taxesInDollars = 0;
+            if ($userRole === 0) { // Apply taxes only for non-creator roles (explorers)
+                $taxesInDollars = $amountInDollars * ($product['TaxesInPercent'] / 100);
+            }
+
+            // Calculate net price
+            $netPrice = $amountInDollars - $taxesInDollars;
+
+            // Update totals
+            $TotalAmount += $amountInDollars + $taxesInDollars;
+            $TotalTaxes += $taxesInDollars;
+            $TotalNetPrice += $netPrice;
+            $ForTRAMANNPORT += $forTRAMANNPORTInDollars;
 
             // Collect the transaction ID for updating later
             $transactionIds[] = $idpkTransaction;
 
-            // Update the state of the transaction and AmountInDollars in the database
+            // Update the state of the transaction in the database
             $updateStmt = $pdo->prepare("
                 UPDATE transactions 
-                SET state = 1, AmountInDollars = ? 
+                SET state = 1, AmountInDollars = ?, ForTRAMANNPORTInDollars = ?, TaxesInDollars = ? 
                 WHERE idpk = ?
             ");
-            $updateStmt->execute([$amountInDollars, $idpkTransaction]);
+            $updateStmt->execute([$amountInDollars, $forTRAMANNPORTInDollars, $taxesInDollars, $idpkTransaction]);
         }
     }
 
@@ -68,8 +86,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'buy') {
     if ($deliveryType !== null && $wishedDeliveryTimestamp !== null) {
         // Insert a new entry into the carts table
         $insertStmt = $pdo->prepare("
-            INSERT INTO carts (TimestampCreation, IdpkExplorerOrCreator, DeliveryType, WishedIdealDeliveryOrPickUpTime) 
-            VALUES (?, ?, ?, ?)
+            INSERT INTO carts (TimestampCreation, IdpkExplorerOrCreator, manual, IfManualFurtherInformation, DeliveryType, WishedIdealDeliveryOrPickUpTime) 
+            VALUES (?, ?, 0, 0, ?, ?)
         ");
         $timestampCreation = time(); // Current timestamp
         $insertStmt->execute([$timestampCreation, $user_id, $deliveryType, $wishedDeliveryTimestamp]);
@@ -138,7 +156,28 @@ if (isset($_GET['action']) && $_GET['action'] === 'buy') {
     echo "<div style=\"opacity: 0.5;\">Please use your phone or online banking and transfer the following total amount of</div>";
     echo "<br><br>";
     
-    echo "<h3>$TotalAmount$</h3>";
+    $exchangeRate = floatval($ExchangeRate['OneDollarIsEqualTo']);
+    $currencyCode = htmlspecialchars($ExchangeRate['CurrencyCode']);
+    $totalInOtherCurrency = ($TotalAmount + $ForTRAMANNPORT) * $exchangeRate;
+
+    echo "<h3>" . number_format(($TotalAmount + $ForTRAMANNPORT) * 1.00, 2) . "$</h3>";
+
+    if ($currencyCode !== "USD") {
+        echo "<div style=\"opacity: 0.5;\"><h3>(OR " . number_format($totalInOtherCurrency * 1.01, 2) . " " . $currencyCode . ")</h3></div>";
+    }
+
+    // Display tax details if applicable
+    if ($TotalTaxes > 0) {
+        $taxesInOtherCurrency = $TotalTaxes * $exchangeRate;
+        $netPriceInOtherCurrency = $TotalNetPrice * $exchangeRate;
+
+        echo "<br><div style=\"opacity: 0.4;\">";
+        echo "(thereof " . number_format($TotalTaxes, 2) . "$ taxes, total net price therefore: " . number_format($TotalNetPrice, 2) . "$)";
+        if ($currencyCode !== "USD") {
+            echo "<br><div style=\"opacity: 0.4;\">(thereof " . number_format($taxesInOtherCurrency, 2) . " " . $currencyCode . " taxes, total net price therefore: " . number_format($netPriceInOtherCurrency, 2) . " " . $currencyCode . ")</div>";
+        }
+        echo "</div>";
+    }
     
     echo "<br>";
     echo "<div style=\"opacity: 0.5;\">from your bank account (IBAN: " . htmlspecialchars($user['IBAN']) . ") to the following IBAN</div>";
@@ -150,7 +189,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'buy') {
     echo "<div style=\"opacity: 0.5;\">for further processing within the TRAMANN PORT payment system.</div>";
 
     echo "<br><br><br><br><br>";
-    echo "<a href=\"index.php\" class=\"mainbutton\">DONE</a>";
+    echo "<a href=\"index.php\" class=\"mainbutton\">✔️ DONE</a>";
 
     echo "<br><br><br><br><br>";
     echo "<a href=\"#\" id=\"learnLink\" style=\"opacity: 0.5;\">LEARN HOW IT WORKS</a>";
@@ -258,6 +297,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'buy') {
 
 
 
+
+
 <h1>🛒 CART</h1>
 
 <?php
@@ -271,8 +312,10 @@ function formatShippingPrice($shippingPrice) {
     return (!empty($shippingPrice) && $shippingPrice != 0) ? "(+$shippingPrice\$)" : '';
 }
 
+$priceMultiplier = 1 + $ContributionForTRAMANNPORT / 100; // Calculate the multiplier
+
 // Function to display a product row
-function displayProductRow($product, $transaction = null, $user_id = null) {
+function displayProductRow($product, $transaction = null, $user_id = null, $priceMultiplier = null, $userRole = null) {
     $truncatedName = truncateText($product['name'], 50);
     $truncatedDescription = truncateText($product['ShortDescription'], 100);
     $shippingPrice = formatShippingPrice($product['SellingPricePackagingAndShippingInDollars']);
@@ -323,10 +366,16 @@ function displayProductRow($product, $transaction = null, $user_id = null) {
             echo "<input type=\"text\" id=\"CommentsNotesSpecialRequests\" name=\"CommentsNotesSpecialRequests\" value=\"$commentsNotesSpecialRequests\" placeholder=\"comments, notes, special requests\" style=\"width: 90%;\" onchange=\"updateCartData({$product['idpk']}, 'CommentsNotesSpecialRequests', this.value)\">";
         }
     echo "</div></td>";
+
+    // Adjust priceMultiplier for explorers (userRole === 0)
+    if ($userRole === 0) {
+        $taxesMultiplier = 1 + ($product['TaxesInPercent'] / 100); // Calculate taxes multiplier
+        $priceMultiplier *= $taxesMultiplier; // Apply taxes multiplier
+    }
     
     echo "<td>";
-        $productPrice = $product['SellingPriceProductOrServiceInDollars']; // Get the product price
-        $shippingPrice = $product['SellingPricePackagingAndShippingInDollars']; // Get the shipping price
+        $productPrice = $product['SellingPriceProductOrServiceInDollars'] * $priceMultiplier; // Multiply by the factor
+        $shippingPrice = $product['SellingPricePackagingAndShippingInDollars'] * $priceMultiplier; // Multiply by the factor
         
         // Calculate total price based on quantity
         $totalProductPrice = $productPrice * $quantity;
@@ -336,9 +385,8 @@ function displayProductRow($product, $transaction = null, $user_id = null) {
         $totalProductPriceFormatted = number_format($totalProductPrice, 2);
         $totalShippingPriceFormatted = number_format($totalShippingPrice, 2);
     // echo "{$product['SellingPriceProductOrServiceInDollars']}$ $shippingPrice";
-    echo "<div id='totalProductPrice_{$product['idpk']}'>{$totalProductPriceFormatted}$</div> <div id='totalShippingPrice_{$product['idpk']}'>(+{$totalShippingPriceFormatted}$)</div>";
-    echo "<div style=\"position: relative; display: flex; align-items: flex-end;\">";
-    echo "<input type=\"number\" id=\"quantity\" name=\"quantity\" value=\"$quantity\" placeholder=\"quantity\" style=\"width: 80px;\" onchange=\"updateCartData({$product['idpk']}, 'quantity', this.value)\">";
+    echo "<div id='totalProductPrice_{$product['idpk']}'>{$totalProductPriceFormatted}$</div> <div id='totalShippingPrice_{$product['idpk']}'>(+{$totalShippingPriceFormatted}$)</div>";    echo "<div style=\"position: relative; display: flex; align-items: flex-end;\">";
+    echo "<input type=\"number\" id=\"quantity_{$product['idpk']}\" name=\"quantity\" value=\"$quantity\" placeholder=\"quantity\" style=\"width: 80px;\" data-product-id=\"{$product['idpk']}\" min=\"1\">";
     echo "</div></td>";
 
     // Links
@@ -376,7 +424,15 @@ try {
 
     // Display cart products in a table
     if (!empty($cartProducts)) {
-        echo "<!-- <strong id=\"totalPrice\">42.00$ (+3.50$)</strong> --> <a href=\"index.php?content=cart.php&action=buy\" id=\"BuyButton\" class=\"mainbutton\" onclick=\"sendBuyRequest(event)\">BUY NOW</a>";
+        // echo "<strong id=\"totalPrice\" style=\"font-size: 1.2em;\">0.00$ (+0.00$)</strong> <a href=\"index.php?content=cart.php&action=buy\" id=\"BuyButton\" class=\"mainbutton\" onclick=\"sendBuyRequest(event)\">🛒 BUY NOW</a>";
+        echo "<div align='center'>";
+            echo "<table>";
+                echo "<tr>";
+                    echo "<td style='font-size: 1.2em; text-align: left;'><strong id='totalPrice'>0.00$ (+0.00$)</strong><br><strong id='totalPriceInOtherCurrency' style='opacity: 0.5;'></strong></td>";
+                    echo "<td style='text-align: right;'><a href='index.php?content=cart.php&action=buy' id='BuyButton' class='mainbutton' onclick='sendBuyRequest(event)'>🛒 BUY NOW</a></td>";
+                echo "</tr>";
+            echo "</table>";
+        echo "</div>";
         echo "<br><br><br><br>";
 
 
@@ -479,7 +535,7 @@ try {
         
         foreach ($cartProducts as $product) {
             // Display each product row
-            displayProductRow($product, $product['transaction'], $user_id);
+            displayProductRow($product, $product['transaction'], $user_id, $priceMultiplier, $userRole);
         }
 
         echo "</table>";
@@ -491,6 +547,14 @@ try {
     echo "Error fetching cart items: " . $e->getMessage();
 }
 ?>
+
+
+
+
+
+
+
+
 
 
 
@@ -534,26 +598,38 @@ function deleteProductFromCart(productId) {
     xhr.open("POST", "SaveDataCart.php", true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-    // Assuming user_id is stored in a cookie or session
     const userId = getCookie("user_id");
 
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const response = xhr.responseText;
-            if (response == "Product or service removed successfully.") {
-                window.location.href = window.location.href;  // Reload the page to reflect the changes in the cart
+
+            if (response === "Product or service removed successfully.") {
+                // Remove the product row from the DOM
+                const productRow = document.querySelector(`#totalProductPrice_${productId}`).closest("tr");
+                if (productRow) {
+                    productRow.remove();
+                }
+
+                // Recalculate the total price for the cart
+                calculateTotalPrice();
             } else {
-                alert(response);  // Show error message if product removal failed
+                alert(response || "Error removing product.");
             }
         }
     };
 
-    // Send the POST request with the productId, userId, and action to "remove"
+    // Send the POST request to remove the product
     xhr.send(`productId=${productId}&userId=${userId}&action=remove`);
 }
 
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+}
+
 // Update the displayed price after changing the quantity
-function updatePriceDisplay(productId, totalProductPrice, totalShippingPrice, totalPrice) {
+function updatePriceDisplay(productId, totalProductPrice, totalShippingPrice) {
     // Find the price elements by productId
     const totalProductPriceElement = document.querySelector(`#totalProductPrice_${productId}`);
     const totalShippingPriceElement = document.querySelector(`#totalShippingPrice_${productId}`);
@@ -562,24 +638,69 @@ function updatePriceDisplay(productId, totalProductPrice, totalShippingPrice, to
         // Update the price elements with the new values
         totalProductPriceElement.innerHTML = `${totalProductPrice}$`;
         totalShippingPriceElement.innerHTML = `(+${totalShippingPrice}$)`;
-        
-        // Optionally update the total price if it's displayed elsewhere
-        const totalPriceElement = document.querySelector(`#totalPrice_${productId}`);
-        if (totalPriceElement) {
-            totalPriceElement.innerHTML = `${totalPrice}$`;
+    }
+}
+
+function calculateTotalPrice() {
+    let totalProductPrice = 0;
+    let totalShippingPrice = 0;
+
+    // Iterate over all rows to calculate total prices
+    document.querySelectorAll("tr").forEach((row) => {
+        const productPriceElement = row.querySelector("[id^='totalProductPrice_']");
+        const shippingPriceElement = row.querySelector("[id^='totalShippingPrice_']");
+
+        if (productPriceElement && shippingPriceElement) {
+            const productPrice = parseFloat(productPriceElement.innerHTML.replace("$", "")) || 0;
+            const shippingPrice = parseFloat(shippingPriceElement.innerHTML.replace("(+", "").replace("$)", "")) || 0;
+
+            totalProductPrice += productPrice;
+            totalShippingPrice += shippingPrice;
+        }
+    });
+
+    // Update the total price element
+    const totalPriceElement = document.getElementById("totalPrice");
+    if (totalPriceElement) {
+        totalPriceElement.innerHTML = `${totalProductPrice.toFixed(2)}$ (+${totalShippingPrice.toFixed(2)}$)`;
+    }
+
+    // Update the total price in another currency (if needed)
+    const totalPriceInOtherCurrencyElement = document.getElementById("totalPriceInOtherCurrency");
+    if (totalPriceInOtherCurrencyElement) {
+        // Fetch PHP variables
+        const exchangeRate = parseFloat("<?php echo $ExchangeRateOneDollarIsEqualTo; ?>");
+        const currencyCode = "<?php echo htmlspecialchars($ExchangeRateCurrencyCode); ?>";
+
+        let totalProductPriceInOtherCurrency = totalProductPrice * exchangeRate;
+        let totalShippingPriceInOtherCurrency = totalShippingPrice * exchangeRate;
+
+        if (currencyCode !== "USD") {
+            totalPriceInOtherCurrencyElement.innerHTML = `${(totalProductPriceInOtherCurrency * 1.01).toFixed(2)} ${currencyCode} (+${(totalShippingPriceInOtherCurrency * 1.01).toFixed(2)} ${currencyCode})`;
+        } else {
+            totalPriceInOtherCurrencyElement.innerHTML = `${(totalProductPrice * 1.01).toFixed(2)}$ (+${(totalShippingPrice * 1.01).toFixed(2)}$)`;
         }
     }
 }
 
-// Call this function after the AJAX request completes successfully
 function updateCartData(productId, fieldName, value) {
+    // Prevent quantities below 1
+    if (fieldName === "quantity" && (isNaN(value) || value < 1)) {
+        value = 1; // Correct invalid quantities to 1
+        // Update the quantity input field to reflect the corrected value
+        const quantityInput = document.querySelector(`#quantity_${productId}`);
+        if (quantityInput) {
+            quantityInput.value = value;
+        }
+    }
+
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "SaveDataCart.php", true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
     const userId = getCookie("user_id");
 
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const response = xhr.responseText;
 
@@ -587,12 +708,16 @@ function updateCartData(productId, fieldName, value) {
                 const data = JSON.parse(response);
 
                 if (data.success) {
-                    // Update the displayed prices based on the new data
-                    updatePriceDisplay(productId, data.totalProductPrice, data.totalShippingPrice, data.totalPrice);
+                    // Update the displayed prices for the product
+                    updatePriceDisplay(productId, data.totalProductPrice, data.totalShippingPrice);
+
+                    // Recalculate the total price for the cart
+                    calculateTotalPrice();
                 } else {
                     alert(data.message || "Error updating cart.");
                 }
             } catch (e) {
+                console.error("Error parsing server response:", e);
             }
         }
     };
@@ -651,11 +776,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Attach the event listener to the quantity input
+    document.querySelectorAll('input[name="quantity"]').forEach(function(input) {
+        input.addEventListener('change', function(event) {
+            // Get the product ID from the data attribute
+            const productId = event.target.getAttribute('data-product-id');
+            let value = event.target.value;
+
+            // Ensure the quantity is at least 1
+            if (isNaN(value) || value < 1) {
+                value = 1;
+                event.target.value = value; // Correct the input value immediately
+            }
+
+            // Call the updateCartData function
+            updateCartData(productId, 'quantity', value);
+        });
+    });
+
     // Add event listener to handle changes in deliveryType
     deliveryTypeSelect.addEventListener('change', toggleWishedDeliveryTimeField);
 
     // Call the function once to ensure correct initial state
     toggleWishedDeliveryTimeField();
+
+    calculateTotalPrice();
 });
 </script>
 

@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $value = trim($value);
 
     // Validate fieldName and value to prevent null or undefined issues
-    if (in_array($fieldName, $allowedFields) && !empty($value)) { // Check if value is not empty
+    if (in_array($fieldName, $allowedFields)) { 
         try {
             $stmt = $pdo->prepare("UPDATE ExplorersAndCreators SET $fieldName = :value WHERE idpk = :id");
             $stmt->bindParam(':value', $value, PDO::PARAM_STR);

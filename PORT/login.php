@@ -57,7 +57,30 @@ echo "<div class=\"content\">";
 
 
 
+
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginForm = document.getElementById('loginForm');
+
+        // Focus password input when Enter is pressed in email input
+        emailInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                passwordInput.focus();
+            }
+        });
+
+        // Submit form when Enter is pressed in password input
+        passwordInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                loginForm.submit();
+            }
+        });
+    });
+
     function submitForm() {
         document.getElementById('loginForm').submit(); // Submit the form
     }
@@ -90,7 +113,7 @@ echo "<div class=\"content\">";
 
     <form id="loginForm" action="" method="post"> <!-- Form for login -->
         <!-- <div class="steps"> -->
-            <input type="email" id="email" name="email" placeholder="email" style="width: 300px;" required> <!-- Email input -->
+            <input type="email" id="email" name="email" placeholder="email" style="width: 300px;" required autofocus> <!-- Email input -->
             <!-- <label for="email">email</label> -->
 
             <br><br>

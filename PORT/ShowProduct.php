@@ -260,8 +260,36 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['
                 return (!empty($shippingPrice) && $shippingPrice != 0) ? "(+$shippingPrice\$)" : '';
             }
             $shippingPrice = formatShippingPriceForDisplay($product['SellingPricePackagingAndShippingInDollars']);
+
+            // Helper function to safely round values
+            if (!function_exists('safe_round')) {
+                function safe_round($value, $precision = 2) {
+                    // return is_numeric($value) ? round($value, $precision) : 0;
+                    return number_format((float) $value, $precision, '.', '');
+                }
+            }
+            
         echo "<td style='text-align: center;'>";
-        echo "{$product['SellingPriceProductOrServiceInDollars']}$ $shippingPrice";
+            //echo "{$product['SellingPriceProductOrServiceInDollars']}$ $shippingPrice";
+            // Main logic
+            if ($canManage) {
+                // Direct display without modification
+                echo safe_round($product['SellingPriceProductOrServiceInDollars'], 2) . "$ (+"
+                    . safe_round($product['SellingPricePackagingAndShippingInDollars'], 2) . ")";
+            } elseif ($userRole === 1) { // For creators (business accounts), apply contribution
+                $sellingPriceWithContribution = $product['SellingPriceProductOrServiceInDollars'] * (1 + $ContributionForTRAMANNPORT / 100);
+                $packagingAndShippingPriceWithContribution = $product['SellingPricePackagingAndShippingInDollars'] * (1 + $ContributionForTRAMANNPORT / 100);
+                echo safe_round($sellingPriceWithContribution, 2) . "$ (+"
+                    . safe_round($packagingAndShippingPriceWithContribution, 2) . ")";
+            } else { // For explorers, apply contribution and taxes
+                $sellingPriceWithContribution = $product['SellingPriceProductOrServiceInDollars'] * (1 + $ContributionForTRAMANNPORT / 100);
+                $packagingAndShippingPriceWithContribution = $product['SellingPricePackagingAndShippingInDollars'] * (1 + $ContributionForTRAMANNPORT / 100);
+                $sellingPriceWithTaxes = $sellingPriceWithContribution * (1 + $product['TaxesInPercent'] / 100);
+                $packagingAndShippingPriceWithTaxes = $packagingAndShippingPriceWithContribution * (1 + $product['TaxesInPercent'] / 100);
+            
+                echo safe_round($sellingPriceWithTaxes, 2) . "$ (+"
+                    . safe_round($packagingAndShippingPriceWithTaxes, 2) . ")";
+            }
         echo "</td>";
 
         // Top right cell: Buy/Edit button
@@ -365,6 +393,29 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['
         echo "</tr>";
         echo "</table>";
 
+        echo "<br><div style='opacity: 0.5;'>";
+            // Initialize an array to hold dimensions if they exist
+            $details = [];
+                
+            // Add each dimension to the array if it exists and is not null or 0
+            if (!empty($product['WeightInKg'])) {
+                $details[] = "weight: {$product['WeightInKg']}kg";
+            }
+            if (!empty($product['DimensionsLengthInMm'])) {
+                $details[] = "length: {$product['DimensionsLengthInMm']}mm";
+            }
+            if (!empty($product['DimensionsWidthInMm'])) {
+                $details[] = "width: {$product['DimensionsWidthInMm']}mm";
+            }
+            if (!empty($product['DimensionsHeightInMm'])) {
+                $details[] = "height: {$product['DimensionsHeightInMm']}mm";
+            }
+        
+            // Output the details if any exist
+            if (!empty($details)) {
+                echo "(" . implode(", ", $details) . ")</div>";
+            }
+        echo "</div>";
 
 
 

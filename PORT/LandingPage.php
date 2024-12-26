@@ -145,6 +145,7 @@
           <h3>manage your 📦 products (including 🏰 inventory) and services</h3>
           <h3>automatically get your 🛍️ online shop and 🌐 website</h3>
           <h3>handling 📝 orders and 🛒 payments over TRAMANN PORT too</h3>
+          <h3>connect with our 🕸️ TRAMANN API using your free key for unlimited access</h3>
           <h3>use our smart 🔍 explore functionality to search</h3>
           <h3>our 🗓️ calendar to plan and our 📱 app for mobile viewing</h3>
           <h3>check your 👥 explorers (customers) and fellow 🏭 creators (suppliers)</h3>

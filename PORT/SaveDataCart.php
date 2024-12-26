@@ -30,6 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productId = $_POST['productId'] ?? null;
     $action = $_POST['action'] ?? null;  // Determine if the action is update or remove
 
+    // Define contribution percentage
+    $ContributionForTRAMANNPORT = 3; // In percent
+    $contributionMultiplier = 1 + $ContributionForTRAMANNPORT / 100;
+
+    // Determine user role (fetch from session or database if not directly available)
+    $userRole = $_COOKIE['userRole'] ?? 1; // Example: Default to Explorer
+
     // Validate product ID and check if the field name is allowed
     if ($productId && ($action === 'update' && in_array($fieldName, $allowedFields)) || $action === 'remove') {
         
@@ -73,23 +80,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute();
 
                 // Get the updated prices from the ProductsAndServices table
-                $stmt = $pdo->prepare("SELECT SellingPriceProductOrServiceInDollars, SellingPricePackagingAndShippingInDollars FROM ProductsAndServices WHERE idpk = :productId");
+                $stmt = $pdo->prepare("SELECT SellingPriceProductOrServiceInDollars, SellingPricePackagingAndShippingInDollars, TaxesInPercent FROM ProductsAndServices WHERE idpk = :productId");
                 $stmt->bindParam(':productId', $productId, PDO::PARAM_INT);
                 $stmt->execute();
                 $productData = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($productData) {
+                    // Calculate price multiplier
+                    $priceMultiplier = $contributionMultiplier;
+                    if ($userRole !== 1) { // Apply taxes for Creators
+                        $priceMultiplier *= 1 + ($productData['TaxesInPercent'] / 100);
+                    }
+
                     // Calculate the total product price, total shipping price, and total price
-                    $totalProductPrice = $productData['SellingPriceProductOrServiceInDollars'] * $value;
-                    $totalShippingPrice = $productData['SellingPricePackagingAndShippingInDollars'] * $value;
+                    $baseProductPrice = $productData['SellingPriceProductOrServiceInDollars'];
+                    $baseShippingPrice = $productData['SellingPricePackagingAndShippingInDollars'];
+                    $totalProductPrice = $baseProductPrice * $priceMultiplier * $value;
+                    $totalShippingPrice = $baseShippingPrice * $priceMultiplier * $value;
                     $totalPrice = $totalProductPrice + $totalShippingPrice;
 
-                    // Return the updated prices in the response
+                    // Return the updated prices and other details in the response
                     echo json_encode([
                         'success' => true,
+                        'baseProductPrice' => $baseProductPrice,
+                        'baseShippingPrice' => $baseShippingPrice,
                         'totalProductPrice' => number_format($totalProductPrice, 2),
                         'totalShippingPrice' => number_format($totalShippingPrice, 2),
-                        'totalPrice' => number_format($totalPrice, 2)
+                        'totalPrice' => number_format($totalPrice, 2),
+                        'contributionPercent' => $ContributionForTRAMANNPORT,
+                        'taxesPercent' => $productData['TaxesInPercent'],
+                        'userRole' => $userRole
                     ]);
                 } else {
                     echo "Product or service couldn't be found.";
@@ -106,6 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     echo "Invalid request method.";
 }
+
 
 
 

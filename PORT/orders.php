@@ -71,7 +71,8 @@ try {
     if (empty($carts)) {
         echo "There are no previous orders available yet.";
     } else {
-        echo "<table>";
+        // echo "<table>";
+        echo "<table style='width: 100%; text-align: left;'>";
         // echo "<thead>";
         // echo "<tr>";
         // echo "<th>date and time</th>";
@@ -173,7 +174,7 @@ try {
             // echo "<tr class='cart-details cart-{$cart['CartNumber']}' style='opacity: {$cartOpacityClass}; font-weight: bold;'>";
             // echo "<tr class='cart-details cart-{$cart['CartNumber']}' style='opacity: {$cartOpacityClass}; font-weight: bold;' data-cart-number='{$cart['CartNumber']}'>";
             echo "<tr id='cart-details cart-{$cart['CartNumber']}' style='opacity: {$cartOpacityClass}; font-weight: bold;'>";
-            echo "<td>cart {$cart['CartNumber']} from</td>";
+            echo "<td title='CART {$cart['CartNumber']}'><a href='index.php?content=explore.php&action=ShowCarts&idpk={$cart['CartNumber']}'>CART {$cart['CartNumber']}</td>";
             echo "<td></td>";
             echo "<td>{$cartTimestamp}</td>";
             echo "<td></td>";
@@ -199,7 +200,7 @@ try {
                 echo "<tr id='cart-buyer-details cart-{$cart['CartNumber']}' style='opacity: {$cartOpacityClass}; font-weight: bold;'>";
                 echo "<td></td>";
                 echo "<td></td>";
-                echo "<td colspan='5'>{$product['ifManualFurtherInformation']}</td>";
+                echo "<td colspan='5'>{$product['ifManualFurtherInformation']} (manual)</td>";
                 // echo "<td></td>";
                 // echo "<td></td>";
                 // echo "<td colspan='4'>{$customerAddress}</td>";          
@@ -266,7 +267,7 @@ try {
                 // Assign a class that ties the row to the cart
                 echo "</tr></tr><tr id='cart-products-{$product['TransactionId']}' class='cart-products cart-products-{$cart['CartNumber']}' style='opacity: {$opacity}; display: none;'>";
                 echo "<td></td>";
-                echo "<td>{$product['TransactionId']}</td>";
+                echo "<td title='TRANSACTION {$product['TransactionId']}'><a href='index.php?content=explore.php&action=ShowTransaction&idpk={$product['TransactionId']}'>TRANSACTION {$product['TransactionId']}</td>";
                 echo "<td title='{$productName} ({$product['ProductId']})'><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['ProductId']}'>$truncatedName ({$product['ProductId']})</a><br>{$commentsNotes}</td>";
                 echo "<td style='font-weight: bold; font-size: 1.5rem;'>{$product['Quantity']}x </td>";
                 echo "<td>{$product['TotalPrice']}$</td>";

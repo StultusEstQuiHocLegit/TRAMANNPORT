@@ -99,6 +99,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Password hashing for security
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $timestampCreation = time(); // Current timestamp
+    
+    // Generate a unique API key with 200 characters
+    function generateAPIKey($length = 200) {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $charactersLength = strlen($characters);
+        $randomKey = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomKey .= $characters[random_int(0, $charactersLength - 1)];
+        }
+        return $randomKey;
+    }
+    
+    // Assign the generated API key
+    $APIKey = generateAPIKey();
 
     // adding notes and texts for the starting of the dashboard for the first time if the user is a creator
     if ($explorerOrCreator === 1) {
@@ -134,8 +148,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
     // Prepare the SQL statement for inserting data into ExplorersAndCreators table
-    $stmt = $pdo->prepare("INSERT INTO ExplorersAndCreators (TimestampCreation, email, password, PhoneNumber, FirstName, LastName, street, HouseNumber, ZIPCode, city, country, planet, IBAN, CapitalInAccountInDollars, darkmode, ExplorerOrCreator, level, CompanyName, VATID, PhoneNumberForExplorersAsContact, EmailForExplorersAsContact, ShowAddressToExplorers, CanExplorersVisitYou, OpeningHoursMondayOpening, OpeningHoursMondayClosing, OpeningHoursTuesdayOpening, OpeningHoursTuesdayClosing, OpeningHoursWednesdayOpening, OpeningHoursWednesdayClosing, OpeningHoursThursdayOpening, OpeningHoursThursdayClosing, OpeningHoursFridayOpening, OpeningHoursFridayClosing, OpeningHoursSaturdayOpening, OpeningHoursSaturdayClosing, OpeningHoursSundayOpening, OpeningHoursSundayClosing, OpeningHoursNationalHolidaysOpening, OpeningHoursNationalHolidaysClosing, CloseOnlineShopIfPhysicalShopIsClosed, PhysicalShopClosedBecauseOfHolidaysClosing, PhysicalShopClosedBecauseOfHolidaysOpening, ShortDescription, LongDescription, LinksToSocialMediaAndOtherSites, PersonalNotes, PersonalStrategicPlaningNotes, PersonalToDoList, PersonalCollectionOfLinks) 
-                            VALUES (:timestampCreation, :email, :password, :phoneNumber, :firstName, :lastName, :street, :houseNumber, :zipCode, :city, :country, :planet, :iban, :capitalInAccountInDollars, :darkmode, :explorerOrCreator, :level, :companyName, :vatId, :phoneNumberForExplorersAsContact, :emailForExplorersAsContact, :showAddressToExplorers, :canExplorersVisitYou, :openingHoursMondayOpening, :openingHoursMondayClosing, :openingHoursTuesdayOpening, :openingHoursTuesdayClosing, :openingHoursWednesdayOpening, :openingHoursWednesdayClosing, :openingHoursThursdayOpening, :openingHoursThursdayClosing, :openingHoursFridayOpening, :openingHoursFridayClosing, :openingHoursSaturdayOpening, :openingHoursSaturdayClosing, :openingHoursSundayOpening, :openingHoursSundayClosing, :openingHoursNationalHolidaysOpening, :openingHoursNationalHolidaysClosing, :closeOnlineShopIfPhysicalShopIsClosed, :physicalShopClosedBecauseOfHolidaysClosing, :physicalShopClosedBecauseOfHolidaysOpening, :shortDescription, :longDescription, :linksToSocialMediaAndOtherSites, :personalNotes, :personalStrategicPlaningNotes, :personalToDoList, :personalCollectionOfLinks)");
+    $stmt = $pdo->prepare("INSERT INTO ExplorersAndCreators (TimestampCreation, email, password, PhoneNumber, FirstName, LastName, street, HouseNumber, ZIPCode, city, country, planet, IBAN, CapitalInAccountInDollars, darkmode, ExplorerOrCreator, level, CompanyName, VATID, PhoneNumberForExplorersAsContact, EmailForExplorersAsContact, ShowAddressToExplorers, CanExplorersVisitYou, OpeningHoursMondayOpening, OpeningHoursMondayClosing, OpeningHoursTuesdayOpening, OpeningHoursTuesdayClosing, OpeningHoursWednesdayOpening, OpeningHoursWednesdayClosing, OpeningHoursThursdayOpening, OpeningHoursThursdayClosing, OpeningHoursFridayOpening, OpeningHoursFridayClosing, OpeningHoursSaturdayOpening, OpeningHoursSaturdayClosing, OpeningHoursSundayOpening, OpeningHoursSundayClosing, OpeningHoursNationalHolidaysOpening, OpeningHoursNationalHolidaysClosing, CloseOnlineShopIfPhysicalShopIsClosed, PhysicalShopClosedBecauseOfHolidaysClosing, PhysicalShopClosedBecauseOfHolidaysOpening, ShortDescription, LongDescription, LinksToSocialMediaAndOtherSites, PersonalNotes, PersonalStrategicPlaningNotes, PersonalToDoList, PersonalCollectionOfLinks, APIKey) 
+                            VALUES (:timestampCreation, :email, :password, :phoneNumber, :firstName, :lastName, :street, :houseNumber, :zipCode, :city, :country, :planet, :iban, :capitalInAccountInDollars, :darkmode, :explorerOrCreator, :level, :companyName, :vatId, :phoneNumberForExplorersAsContact, :emailForExplorersAsContact, :showAddressToExplorers, :canExplorersVisitYou, :openingHoursMondayOpening, :openingHoursMondayClosing, :openingHoursTuesdayOpening, :openingHoursTuesdayClosing, :openingHoursWednesdayOpening, :openingHoursWednesdayClosing, :openingHoursThursdayOpening, :openingHoursThursdayClosing, :openingHoursFridayOpening, :openingHoursFridayClosing, :openingHoursSaturdayOpening, :openingHoursSaturdayClosing, :openingHoursSundayOpening, :openingHoursSundayClosing, :openingHoursNationalHolidaysOpening, :openingHoursNationalHolidaysClosing, :closeOnlineShopIfPhysicalShopIsClosed, :physicalShopClosedBecauseOfHolidaysClosing, :physicalShopClosedBecauseOfHolidaysOpening, :shortDescription, :longDescription, :linksToSocialMediaAndOtherSites, :personalNotes, :personalStrategicPlaningNotes, :personalToDoList, :personalCollectionOfLinks, :APIKey)");
 
     // Bind parameters
     $stmt->bindParam(':timestampCreation', $timestampCreation);
@@ -187,6 +201,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bindParam(':personalStrategicPlaningNotes', $personalStrategicPlaningNotes);
     $stmt->bindParam(':personalToDoList', $personalToDoList);
     $stmt->bindParam(':personalCollectionOfLinks', $personalCollectionOfLinks);
+    $stmt->bindParam(':APIKey', $APIKey);
 
     // Execute the statement
     if ($stmt->execute()) {

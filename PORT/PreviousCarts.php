@@ -135,7 +135,7 @@ try {
                     p.idpk AS ProductId,
                     p.name AS ProductName,
                     t.quantity AS Quantity,
-                    t.AmountInDollars AS Price,
+                    COALESCE(t.AmountInDollars, 0) + COALESCE(t.ForTRAMANNPORTInDollars, 0) + COALESCE(t.TaxesInDollars, 0) AS Price,
                     CONCAT('uploads/ProductPictures/', p.idpk, '_0.jpg') AS Image
                 FROM transactions t
                 INNER JOIN ProductsAndServices p ON t.IdpkProductOrService = p.idpk
@@ -165,9 +165,11 @@ try {
         SELECT 
             c.idpk AS CartNumber,
             c.TimestampCreation AS CartTimestamp,
+            c.manual AS manual,
+            c.IfManualFurtherInformation AS IfManualFurtherInformation,
             c.DeliveryType AS deliveryType,
             c.WishedIdealDeliveryOrPickUpTime AS wishedIdealDeliveryOrPickUpTime,
-            SUM(COALESCE(t.AmountInDollars, 0)) AS TotalAmount,
+            SUM(COALESCE(t.AmountInDollars, 0) + COALESCE(t.ForTRAMANNPORTInDollars, 0) + COALESCE(t.TaxesInDollars, 0)) AS TotalAmount,
             e.CompanyName AS CompanyName,
             e.FirstName AS BuyerFirstName,
             e.LastName AS BuyerLastName
@@ -184,7 +186,8 @@ try {
     if (empty($carts)) {
         echo "There are no previous carts available yet.";
     } else {
-        echo "<table>";
+        // echo "<table>";
+        echo "<table style='width: 100%; text-align: left;'>";
         // echo "<thead>";
         // echo "<tr>";
         // echo "<th>date and time</th>";
@@ -212,6 +215,8 @@ try {
             $deliveryType = isset($cart['deliveryType']) ? (int)$cart['deliveryType'] : 0;
             $formattedDeliveryType = $deliveryTypeMapping[$deliveryType] ?? 'unknown'; // Fallback to 'unknown' if the value is not in the mapping
             $cartTimestamp = date('Y-m-d H:i:s', $cart['CartTimestamp']);
+            $manual = $cart['manual'];
+            $IfManualFurtherInformation = $cart['IfManualFurtherInformation'];
             $cartWishedIdealDeliveryOrPickUpTime = date('Y-m-d H:i:s', $cart['wishedIdealDeliveryOrPickUpTime']);
             $buyerName = !empty($cart['CompanyName']) 
                 ? "{$cart['CompanyName']} ({$cart['CartNumber']})" 
@@ -223,24 +228,40 @@ try {
 
 
 
-            // Fetch products for the current cart
-            $stmt = $pdo->prepare("
-                SELECT 
-                    p.idpk AS ProductId,
-                    p.name AS ProductName,
-                    t.idpk AS TransactionId,
-                    t.quantity AS Quantity,
-                    t.AmountInDollars AS TotalPrice,
-                    t.CommentsNotesSpecialRequests AS commentsNotesSpecialRequests,
-                    t.state AS TransactionState,
-                    p.state AS ProductState,
-                    CONCAT('uploads/ProductPictures/', p.idpk, '_0.jpg') AS Image
-                FROM transactions t
-                INNER JOIN ProductsAndServices p ON t.IdpkProductOrService = p.idpk
-                WHERE t.IdpkCart = :cart_id
-            ");
-            $stmt->execute(['cart_id' => $cart['CartNumber']]);
-            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if ($manual == 1) {
+                // Fetch transactions for the current cart
+                $stmt = $pdo->prepare("
+                    SELECT 
+                        idpk AS TransactionId,
+                        quantity AS Quantity,
+                        COALESCE(AmountInDollars, 0) + COALESCE(ForTRAMANNPORTInDollars, 0) + COALESCE(TaxesInDollars, 0) AS TotalPrice,
+                        CommentsNotesSpecialRequests AS commentsNotesSpecialRequests,
+                        state AS TransactionState
+                    FROM transactions
+                    WHERE IdpkCart = :cart_id
+                ");
+                $stmt->execute(['cart_id' => $cart['CartNumber']]);
+                $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } else {
+                // Fetch products for the current cart
+                $stmt = $pdo->prepare("
+                    SELECT 
+                        p.idpk AS ProductId,
+                        p.name AS ProductName,
+                        t.idpk AS TransactionId,
+                        t.quantity AS Quantity,
+                        COALESCE(t.AmountInDollars, 0) + COALESCE(t.ForTRAMANNPORTInDollars, 0) + COALESCE(t.TaxesInDollars, 0) AS TotalPrice,
+                        t.CommentsNotesSpecialRequests AS commentsNotesSpecialRequests,
+                        t.state AS TransactionState,
+                        p.state AS ProductState,
+                        CONCAT('uploads/ProductPictures/', p.idpk, '_0.jpg') AS Image
+                    FROM transactions t
+                    INNER JOIN ProductsAndServices p ON t.IdpkProductOrService = p.idpk
+                    WHERE t.IdpkCart = :cart_id
+                ");
+                $stmt->execute(['cart_id' => $cart['CartNumber']]);
+                $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
 
 
 
@@ -255,7 +276,7 @@ try {
             echo "<tr><td colspan='8' style='padding: 0;'><hr style='border: 1px solid #505050; margin: 0; width: 100%;'></td></tr>";
             
             echo "<tr style='font-weight: bold;'>";
-            echo "<td>cart {$cart['CartNumber']} from</td>";
+            echo "<td title='CART {$cart['CartNumber']}'><a href='index.php?content=explore.php&action=ShowCarts&idpk={$cart['CartNumber']}'>CART {$cart['CartNumber']}</td>";
             echo "<td></td>";
             echo "<td>{$cartTimestamp}</td>";
             echo "<td></td>";
@@ -278,48 +299,84 @@ try {
 
 
 
-        
-            foreach ($products as $product) {
-                $productName = htmlspecialchars($product['ProductName']);
-                $truncatedName = strlen($productName) > 50 ? substr($productName, 0, 47) . "..." : $productName;
-                $commentsNotes = !empty($product['commentsNotesSpecialRequests']) ? " ({$product['commentsNotesSpecialRequests']})" : "";
-                $isActive = $product['ProductState'] == 1;
-                // Define a mapping for product state values
-                $transactionStateMapping = [
-                    0 => 'collecting',
-                    1 => 'ordered',
-                    2 => 'paid',
-                    3 => 'orders transmitted to creators',
-                    4 => 'creators producing or selecting',
-                    5 => 'creators shipping',
-                    6 => 'in customs',
-                    7 => 'at distribution center',
-                    8 => 'arriving',
-                    9 => 'finished'
-                ];
-                
-                // Retrieve and translate the product state
-                $TransactionState = isset($product['TransactionState']) ? (int)$product['TransactionState'] : 0;
-                $translatedTransactionState = $transactionStateMapping[$TransactionState] ?? 'unknown'; // Fallback to 'unknown'
-                $opacity = $isActive ? "1" : "0.5";
-        
-                // Assign a class that ties the row to the cart
-                echo "<tr class='cart-products cart-products-{$cart['CartNumber']}' style='opacity: {$opacity}; display: none;'>";
-                echo "<td></td>";
-                echo "<td>{$product['TransactionId']}</td>";
-                echo "<td title='{$productName} ({$product['ProductId']})'><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['ProductId']}'>$truncatedName ({$product['ProductId']})</a><br>{$commentsNotes}</td>";
-                echo "<td style='font-weight: bold; font-size: 1.5rem;'>{$product['Quantity']}x </td>";
-                echo "<td>{$product['TotalPrice']}$</td>";
-                echo "<td title='(0 = collecting, 1 = ordered, 2 = paid, 3 = orders transmitted to creators, 4 = creators producing or selecting, 5 = creators shipping, 6 = in customs, 7 = at distribution center, 8 = arriving, 9 = finished)'>{$translatedTransactionState}</td>";
-                // echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['ProductId']}'>👁️ MORE</a></td>";
-        
-                if ($isActive) {
-                    echo "<td><a href='index.php?content=PreviousCarts.php' onclick='addToCartGlow(event, {$product['ProductId']})' class='mainbutton'>🛒 REPICK</a></td>";
-                } else {
-                    echo "<td>inactive</td>";
+            if ($manual == 1) {
+                foreach ($products as $product) {
+                    $commentsNotes = !empty($product['commentsNotesSpecialRequests']) ? " ({$product['commentsNotesSpecialRequests']})" : "";
+                    // Define a mapping for product state values
+                    $transactionStateMapping = [
+                        0 => 'collecting',
+                        1 => 'ordered',
+                        2 => 'paid',
+                        3 => 'orders transmitted to creators',
+                        4 => 'creators producing or selecting',
+                        5 => 'creators shipping',
+                        6 => 'in customs',
+                        7 => 'at distribution center',
+                        8 => 'arriving',
+                        9 => 'finished'
+                    ];
+                    
+                    // Retrieve and translate the product state
+                    $TransactionState = isset($product['TransactionState']) ? (int)$product['TransactionState'] : 0;
+                    $translatedTransactionState = $transactionStateMapping[$TransactionState] ?? 'unknown'; // Fallback to 'unknown'
+                    $opacity = "1";
+            
+                    // Assign a class that ties the row to the cart
+                    echo "<tr class='cart-products cart-products-{$cart['CartNumber']}' style='opacity: {$opacity}; display: none;'>";
+                    echo "<td></td>";
+                    echo "<td title='TRANSACTION {$product['TransactionId']}'><a href='index.php?content=explore.php&action=ShowTransaction&idpk={$product['TransactionId']}'>TRANSACTION {$product['TransactionId']}</td>";
+                    echo "<td title='{$IfManualFurtherInformation} (manual)'>{$IfManualFurtherInformation} (manual)<br>{$commentsNotes}</td>";
+                    echo "<td style='font-weight: bold; font-size: 1.5rem;'></td>";
+                    echo "<td>{$product['TotalPrice']}$</td>";
+                    echo "<td title='(0 = collecting, 1 = ordered, 2 = paid, 3 = orders transmitted to creators, 4 = creators producing or selecting, 5 = creators shipping, 6 = in customs, 7 = at distribution center, 8 = arriving, 9 = finished)'>{$translatedTransactionState}</td>";
+
+                    echo "<td></td>";
+            
+                    echo "</tr>";
                 }
-        
-                echo "</tr>";
+            } else {
+                foreach ($products as $product) {
+                    $productName = htmlspecialchars($product['ProductName']);
+                    $truncatedName = strlen($productName) > 50 ? substr($productName, 0, 47) . "..." : $productName;
+                    $commentsNotes = !empty($product['commentsNotesSpecialRequests']) ? " ({$product['commentsNotesSpecialRequests']})" : "";
+                    $isActive = $product['ProductState'] == 1;
+                    // Define a mapping for product state values
+                    $transactionStateMapping = [
+                        0 => 'collecting',
+                        1 => 'ordered',
+                        2 => 'paid',
+                        3 => 'orders transmitted to creators',
+                        4 => 'creators producing or selecting',
+                        5 => 'creators shipping',
+                        6 => 'in customs',
+                        7 => 'at distribution center',
+                        8 => 'arriving',
+                        9 => 'finished'
+                    ];
+
+                    // Retrieve and translate the product state
+                    $TransactionState = isset($product['TransactionState']) ? (int)$product['TransactionState'] : 0;
+                    $translatedTransactionState = $transactionStateMapping[$TransactionState] ?? 'unknown'; // Fallback to 'unknown'
+                    $opacity = $isActive ? "1" : "0.5";
+                
+                    // Assign a class that ties the row to the cart
+                    echo "<tr class='cart-products cart-products-{$cart['CartNumber']}' style='opacity: {$opacity}; display: none;'>";
+                    echo "<td></td>";
+                    echo "<td title='TRANSACTION {$product['TransactionId']}'><a href='index.php?content=explore.php&action=ShowTransaction&idpk={$product['TransactionId']}'>TRANSACTION {$product['TransactionId']}</td>";
+                    echo "<td title='{$productName} ({$product['ProductId']})'><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['ProductId']}'>$truncatedName ({$product['ProductId']})</a><br>{$commentsNotes}</td>";
+                    echo "<td style='font-weight: bold; font-size: 1.5rem;'>{$product['Quantity']}x </td>";
+                    echo "<td>{$product['TotalPrice']}$</td>";
+                    echo "<td title='(0 = collecting, 1 = ordered, 2 = paid, 3 = orders transmitted to creators, 4 = creators producing or selecting, 5 = creators shipping, 6 = in customs, 7 = at distribution center, 8 = arriving, 9 = finished)'>{$translatedTransactionState}</td>";
+                    // echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['ProductId']}'>👁️ MORE</a></td>";
+                
+                    if ($isActive) {
+                        echo "<td><a href='index.php?content=PreviousCarts.php' onclick='addToCartGlow(event, {$product['ProductId']})' class='mainbutton'>🛒 REPICK</a></td>";
+                    } else {
+                        echo "<td>inactive</td>";
+                    }
+                
+                    echo "</tr>";
+                }
             }
 
             echo "<tr></tr><tr></tr><tr></tr><tr></tr><tr></tr>";

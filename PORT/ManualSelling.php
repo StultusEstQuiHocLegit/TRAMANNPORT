@@ -1,4 +1,10 @@
 <?php
+include ("ExchangeRates.php"); // include ExchangeRates.php for recalculation of prices
+
+
+
+
+
 echo "<h1>👉 MANUAL SELLING</h1>";
 ?>
 <script>
@@ -55,11 +61,65 @@ function deleteProductFromCookie(productId) {
     quantities = quantities.filter(item => item.idpk !== productId);
 
     // Update the cookie
-    setCookie('manualSellingItems', JSON.stringify(addedItems), 7);
-    setCookie('manualSellingQuantities', JSON.stringify(quantities), 7);
+    setCookie('manualSellingItems', JSON.stringify(addedItems), 100);
+    setCookie('manualSellingQuantities', JSON.stringify(quantities), 100);
 
     // Refresh the display
     displayAddedItems();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// PHP variables passed via script tag
+const exchangeRateCurrencyCode = "<?php echo $ExchangeRateCurrencyCode; ?>";
+const exchangeRate = parseFloat("<?php echo $ExchangeRateOneDollarIsEqualTo; ?>");
+
+function updateOtherCurrency(changedField) {
+    if (exchangeRateCurrencyCode === "USD") {
+        return; // Do nothing if the currency is USD
+    }
+
+    const overwrittenPriceUSD = document.getElementById('OverwrittenPrice');
+    const overwrittenPriceOther = document.getElementById('OverwrittenPriceInOtherCurrency');
+
+    if (changedField === 'USD') {
+        // Update the other currency when USD field is changed
+        const usdValue = parseFloat(overwrittenPriceUSD.value);
+        if (!isNaN(usdValue)) {
+            overwrittenPriceOther.value = (usdValue * exchangeRate).toFixed(2);
+        } else {
+            overwrittenPriceOther.value = ''; // Clear the field if input is invalid
+        }
+    } else if (changedField === exchangeRateCurrencyCode) {
+        // Update the USD field when the other currency field is changed
+        const otherCurrencyValue = parseFloat(overwrittenPriceOther.value);
+        if (!isNaN(otherCurrencyValue)) {
+            overwrittenPriceUSD.value = (otherCurrencyValue / exchangeRate).toFixed(2);
+        } else {
+            overwrittenPriceUSD.value = ''; // Clear the field if input is invalid
+        }
+    }
 }
 
 
@@ -121,8 +181,8 @@ function addToManualSelling(event, idpk, details) {
     }
 
     // Update the cookies
-    setCookie('manualSellingItems', JSON.stringify(addedItems), 7);
-    setCookie('manualSellingQuantities', JSON.stringify(quantities), 7);
+    setCookie('manualSellingItems', JSON.stringify(addedItems), 100);
+    setCookie('manualSellingQuantities', JSON.stringify(quantities), 100);
 
     // Update the display
     displayAddedItems();
@@ -131,7 +191,7 @@ function addToManualSelling(event, idpk, details) {
 // Function to save the further information to the cookie
 function saveManualFurtherInformation() {
     const furtherInfo = document.getElementById('IfManualFurtherInformation').value;
-    setCookie('IfManualFurtherInformation', furtherInfo, 7); // Save for 7 days
+    setCookie('IfManualFurtherInformation', furtherInfo, 100); // Save for 100 days
 }
 
 function updateQuantity(productId, quantity) {
@@ -146,7 +206,7 @@ function updateQuantity(productId, quantity) {
     }
 
     // Update the cookie with the new quantities
-    setCookie('manualSellingQuantities', JSON.stringify(quantities), 7);
+    setCookie('manualSellingQuantities', JSON.stringify(quantities), 100);
 
     // Optionally refresh the display
     displayAddedItems();
@@ -159,6 +219,8 @@ function calculateTotals() {
     const quantities = getCookie('manualSellingQuantities');
     const quantityList = quantities ? JSON.parse(quantities) : [];
 
+    const taxesState = getCookie('manualSellingTaxes') === 'added';
+
     let totalSellingPrice = 0;
     let totalShippingPrice = 0;
 
@@ -166,14 +228,40 @@ function calculateTotals() {
     itemList.forEach(item => {
         const quantity = quantityList.find(q => q.idpk === item.idpk)?.quantity || 1;
 
+        // Base prices
+        let sellingPrice = item.SellingPriceProductOrServiceInDollars || 0;
+        let shippingPrice = item.SellingPricePackagingAndShippingInDollars || 0;
+
+        // Apply taxes if toggled
+        if (taxesState) {
+            const taxesInPercent = item.TaxesInPercent || 0; // Default to 0% if not defined
+            const taxMultiplier = 1 + taxesInPercent / 100;
+            sellingPrice *= taxMultiplier;
+            shippingPrice *= taxMultiplier;
+        }
+
         // Accumulate prices
-        totalSellingPrice += (item.SellingPriceProductOrServiceInDollars || 0) * quantity;
-        totalShippingPrice += (item.SellingPricePackagingAndShippingInDollars || 0) * quantity;
+        totalSellingPrice += sellingPrice * quantity;
+        totalShippingPrice += shippingPrice * quantity;
     });
 
     // Update totals on the page
     document.getElementById('TotalSellingPrice').textContent = totalSellingPrice.toFixed(2);
     document.getElementById('TotalShippingPrice').textContent = totalShippingPrice.toFixed(2);
+
+    // PHP variables passed via script tag
+    const exchangeRateCurrencyCode = "<?php echo $ExchangeRateCurrencyCode; ?>";
+    const exchangeRate = parseFloat("<?php echo $ExchangeRateOneDollarIsEqualTo; ?>");
+
+    // If the currency code is not USD, calculate the equivalent values
+    if (exchangeRateCurrencyCode !== "USD") {
+        const totalSellingPriceInOtherCurrency = totalSellingPrice * exchangeRate;
+        const totalShippingPriceInOtherCurrency = totalShippingPrice * exchangeRate;
+
+        // Update the display for the selling and shipping prices in the other currency
+        document.getElementById('TotalSellingPriceInOtherCurrency').textContent = totalSellingPriceInOtherCurrency.toFixed(2);
+        document.getElementById('TotalShippingPriceInOtherCurrency').textContent = totalShippingPriceInOtherCurrency.toFixed(2);
+    }
 }
 
 // Update totals whenever the display is refreshed
@@ -186,6 +274,9 @@ function displayAddedItems() {
 
     const displayDiv = document.getElementById('ShowAddedProductsAnsServicesForManualSelling');
     displayDiv.innerHTML = ''; // Clear the div content
+
+    // Check if the taxes are enabled
+    const taxesEnabled = getCookie('manualSellingTaxes') === 'added';
 
     if (itemList.length > 0) {
         const list = document.createElement('div');
@@ -207,17 +298,21 @@ function displayAddedItems() {
             const detailsDiv = document.createElement('div');
             detailsDiv.style.fontSize = 'small';
 
-            // Check prices and only display if they are greater than zero
-            const productPrice = item.SellingPriceProductOrServiceInDollars > 0 
-                ? `${item.SellingPriceProductOrServiceInDollars}$` 
-                : '';
-            const shippingPrice = item.SellingPricePackagingAndShippingInDollars > 0 
-                ? `(+${item.SellingPricePackagingAndShippingInDollars}$)` 
-                : '';
+            // Calculate prices based on taxes
+            const taxMultiplier = 1 + (item.TaxesInPercent / 100);
+            const baseProductPrice = item.SellingPriceProductOrServiceInDollars || 0;
+            const baseShippingPrice = item.SellingPricePackagingAndShippingInDollars || 0;
+
+            const productPrice = taxesEnabled
+                ? `${(baseProductPrice * taxMultiplier).toFixed(2)}$`
+                : `${baseProductPrice}$`;
+            const shippingPrice = taxesEnabled
+                ? `(+${(baseShippingPrice * taxMultiplier).toFixed(2)}$)`
+                : `(+${baseShippingPrice}$)`;
 
             // Construct the display string
-            const priceDisplay = productPrice || shippingPrice 
-                ? `${productPrice} ${shippingPrice}` 
+            const priceDisplay = (baseProductPrice > 0 || baseShippingPrice > 0)
+                ? `${productPrice} ${shippingPrice}`
                 : '';
 
             detailsDiv.innerHTML = `
@@ -249,6 +344,44 @@ function displayAddedItems() {
 
 
 
+
+
+function toggleTaxes(event) {
+    event.preventDefault(); // Prevent the default action of the link
+
+    // Retrieve the current state of taxes from the cookie
+    let taxesState = getCookie('manualSellingTaxes');
+    taxesState = taxesState === 'added' ? 'removed' : 'added'; // Toggle the state
+
+    // Update the cookie with the new state
+    setCookie('manualSellingTaxes', taxesState, 100); // Save for 100 days
+
+    // Update the link text based on the new state
+    const link = event.target;
+    if (taxesState === 'added') {
+        link.textContent = '❌ REMOVE TAXES';
+    } else {
+        link.textContent = '➕ ADD TAXES';
+    }
+
+    // Recalculate totals to reflect taxes
+    calculateTotals();
+
+    displayAddedItems();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize functionality on page load
@@ -257,6 +390,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const furtherInfoTextarea = document.getElementById('IfManualFurtherInformation');
     const suggestionsDiv = document.getElementById('ShowSuggestionsForIfManualFurtherInformation');
+
+    const taxesState = getCookie('manualSellingTaxes');
+    const taxesLink = document.querySelector('a[onclick="toggleTaxes(event)"]');
+
+    if (taxesState === 'added' && taxesLink) {
+        taxesLink.textContent = '❌ REMOVE TAXES';
+    }
 
     if (furtherInfoTextarea) {
         // Save information to cookie on input
@@ -437,6 +577,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Parse cookies for added products and quantities
     $manualSellingItems = isset($_COOKIE['manualSellingItems']) ? json_decode($_COOKIE['manualSellingItems'], true) : [];
     $manualSellingQuantities = isset($_COOKIE['manualSellingQuantities']) ? json_decode($_COOKIE['manualSellingQuantities'], true) : [];
+    $taxesEnabled = isset($_COOKIE['manualSellingTaxes']) && $_COOKIE['manualSellingTaxes'] === 'added';
 
     // Validate product data
     if (empty($manualSellingItems) || empty($manualSellingQuantities)) {
@@ -460,68 +601,104 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ]);
             $cartId = $pdo->lastInsertId();
 
-            // Iterate through products and create transactions
+            // Fetch original prices and taxes for all items
+            $totalOriginalPrice = 0;
+            $products = [];
             foreach ($manualSellingItems as $item) {
-                $idpk = $item['idpk'];
-                $quantity = 0;
-                foreach ($manualSellingQuantities as $q) {
-                    if ($q['idpk'] == $idpk) {
-                        $quantity = $q['quantity'];
-                        break;
-                    }
-                }
-
-                // Validate product existence and state
                 $stmt = $pdo->prepare("
-                    SELECT SellingPriceProductOrServiceInDollars, SellingPricePackagingAndShippingInDollars, state
+                    SELECT SellingPriceProductOrServiceInDollars, SellingPricePackagingAndShippingInDollars, TaxesInPercent, state
                     FROM ProductsAndServices
                     WHERE idpk = :idpk AND IdpkCreator = :user_id
                 ");
-                $stmt->execute([':idpk' => $idpk, ':user_id' => $user_id]);
+                $stmt->execute([':idpk' => $item['idpk'], ':user_id' => $user_id]);
                 $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if (!$product || $product['state'] != 1) {
-                    throw new Exception("Product with ID $idpk is not active or does not exist.");
+                    throw new Exception("Product with ID {$item['idpk']} is not active or does not exist.");
                 }
 
-                // Calculate prices
+                $product['quantity'] = array_column($manualSellingQuantities, 'quantity', 'idpk')[$item['idpk']] ?? 1;
+                $product['idpk'] = $item['idpk'];
+
+                $products[] = $product;
+                $totalOriginalPrice += ($product['SellingPriceProductOrServiceInDollars'] + $product['SellingPricePackagingAndShippingInDollars']) * $product['quantity'];
+            }
+
+            // Check for overwritten price and distribute proportionally
+            $overwrittenPrice = $_POST['OverwrittenPrice'] ?? null;
+            foreach ($products as &$product) {
                 $sellingPrice = $product['SellingPriceProductOrServiceInDollars'] ?? 0;
                 $shippingPrice = $product['SellingPricePackagingAndShippingInDollars'] ?? 0;
-                $totalPrice = $sellingPrice + $shippingPrice;
+                $totalPricePerUnit = $sellingPrice + $shippingPrice;
+                $totalPrice = $totalPricePerUnit * $product['quantity']; // Calculate total price for the quantity
 
-                // Check for overwritten price
-                $overwrittenPrice = $_POST['OverwrittenPrice'] ?? null;
+                // Apply taxes if enabled
+                $taxMultiplier = $taxesEnabled ? 1 + ($product['TaxesInPercent'] / 100) : 1;
+                $taxAmount = $taxesEnabled ? ($totalPrice * $product['TaxesInPercent'] / 100) : 0;
+
+                // Distribute overwritten price
                 if ($overwrittenPrice) {
-                    // Distribute the overwritten price proportionally
-                    $totalSum = array_sum(array_map(function ($item) use ($manualSellingQuantities) {
-                        $quantity = array_column($manualSellingQuantities, 'quantity', 'idpk')[$item['idpk']] ?? 1;
-                        return ($item['SellingPriceProductOrServiceInDollars'] + $item['SellingPricePackagingAndShippingInDollars']) * $quantity;
-                    }, $manualSellingItems));
-                    $priceRatio = $totalPrice / $totalSum;
-                    $totalPrice = $priceRatio * $overwrittenPrice;
+                    // Calculate the total net price (including quantities) for all products
+                    $totalNetPriceSum = array_sum(array_map(function ($product) {
+                        $quantity = $product['quantity'];
+                        $netPrice = $product['SellingPriceProductOrServiceInDollars'] + $product['SellingPricePackagingAndShippingInDollars'];
+                        return $netPrice * $quantity;
+                    }, $products));
+                
+                    // Iterate over each product to calculate its proportional price
+                    foreach ($products as &$product) {
+                        $quantity = $product['quantity'];
+                        $netPrice = $product['SellingPriceProductOrServiceInDollars'] + $product['SellingPricePackagingAndShippingInDollars'];
+                    
+                        // Proportional ratio based on net price and quantity
+                        $priceRatio = ($netPrice * $quantity) / $totalNetPriceSum;
+                    
+                        // Calculate proportional price from the overwritten price
+                        $proportionalPriceTotal = $priceRatio * $overwrittenPrice; // Total price for this product
+                        $proportionalPricePerUnit = $proportionalPriceTotal / $quantity; // Per-unit price
+                    
+                        if ($taxesEnabled) {
+                            // Adjust for taxes if enabled
+                            $taxMultiplier = 1 + ($product['TaxesInPercent'] / 100);
+                            $grossPricePerUnit = $proportionalPricePerUnit; // Overwritten price includes taxes
+                            $netPricePerUnit = $grossPricePerUnit / $taxMultiplier; // Net price per unit
+                            $taxAmountPerUnit = $grossPricePerUnit - $netPricePerUnit;
+                        
+                            // Total for this product
+                            $product['totalPrice'] = $grossPricePerUnit * $quantity;
+                            $product['taxAmount'] = $taxAmountPerUnit * $quantity;
+                        } else {
+                            // No taxes, use proportional price as-is
+                            $product['totalPrice'] = $proportionalPricePerUnit * $quantity;
+                            $product['taxAmount'] = 0;
+                        }
+                    }
                 }
 
                 // Insert into `transactions`
                 $stmt = $pdo->prepare("
-                    INSERT INTO transactions (TimestampCreation, IdpkExplorer, IdpkProductOrService, IdpkCart, quantity, AmountInDollars, state)
-                    VALUES (:timestampCreation, 0, :idpk, :cartId, :quantity, :amount, :state)
+                    INSERT INTO transactions (TimestampCreation, IdpkExplorer, IdpkProductOrService, IdpkCart, quantity, AmountInDollars, ForTRAMANNPORTInDollars, TaxesInDollars, state)
+                    VALUES (:timestampCreation, 0, :idpk, :cartId, :quantity, :amount, 0, :taxes, :state)
                 ");
                 $stmt->execute([
                     ':timestampCreation' => $timestampCreation,
-                    ':idpk' => $idpk,
+                    ':idpk' => $product['idpk'],
                     ':cartId' => $cartId,
-                    ':quantity' => $quantity,
+                    ':quantity' => $product['quantity'],
                     ':amount' => $totalPrice,
+                    ':taxes' => $taxAmount,
                     ':state' => $formActionType === 'paid' ? 3 : 9,
                 ]);
 
-                // Decrease inventory in `ProductsAndServices` only if `ManageInventory` = 1
-                $stmt = $pdo->prepare("
-                    UPDATE ProductsAndServices
-                    SET InventoryAvailable = InventoryAvailable - :quantity
-                    WHERE idpk = :idpk AND ManageInventory = 1
-                ");
-                $stmt->execute([':quantity' => $quantity, ':idpk' => $idpk]);
+                // **Conditional Inventory Reduction**
+                if ($formActionType === 'finished') {
+                    $stmt = $pdo->prepare("
+                        UPDATE ProductsAndServices
+                        SET InventoryAvailable = InventoryAvailable - :quantity
+                        WHERE idpk = :idpk AND ManageInventory = 1
+                    ");
+                    $stmt->execute([':quantity' => $product['quantity'], ':idpk' => $product['idpk']]);
+                }
             }
 
             // Commit the transaction
@@ -590,9 +767,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo "<td></td>";
                 echo "<td>";
                     echo "<strong><span id=\"TotalSellingPrice\">0.00</span>$ (+<span id=\"TotalShippingPrice\">0.00</span>$)</strong>";
+                    if ($ExchangeRateCurrencyCode !== "USD") {
+                        echo "<br><strong id='totalPriceInOtherCurrency' style='opacity: 0.5;'><span id=\"TotalSellingPriceInOtherCurrency\">0.00</span> (+<span id=\"TotalShippingPriceInOtherCurrency\">0.00</span>) (in $ExchangeRateCurrencyCode)</strong>";
+                    }
+                    // echo "<br><br>";
+                    // echo "<input type=\"number\" id=\"OverwrittenPrice\" name=\"OverwrittenPrice\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateOtherCurrency('USD')\">";
+                    // echo "<br><label for=\"OverwrittenPrice\">overwritten price (in USD)</label>";
+                    // if ($ExchangeRateCurrencyCode !== "USD") {
+                    //     echo "<br><br>";
+                    //     echo "<input type=\"number\" id=\"OverwrittenPriceInOtherCurrency\" name=\"OverwrittenPriceInOtherCurrency\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateOtherCurrency('$ExchangeRateCurrencyCode')\">";
+                    //     echo "<br><label for=\"OverwrittenPriceInOtherCurrency\">overwritten price (in $ExchangeRateCurrencyCode)</label>";
+                    // }
                     echo "<br><br>";
-                    echo "<input type=\"number\" id=\"OverwrittenPrice\" name=\"OverwrittenPrice\" placeholder=\"only if needed\" style=\"width: 200px;\">";
-                    echo "<br><label for=\"OverwrittenPrice\">overwritten price</label>";
+                    echo "<a href=\"javascript:void(0);\" onclick=\"toggleTaxes(event)\">➕ ADD TAXES</a>";
                     echo "<br><br><br>";
                     // hidden input field to store the action type (completely finished or just paid)
                     echo "<input type=\"hidden\" id=\"formActionType\" name=\"formActionType\" value=\"\">";
@@ -621,3 +808,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 }
 ?>
+

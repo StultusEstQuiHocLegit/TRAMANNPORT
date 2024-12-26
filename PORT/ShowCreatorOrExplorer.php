@@ -9,12 +9,20 @@ function formatShippingPrice($shippingPrice) {
     return (!empty($shippingPrice) && $shippingPrice != 0) ? "(+$shippingPrice\$)" : '';
 }
 
+// Helper function to safely round values
+if (!function_exists('safe_round')) {
+    function safe_round($value, $precision = 2) {
+        // return is_numeric($value) ? round($value, $precision) : 0;
+        return number_format((float) $value, $precision, '.', '');
+    }
+}
+
 
 
 
 
 // Function to display a product row
-function displayCreatorOrExplorerProductRow($product, $highlight = false) {
+function displayCreatorOrExplorerProductRow($product, $highlight = false, $userRole = null, $ContributionForTRAMANNPORT = null) {
     $truncatedName = truncateText($product['name'], 50);
     $truncatedDescription = truncateText($product['ShortDescription'], 100);
     $shippingPrice = formatShippingPrice($product['SellingPricePackagingAndShippingInDollars']);
@@ -56,7 +64,28 @@ function displayCreatorOrExplorerProductRow($product, $highlight = false) {
     }
 
     echo "<td title=\"" . htmlspecialchars($product['name']) . " ({$product['idpk']})\"><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a><br><div title=\"" . htmlspecialchars($product['ShortDescription']) . "\" style=\"opacity: 0.5;\">$truncatedDescription</div></td>";
-    echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$ $shippingPrice</td>";
+    echo "<td>";
+        //echo "{$product['SellingPriceProductOrServiceInDollars']}$ $shippingPrice";
+        // Main logic
+        if ($canManage) {
+            // Direct display without modification
+            echo safe_round($product['SellingPriceProductOrServiceInDollars'], 2) . "$ (+"
+                . safe_round($product['SellingPricePackagingAndShippingInDollars'], 2) . ")";
+        } elseif ($userRole === 1) { // For creators (business accounts), apply contribution
+            $sellingPriceWithContribution = $product['SellingPriceProductOrServiceInDollars'] * (1 + $ContributionForTRAMANNPORT / 100);
+            $packagingAndShippingPriceWithContribution = $product['SellingPricePackagingAndShippingInDollars'] * (1 + $ContributionForTRAMANNPORT / 100);
+            echo safe_round($sellingPriceWithContribution, 2) . "$ (+"
+                . safe_round($packagingAndShippingPriceWithContribution, 2) . ")";
+        } else { // For explorers, apply contribution and taxes
+            $sellingPriceWithContribution = $product['SellingPriceProductOrServiceInDollars'] * (1 + $ContributionForTRAMANNPORT / 100);
+            $packagingAndShippingPriceWithContribution = $product['SellingPricePackagingAndShippingInDollars'] * (1 + $ContributionForTRAMANNPORT / 100);
+            $sellingPriceWithTaxes = $sellingPriceWithContribution * (1 + $product['TaxesInPercent'] / 100);
+            $packagingAndShippingPriceWithTaxes = $packagingAndShippingPriceWithContribution * (1 + $product['TaxesInPercent'] / 100);
+        
+            echo safe_round($sellingPriceWithTaxes, 2) . "$ (+"
+                . safe_round($packagingAndShippingPriceWithTaxes, 2) . ")";
+        }
+    echo "</td>";
     
     // Links
     // echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>👁️ MORE</a></td>";
@@ -118,7 +147,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorerProducts
                 echo '<table>'; // Open the table for results
                 
                 foreach ($productsAndServices as $product) {
-                    displayCreatorOrExplorerProductRow($product, false, $idpk);
+                    displayCreatorOrExplorerProductRow($product, false, $idpk, $userRole, $ContributionForTRAMANNPORT);
                 }
 
                 echo '</table>'; // Close the table
@@ -424,7 +453,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorerProducts
                     $closingTime = htmlspecialchars($ExplorersAndCreators[$times['Closing']] ?? '');
 
                     // Add an arrow if the current day matches
-                    $arrow = (trim($day) == trim($currentDay)) ? '➡️' : '';
+                    $arrow = (trim($day) == trim($currentDay)) ? '▶' : '';
             
                     // Only add rows for days with valid opening and closing times
                     if ($openingTime || $closingTime) {

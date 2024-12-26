@@ -260,7 +260,7 @@ if (empty($newestOrders)) {
         // Display buyer name (company, individual, or manual)
         $buyerName = isset($order['manual']) && $order['manual'] == 1 
         ? (strlen($order['IfManualFurtherInformation']) > 30 
-            ? substr($order['IfManualFurtherInformation'], 0, 30) . "..." 
+            ? substr($order['IfManualFurtherInformation'], 0, 27) . "..." 
             : $order['IfManualFurtherInformation']) . " (manual)"
         : (isset($order['CompanyName']) && !empty($order['CompanyName']) 
             ? $order['CompanyName'] . " (" . $order['ExplorerOrCreatorId'] . ")" 

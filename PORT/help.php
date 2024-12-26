@@ -51,7 +51,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// app donwload
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
-    group: 'GETTING STARTED',
+    group: '🌱 GETTING STARTED',
     title: '📱 APP DOWNLOAD',
     content: `
         Download our app (apk file for android phones) by visiting this page with your mobile phone and then click on <a href=\"./DownloadApp/TRAMANN.apk\">📱 DOWNLOAD APP</a>
@@ -61,7 +61,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure CalendarEvents
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
-    group: 'DATABASE STRUCTURE',
+    group: '🧬 DATABASE STRUCTURE',
     title: '🧬 DATABASE STRUCTURE CALENDAR EVENTS',
     content: `
         <br>
@@ -89,10 +89,36 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
     `
 },
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure ExchangeRates
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    group: '🧬 DATABASE STRUCTURE',
+    title: '🧬 DATABASE STRUCTURE EXCHANGERATES',
+    content: `
+        <br>
+        <strong>table name: ExchangeRates</strong>
+        <br><br>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
+        <br><br><br>
+        <table>
+            <thead>
+                <tr><th>field name</th><th>type</th><th>r</th><th>description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>idpk</td><td>int, auto increment, primary key</td><td>s*</td><td></td></tr>
+                <tr><td>TimestampLastUpdate</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>CurrencyCode</td><td>varchar(3)</td><td>s*</td><td>(three letter currency code based on ISO 4217)</td></tr>
+                <tr><td>CurrencyName</td><td>varchar(250)</td><td>s*</td><td></td></tr>
+                <tr><td>OneDollarIsEqualTo</td><td>decimal(65,10)</td><td>s*</td><td></td></tr>
+            </tbody>
+        </table>
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure ExplorersAndCreators
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
-    group: 'DATABASE STRUCTURE',
+    group: '🧬 DATABASE STRUCTURE',
     title: '🧬 DATABASE STRUCTURE EXPLORERSANDCREATORS',
     content: `
         <br>
@@ -180,6 +206,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
                 <tr><td>PersonalStrategicPlaningNotes</td><td>text</td><td>e</td><td></td></tr>
                 <tr><td>PersonalToDoList</td><td>text</td><td>e</td><td></td></tr>
                 <tr><td>PersonalCollectionOfLinks</td><td>text</td><td>e</td><td></td></tr>
+                <tr><td>APIKey</td><td>text</td><td>s*</td><td></td></tr>
             </tbody>
         </table>
     `
@@ -188,7 +215,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // /////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure ProductsAndServices
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
-    group: 'DATABASE STRUCTURE',
+    group: '🧬 DATABASE STRUCTURE',
     title: '🧬 DATABASE STRUCTURE PRODUCTSANDSERVICES',
     content: `
         <br>
@@ -216,6 +243,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
                 <tr><td>DimensionsHeightInMm</td><td>decimal(10,2)</td><td>e</td><td style="opacity: 0.5;">(0 for services)</td></tr>
                 <tr><td>SellingPriceProductOrServiceInDollars</td><td>decimal(10,2)</td><td>e*</td><td></td></tr>
                 <tr><td>SellingPricePackagingAndShippingInDollars</td><td>decimal(10,2)</td><td>e</td><td style="opacity: 0.5;">(0 for services)</td></tr>
+                <tr><td>TaxesInPercent</td><td>decimal(10,2)</td><td>e</td><td></td></tr>
                 <tr><td>ManageInventory</td><td>tinyint</td><td>e</td><td>(0 = no, 1 = yes (standard))</td></tr>
                 <tr><td>InventoryAvailable</td><td>int</td><td>e</td><td style="opacity: 0.5;">(0 for services or if inventory is not managed)</td></tr>
                 <tr><td>InventoryInProduction</td><td>int</td><td>e</td><td style="opacity: 0.5;">(0 for services or if inventory is not managed)</td></tr>
@@ -230,7 +258,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure transactions
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
-    group: 'DATABASE STRUCTURE',
+    group: '🧬 DATABASE STRUCTURE',
     title: '🧬 DATABASE STRUCTURE TRANSACTIONS',
     content: `
         <br>
@@ -250,6 +278,8 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
                 <tr><td>IdpkCart</td><td>int</td><td>s*</td><td></td></tr>
                 <tr><td>quantity</td><td>int</td><td>e*</td><td style="opacity: 0.5;">(0 for manual buying)</td></tr>
                 <tr><td>AmountInDollars</td><td>decimal(10,2)</td><td>s*</td><td>(total amount (already multiplied with the quantity), because prices can change)</td></tr>
+                <tr><td>ForTRAMANNPORTInDollars</td><td>decimal(10,2)</td><td>s*</td><td>(total amount (already multiplied with the quantity))</td></tr>
+                <tr><td>TaxesInDollars</td><td>decimal(10,2)</td><td>s*</td><td>(total amount (already multiplied with the quantity))</td></tr>
                 <tr><td>state</td><td>tinyint</td><td>e*</td><td>
                     (0 = collecting, 1 = ordered, 2 = paid, 3 = orders transmitted to creators, 
                     4 = creators producing or selecting, 5 = creators shipping, 
@@ -265,7 +295,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure carts
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
-    group: 'DATABASE STRUCTURE',
+    group: '🧬 DATABASE STRUCTURE',
     title: '🧬 DATABASE STRUCTURE CARTS',
     content: `
         <br>
@@ -315,7 +345,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// page structure
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
-    group: 'OTHER TECHNICAL STUFF',
+    group: '⚙️ OTHER TECHNICAL STUFF',
     title: '📚 PAGE STRUCTURE',
     content: `
         <div class="steps">
@@ -328,6 +358,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
             <br>CreateAccount.php
             <br>CreatorsSuppliers.php
             <br>dashboard.php
+            <br>ExchangeRates.php
             <br>explore.php
             <br>ExplorersCustomers.php
             <br>ForgotPassword.php
@@ -353,8 +384,10 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
             <br>SaveDataOrders.php
             <br>SaveDataShowProduct.php
             <br>search.php
+            <br>ShowCarts.php
             <br>ShowCreatorOrExplorer.php
             <br>ShowProduct.php
+            <br>ShowTransactions.php
             <br>YourWebsite.php
         </div>
     `
@@ -363,7 +396,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// process of ordering
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
-    group: 'OTHER TECHNICAL STUFF',
+    group: '⚙️ OTHER TECHNICAL STUFF',
     title: '⛓️ PROCESS OF ORDERING',
     content: `
         <table>
@@ -383,6 +416,64 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
                 <tr><td>9 = finished</td><td>explorer (or other creator)</td><td>shipping</td></tr>
             </tbody>
         </table>
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// API
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    group: '🕸️ TRAMANN API',
+    title: '🏗️ BASICS',
+    content: `
+        You have unlimited access to our TRAMANN API using your free key:
+            <span id="apiKey"><?php echo htmlspecialchars($user['APIKey']); ?></span> 
+            <a href="#" id="copyAPIKeyLink" onclick="copyText(event, 'apiKey')">👀 COPY</a>
+        <br>
+        <br>
+        <br>Our TRAMANN API works by sending data to and retrieving data from https://www.tramann-projects.com/TRAMANNAPI.php
+        <br>Every request must include the following parameters: APIKey, system, type, and content.
+        <br>
+        <br>
+        <table>
+            <tbody>
+                <tr><td>APIKey</td><td></td><td></td><td><span id="apiKey">so our system can see, who you are</td></tr>
+                <tr><td>system</td><td></td><td></td><td>TRAMANN PROJECTS - TRAMANN PORT - TRAMANN API</td></tr>
+                <tr><td>type</td><td></td><td></td><td>for example: show data, update data, insert data, show image, update image, remove image or quick integration</td></tr>
+                <tr><td>content</td><td></td><td></td><td>the main part of your request</td></tr>
+            </tbody>
+        </table>
+        <br>After the request, you will receive a response with the status and the message.
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// API
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    group: '🕸️ TRAMANN API',
+    title: '🧩 QUICK INTEGRATIONS',
+    content: `
+        Quick integrations are helping you connecting to our TRAMANN API for some fundamental functionalities, just by copying some code.
+        <br>
+        <br>
+        <br>The following code is an example for the quick integration to show your own products and services:
+        <br><a href="#" id="copyCodeLink" onclick="copyText(event, 'QuickIntegrationShownOwnProductsAndServices')" style="float: right;">👀 COPY CODE</a>
+        <div class="code">
+            <?php
+                // Read the file content
+                $fileContent = file_get_contents('./APIExamples/QuickIntegrationShownOwnProductsAndServices.php');
+
+                // Replace placeholders with the actual API key
+                $userApiKey = htmlspecialchars($user['APIKey']); // Ensure the API key is safe for output
+                $updatedContent = str_replace(
+                    'htmlspecialchars($user[\'APIKey\'])', 
+                    '"' . $userApiKey . '"', 
+                    $fileContent
+                );
+
+                // Display the updated content with syntax highlighting
+                echo '<pre id="QuickIntegrationShownOwnProductsAndServices">' . htmlspecialchars($updatedContent) . '</pre>';
+            ?>
+        </div>
     `
 }
         ];
@@ -475,8 +566,12 @@ window.onload = function() {
     const groupsContainer = document.getElementById('groups');
     const topicsContainer = document.getElementById('topics');
 
-    // Sort groups alphabetically
-    groups.sort();
+    // Sort groups alphabetically, ignoring the leading emoji
+    groups.sort((a, b) => {
+        const cleanA = a.substring(2).toLowerCase(); // Remove emoji (assumes emojis are 2 bytes)
+        const cleanB = b.substring(2).toLowerCase(); // Remove emoji
+        return cleanA.localeCompare(cleanB);
+    });
 
     groups.forEach((groupName) => {
         const groupLink = document.createElement('a');
@@ -490,12 +585,44 @@ window.onload = function() {
     });
 
     // Open the "GETTING STARTED" group by default if it exists
-    if (groups.includes("GETTING STARTED")) {
+    if (groups.includes("🌱 GETTING STARTED")) {
         // Create a dummy event object since toggleGroupTopics expects an event
         const dummyEvent = { preventDefault: () => {} };
-        toggleGroupTopics(dummyEvent, "GETTING STARTED");
+        toggleGroupTopics(dummyEvent, "🌱 GETTING STARTED");
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function copyText(event, elementId) {
+    event.preventDefault(); // Prevent default link behavior
+    // Get the text content of the element
+    const text = document.getElementById(elementId).innerText;
+    // Copy to clipboard
+    navigator.clipboard.writeText(text).then(() => {
+        // Change the link text to "COPIED"
+        const copyLink = event.target;
+        copyLink.textContent = '✔️ COPIED';
+        
+        // Optionally reset back to "COPY" after a short delay
+        setTimeout(() => {
+            copyLink.textContent = '👀 COPY';
+        }, 3000);
+    }).catch(err => {
+        console.error('Failed to copy text:', err);
+    });
+}
 
 
 </script>

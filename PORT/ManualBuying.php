@@ -1,4 +1,10 @@
 <?php
+include ("ExchangeRates.php"); // include ExchangeRates.php for recalculation of prices
+
+
+
+
+
 echo "<h1>👈 MANUAL BUYING</h1>";
 ?>
 <script>
@@ -31,10 +37,83 @@ function setFormAction(actionType) {
 
 
 
+
+
+const exchangeRateCurrencyCode = "<?php echo $ExchangeRateCurrencyCode; ?>";
+const exchangeRate = parseFloat("<?php echo $ExchangeRateOneDollarIsEqualTo; ?>");
+
+function updateTotalCurrency(changedField) {
+    if (exchangeRateCurrencyCode === "USD") {
+        return; // Do nothing if the currency is USD
+    }
+
+    const totalPricePaidUSD = document.getElementById('TotalPricePaid');
+    const totalPricePaidOther = document.getElementById('TotalPricePaidInOtherCurrency');
+    const totalTaxesUSD = document.getElementById('totalTaxes');
+    const totalTaxesOther = document.getElementById('totalTaxesInOtherCurrency');
+
+    if (changedField === 'TotalPricePaid') {
+        // Recalculate other currency total price
+        const usdValue = parseFloat(totalPricePaidUSD.value);
+        if (!isNaN(usdValue)) {
+            totalPricePaidOther.value = (usdValue * exchangeRate).toFixed(2);
+        } else {
+            totalPricePaidOther.value = '';
+        }
+    } else if (changedField === 'TotalPricePaidInOtherCurrency') {
+        // Recalculate USD total price
+        const otherCurrencyValue = parseFloat(totalPricePaidOther.value);
+        if (!isNaN(otherCurrencyValue)) {
+            totalPricePaidUSD.value = (otherCurrencyValue / exchangeRate).toFixed(2);
+        } else {
+            totalPricePaidUSD.value = '';
+        }
+    } else if (changedField === 'totalTaxes') {
+        // Recalculate other currency total taxes
+        const usdTaxesValue = parseFloat(totalTaxesUSD.value);
+        if (!isNaN(usdTaxesValue)) {
+            totalTaxesOther.value = (usdTaxesValue * exchangeRate).toFixed(2);
+        } else {
+            totalTaxesOther.value = '';
+        }
+    } else if (changedField === 'totalTaxesInOtherCurrency') {
+        // Recalculate USD total taxes
+        const otherCurrencyTaxesValue = parseFloat(totalTaxesOther.value);
+        if (!isNaN(otherCurrencyTaxesValue)) {
+            totalTaxesUSD.value = (otherCurrencyTaxesValue / exchangeRate).toFixed(2);
+        } else {
+            totalTaxesUSD.value = '';
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Function to save the further information to the cookie
 function saveManualFurtherInformation() {
     const furtherInfo = document.getElementById('IfManualFurtherInformationManualBuying').value;
-    setCookie('IfManualFurtherInformationManualBuying', furtherInfo, 7); // Save for 7 days
+    setCookie('IfManualFurtherInformationManualBuying', furtherInfo, 100); // Save for 100 days
 }
 
 // Initialize on page load
@@ -196,6 +275,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $ifManualFurtherInformationManualBuying = isset($_POST['IfManualFurtherInformationManualBuying']) ? trim($_POST['IfManualFurtherInformationManualBuying']) : '';
     $totalPricePaid = isset($_POST['TotalPricePaid']) ? (float)$_POST['TotalPricePaid'] : 0;
+    $totalTaxes = isset($_POST['totalTaxes']) ? (float)$_POST['totalTaxes'] : 0;
 
     // Check if total price is valid
     if ($totalPricePaid <= 0) {
@@ -219,12 +299,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $cartId = $pdo->lastInsertId();
 
             // Create a new entry in the 'transactions' table
-            $stmt = $pdo->prepare("INSERT INTO transactions (TimestampCreation, IdpkExplorer, IdpkProductOrService, IdpkCart, quantity, AmountInDollars, state) 
-                                   VALUES (:timestampCreation, :userId, 0, :cartId, 0, :totalPrice, 9)");
+            $stmt = $pdo->prepare("INSERT INTO transactions (TimestampCreation, IdpkExplorer, IdpkProductOrService, IdpkCart, quantity, AmountInDollars, ForTRAMANNPORTInDollars, TaxesInDollars, state) 
+                                   VALUES (:timestampCreation, :userId, 0, :cartId, 0, :totalPrice, 0, :totalTaxes, 9)");
             $stmt->bindParam(':timestampCreation', $timestampCreation, PDO::PARAM_INT);
             $stmt->bindParam(':userId', $user_id, PDO::PARAM_INT);
             $stmt->bindParam(':cartId', $cartId, PDO::PARAM_INT);
             $stmt->bindParam(':totalPrice', $totalPricePaid, PDO::PARAM_STR);
+            $stmt->bindParam(':totalTaxes', $totalTaxes, PDO::PARAM_STR);
             $stmt->execute();
 
             echo "Saved successfully.<br><br><a href=\"index.php?content=ManualBuying.php\">▶️ CONTINUE</a>";
@@ -290,8 +371,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo "<td></td>";
                 echo "<td></td>";
                 echo "<td>";
-                    echo "<input type=\"number\" id=\"TotalPricePaid\" name=\"TotalPricePaid\" placeholder=\"How much?\" style=\"width: 200px;\">";
+                    echo "<input type=\"number\" id=\"TotalPricePaid\" name=\"TotalPricePaid\" placeholder=\"How much?\" style=\"width: 200px;\" oninput=\"updateTotalCurrency('TotalPricePaid')\">";
                     echo "<br><label for=\"TotalPricePaid\">total price paid (in USD)</label>";
+                    if ($ExchangeRateCurrencyCode !== "USD") {
+                        echo "<br><br>";
+                        echo "<input type=\"number\" id=\"TotalPricePaidInOtherCurrency\" name=\"TotalPricePaidInOtherCurrency\" placeholder=\"How much?\" style=\"width: 200px; opacity: 0.3;\" oninput=\"updateTotalCurrency('TotalPricePaidInOtherCurrency')\">";
+                        echo "<br><label for=\"TotalPricePaidInOtherCurrency\" style='opacity: 0.3;'>total price paid (in $ExchangeRateCurrencyCode)</label>";
+                    }
+                    echo "<br><br><br>";
+                    echo "<input type=\"number\" id=\"totalTaxes\" name=\"totalTaxes\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateTotalCurrency('totalTaxes')\">";
+                    echo "<br><label for=\"totalTaxes\">total taxes (in USD)</label>";
+                    if ($ExchangeRateCurrencyCode !== "USD") {
+                        echo "<br><br>";
+                        echo "<input type=\"number\" id=\"totalTaxesInOtherCurrency\" name=\"totalTaxesInOtherCurrency\" placeholder=\"only if needed\" style=\"width: 200px; opacity: 0.3;\" oninput=\"updateTotalCurrency('totalTaxesInOtherCurrency')\">";
+                        echo "<br><label for=\"totalTaxesInOtherCurrency\" style='opacity: 0.3;'>total taxes (in $ExchangeRateCurrencyCode)</label>";
+                    }
+                    echo "<div id=\"IfTaxesEntered\" style=\"opacity: 0.4;\"></div>";
                     echo "<br><br><br>";
                     echo "<a href=\"javascript:void(0);\" class=\"mainbutton\" onclick=\"setFormAction()\">↗️ SAVE</a>";
                 echo "</td>";
@@ -305,3 +400,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 }
 ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    // Function to update the gross price when totalTaxes is filled
+    function updateGrossPrice() {
+        const priceInput = document.getElementById('TotalPricePaid');
+        const taxesInput = document.getElementById('totalTaxes');
+        const grossPriceDiv = document.getElementById('IfTaxesEntered');
+
+        const totalPrice = parseFloat(priceInput.value) || 0;
+        const totalTaxes = parseFloat(taxesInput.value) || 0;
+
+        // Calculate gross price in USD
+        if (totalTaxes > 0) {
+            const grossPriceUSD = totalPrice + totalTaxes;
+            let outputHTML = `<br><br>(total gross price therefore: ${grossPriceUSD.toFixed(2)})$`;
+
+            // If the currency is not USD, calculate and display gross price in the other currency
+            if (exchangeRateCurrencyCode !== "USD") {
+                const grossPriceOther = grossPriceUSD * exchangeRate;
+                outputHTML += `<br><span style="opacity: 0.5;">(total gross price therefore: ${grossPriceOther.toFixed(2)}${exchangeRateCurrencyCode})</span>`;
+            }
+
+            grossPriceDiv.innerHTML = outputHTML;
+        } else {
+            grossPriceDiv.innerHTML = ''; // Clear the div if taxes are not entered
+        }
+    }
+
+    // Attach event listeners to the input fields
+    document.getElementById('totalTaxes').addEventListener('input', updateGrossPrice);
+    document.getElementById('TotalPricePaid').addEventListener('input', updateGrossPrice);
+
+    // Optionally initialize the calculation on page load
+    window.onload = function () {
+        updateGrossPrice(); // Initialize in case fields are pre-filled
+    };
+</script>
+
