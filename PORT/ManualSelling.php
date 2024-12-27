@@ -61,8 +61,8 @@ function deleteProductFromCookie(productId) {
     quantities = quantities.filter(item => item.idpk !== productId);
 
     // Update the cookie
-    setCookie('manualSellingItems', JSON.stringify(addedItems), 100);
-    setCookie('manualSellingQuantities', JSON.stringify(quantities), 100);
+    setCookie('manualSellingItems', JSON.stringify(addedItems), 3650);
+    setCookie('manualSellingQuantities', JSON.stringify(quantities), 3650);
 
     // Refresh the display
     displayAddedItems();
@@ -181,8 +181,8 @@ function addToManualSelling(event, idpk, details) {
     }
 
     // Update the cookies
-    setCookie('manualSellingItems', JSON.stringify(addedItems), 100);
-    setCookie('manualSellingQuantities', JSON.stringify(quantities), 100);
+    setCookie('manualSellingItems', JSON.stringify(addedItems), 3650);
+    setCookie('manualSellingQuantities', JSON.stringify(quantities), 3650);
 
     // Update the display
     displayAddedItems();
@@ -191,7 +191,7 @@ function addToManualSelling(event, idpk, details) {
 // Function to save the further information to the cookie
 function saveManualFurtherInformation() {
     const furtherInfo = document.getElementById('IfManualFurtherInformation').value;
-    setCookie('IfManualFurtherInformation', furtherInfo, 100); // Save for 100 days
+    setCookie('IfManualFurtherInformation', furtherInfo, 3650); // Save for 10 years
 }
 
 function updateQuantity(productId, quantity) {
@@ -206,7 +206,7 @@ function updateQuantity(productId, quantity) {
     }
 
     // Update the cookie with the new quantities
-    setCookie('manualSellingQuantities', JSON.stringify(quantities), 100);
+    setCookie('manualSellingQuantities', JSON.stringify(quantities), 3650);
 
     // Optionally refresh the display
     displayAddedItems();
@@ -354,7 +354,7 @@ function toggleTaxes(event) {
     taxesState = taxesState === 'added' ? 'removed' : 'added'; // Toggle the state
 
     // Update the cookie with the new state
-    setCookie('manualSellingTaxes', taxesState, 100); // Save for 100 days
+    setCookie('manualSellingTaxes', taxesState, 3650); // Save for 10 years
 
     // Update the link text based on the new state
     const link = event.target;
@@ -624,8 +624,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $totalOriginalPrice += ($product['SellingPriceProductOrServiceInDollars'] + $product['SellingPricePackagingAndShippingInDollars']) * $product['quantity'];
             }
 
+            // if want to (if overwritten price was entered) calculate: take the whole amount paid over all items
+            // (including taxes if necessary) (TotalSellingPrice + TotalShippingPrice) and then calculate for every item the relative proportion the item represents,
+            // separated into the proportion of price (selling price + shipping price combined, multiplied witht he quantity) to the overall total
+            // and the proportion of the taxes (if necessary, also multiplied withthe quantity of course) to the overall total
+            // and then I want to take these proportions (sum over all should be = 1) and multiply them with the new, overwritten price
+            // and insert them into the databse accordinlgy into the fields  amount and taxes,
+            // like in the other, normal case without the additional overwritting of the price
+
             // Check for overwritten price and distribute proportionally
             $overwrittenPrice = $_POST['OverwrittenPrice'] ?? null;
+            $totalNetPriceSum = 0;
+            $totalGrossPriceSum = 0;
+
+            // Calculate the total net price (including quantities) for all products
+            foreach ($products as &$product) {
+                $quantity = $product['quantity'];
+                $netPrice = $product['SellingPriceProductOrServiceInDollars'] + $product['SellingPricePackagingAndShippingInDollars'];
+                $totalNetPriceSum += $netPrice * $quantity;
+
+                // Apply taxes if enabled
+                $taxMultiplier = $taxesEnabled ? 1 + ($product['TaxesInPercent'] / 100) : 1;
+
+                $grossPrice = $netPrice * $taxMultiplier;
+                $totalGrossPriceSum += $grossPrice * $quantity;
+            }
+
             foreach ($products as &$product) {
                 $sellingPrice = $product['SellingPriceProductOrServiceInDollars'] ?? 0;
                 $shippingPrice = $product['SellingPricePackagingAndShippingInDollars'] ?? 0;
@@ -638,40 +662,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 // Distribute overwritten price
                 if ($overwrittenPrice) {
-                    // Calculate the total net price (including quantities) for all products
-                    $totalNetPriceSum = array_sum(array_map(function ($product) {
-                        $quantity = $product['quantity'];
-                        $netPrice = $product['SellingPriceProductOrServiceInDollars'] + $product['SellingPricePackagingAndShippingInDollars'];
-                        return $netPrice * $quantity;
-                    }, $products));
-                
-                    // Iterate over each product to calculate its proportional price
-                    foreach ($products as &$product) {
-                        $quantity = $product['quantity'];
-                        $netPrice = $product['SellingPriceProductOrServiceInDollars'] + $product['SellingPricePackagingAndShippingInDollars'];
+                    $quantity = $product['quantity'];
+                    $netPrice = $product['SellingPriceProductOrServiceInDollars'] + $product['SellingPricePackagingAndShippingInDollars'];
                     
-                        // Proportional ratio based on net price and quantity
-                        $priceRatio = ($netPrice * $quantity) / $totalNetPriceSum;
+                    // Proportional ratio based on net price and quantity
+                    $priceRatio = ($netPrice * $quantity) / $totalGrossPriceSum;
                     
-                        // Calculate proportional price from the overwritten price
-                        $proportionalPriceTotal = $priceRatio * $overwrittenPrice; // Total price for this product
-                        $proportionalPricePerUnit = $proportionalPriceTotal / $quantity; // Per-unit price
+                    // Calculate proportional price from the overwritten price
+                    $proportionalPriceTotal = $priceRatio * $overwrittenPrice; // Total price for this product
+                    $proportionalPricePerUnit = $proportionalPriceTotal / $quantity; // Per-unit price
                     
-                        if ($taxesEnabled) {
-                            // Adjust for taxes if enabled
-                            $taxMultiplier = 1 + ($product['TaxesInPercent'] / 100);
-                            $grossPricePerUnit = $proportionalPricePerUnit; // Overwritten price includes taxes
-                            $netPricePerUnit = $grossPricePerUnit / $taxMultiplier; // Net price per unit
-                            $taxAmountPerUnit = $grossPricePerUnit - $netPricePerUnit;
+                    if ($taxesEnabled) {
+                        // Adjust for taxes if enabled
+                        $taxMultiplier = 1 + ($product['TaxesInPercent'] / 100);
+                        $grossPrice = $netPrice * $taxMultiplier;
+                        $taxAmountPerUnit = $grossPrice - $netPrice;
+
+                        // Proportional ratio of taxes based on gross price and quantity
+                        $taxRatio = ($taxAmountPerUnit * $quantity) / $totalGrossPriceSum;
+
+                        // Calculate proportional taxes from the overwritten price
+                        $proportionalTaxTotal = $taxRatio * $overwrittenPrice; // Total taxes for this product
+                        $proportionalTaxPerUnit = $proportionalTaxTotal / $quantity; // Per-unit taxes
                         
-                            // Total for this product
-                            $product['totalPrice'] = $grossPricePerUnit * $quantity;
-                            $product['taxAmount'] = $taxAmountPerUnit * $quantity;
-                        } else {
-                            // No taxes, use proportional price as-is
-                            $product['totalPrice'] = $proportionalPricePerUnit * $quantity;
-                            $product['taxAmount'] = 0;
-                        }
+                        // Total for this product
+                        $totalPrice = $proportionalPricePerUnit * $quantity;
+                        $taxAmount = $proportionalTaxPerUnit * $quantity;
+                    } else {
+                        // No taxes, use proportional price as-is
+                        $totalPrice = $proportionalPricePerUnit * $quantity;
+                        $taxAmount = 0;
                     }
                 }
 
@@ -770,14 +790,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     if ($ExchangeRateCurrencyCode !== "USD") {
                         echo "<br><strong id='totalPriceInOtherCurrency' style='opacity: 0.5;'><span id=\"TotalSellingPriceInOtherCurrency\">0.00</span> (+<span id=\"TotalShippingPriceInOtherCurrency\">0.00</span>) (in $ExchangeRateCurrencyCode)</strong>";
                     }
-                    // echo "<br><br>";
-                    // echo "<input type=\"number\" id=\"OverwrittenPrice\" name=\"OverwrittenPrice\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateOtherCurrency('USD')\">";
-                    // echo "<br><label for=\"OverwrittenPrice\">overwritten price (in USD)</label>";
-                    // if ($ExchangeRateCurrencyCode !== "USD") {
-                    //     echo "<br><br>";
-                    //     echo "<input type=\"number\" id=\"OverwrittenPriceInOtherCurrency\" name=\"OverwrittenPriceInOtherCurrency\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateOtherCurrency('$ExchangeRateCurrencyCode')\">";
-                    //     echo "<br><label for=\"OverwrittenPriceInOtherCurrency\">overwritten price (in $ExchangeRateCurrencyCode)</label>";
-                    // }
+                    echo "<br><br>";
+                    echo "<input type=\"number\" id=\"OverwrittenPrice\" name=\"OverwrittenPrice\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateOtherCurrency('USD')\">";
+                    echo "<br><label for=\"OverwrittenPrice\">overwritten price (in USD)</label>";
+                    if ($ExchangeRateCurrencyCode !== "USD") {
+                        echo "<br><br>";
+                        echo "<input type=\"number\" id=\"OverwrittenPriceInOtherCurrency\" name=\"OverwrittenPriceInOtherCurrency\" placeholder=\"only if needed\" style=\"width: 200px; opacity: 0.3;\" oninput=\"updateOtherCurrency('$ExchangeRateCurrencyCode')\">";
+                        echo "<br><label for=\"OverwrittenPriceInOtherCurrency\" style=\"opacity: 0.3;\">overwritten price (in $ExchangeRateCurrencyCode)</label>";
+                    }
                     echo "<br><br>";
                     echo "<a href=\"javascript:void(0);\" onclick=\"toggleTaxes(event)\">➕ ADD TAXES</a>";
                     echo "<br><br><br>";

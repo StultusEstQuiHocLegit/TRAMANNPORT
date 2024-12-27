@@ -113,7 +113,7 @@ function updateTotalCurrency(changedField) {
 // Function to save the further information to the cookie
 function saveManualFurtherInformation() {
     const furtherInfo = document.getElementById('IfManualFurtherInformationManualBuying').value;
-    setCookie('IfManualFurtherInformationManualBuying', furtherInfo, 100); // Save for 100 days
+    setCookie('IfManualFurtherInformationManualBuying', furtherInfo, 3650); // Save for 10 years
 }
 
 // Initialize on page load
