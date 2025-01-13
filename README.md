@@ -1,5 +1,5 @@
 # TRAMANN PORT
-<h3>Get your own online shop and business management system on our open source platform for just 3% per transaction!</h3>
+<h3>Get your own online shop and business management system (ERP system) on our open source platform!</h3>
 <br>
 <h3>⭐ SEE PROJECT LIVE</h3>
 If you want to see the project live, please visit:
