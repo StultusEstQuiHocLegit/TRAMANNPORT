@@ -68,7 +68,7 @@ echo "<br><br><br><br><br>";
         // Display active products
         if (!empty($activeProducts)) {
             // Start the table structure
-            echo '<table>';
+            echo "<table style='width: 100%; text-align: left;'>";
             echo "<tr>";
                 echo "<th>name (idpk)</th>";
                 echo "<th>available</th>";
@@ -139,7 +139,7 @@ echo "<br><br><br><br><br>";
 
         // Display message only if there are no products at all
         if (empty($activeProducts) && empty($inactiveProducts)) {
-            echo "<tr><td colspan='5' align='center'>please create new <a href=\"index.php?content=products.php\">📦 PRODUCTS AND SERVICES</a> so they can be shown here</td></tr>";
+            echo "<tr><td colspan='5' style='text-align: center;'>please create new <a href=\"index.php?content=products.php\">📦 PRODUCTS AND SERVICES</a> so they can be shown here</td></tr>";
         }
 
         echo '</table>';

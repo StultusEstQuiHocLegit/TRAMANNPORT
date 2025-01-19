@@ -28,7 +28,10 @@ $userRole = null; // Initialize user role
 if ($user_id !== null) {
     try {
         // Prepare the SQL query to get the user role
-        $stmt = $pdo->prepare('SELECT ExplorerOrCreator FROM ExplorersAndCreators WHERE idpk = :id');
+        // $stmt = $pdo->prepare('SELECT ExplorerOrCreator FROM ExplorersAndCreators WHERE idpk = :id');
+        $stmt = $pdo->prepare('SELECT idpk, ExplorerOrCreator, FirstName, LastName, CompanyName 
+                               FROM ExplorersAndCreators 
+                               WHERE idpk = :id');
         $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
         
         // Execute the query
@@ -49,6 +52,22 @@ if ($user_id !== null) {
         echo "Database error: " . $e->getMessage();
     }
 }
+
+$profilePictograms = [
+    "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🦁", "🐯",
+    "🐨", "🐸", "🐵", "🐔", "🐧", "🐦", "🐥", "🦆", "🦅", "🦉",
+    "🦇", "🐺", "🐗", "🐴", "🐝", "🐛", "🦋", "🐌", "🐞", "🐜",
+    "🪲", "🪳", "🦟", "🦗", "🕷", "🐢", "🐍", "🦎", "🐙", "🦑",
+    "🦐", "🦞", "🦀", "🐡", "🐠", "🐟", "🐬", "🐋", "🦈", "🐊",
+    "🐅", "🐆", "🦓", "🦍", "🦧", "🐘", "🦛", "🦏", "🐪", "🐫",
+    "🦒", "🦘", "🦬", "🐃", "🐂", "🐄", "🐖", "🐏", "🐑", "🦙",
+    "🐐", "🦌", "🐓", "🦃", "🐿", "🦫", "🦔"
+];
+
+// Determine sender name
+$senderName = $result['ExplorerOrCreator'] == 0 
+? "{$result['FirstName']} {$result['LastName']} ({$result['idpk']})" 
+: "{$result['CompanyName']} ({$result['idpk']})";
 
 
 
@@ -84,7 +103,11 @@ function displayProductRow($product, $highlight = false, $user_id = null, $userR
     echo "<tr style='opacity: $rowOpacity;'>";
     // add yellow block
     if ($canManage) {
-        echo "<td style='width: 1px; background-color: yellow;'></td>"; // Yellow block column
+        if ($product['OnlyForInternalPurposes'] == 0 || $product['OnlyForInternalPurposes'] === null) { // no
+            echo "<td title='your product or service, also for external purposes' style='width: 1px; background-color: yellow;'></td>"; // Yellow block column
+        } else { // yes
+            echo "<td title='your product or service, only for internal purposes' style='width: 1px; background-color: lightyellow;'></td>"; // Yellow block column
+        }
     } else {
         echo "<td></td>";
     }
@@ -181,10 +204,6 @@ function displayProductRowManageInventory($product, $highlight = false, $user_id
 
     if ($canManage) {
         echo "<tr style='opacity: $rowOpacity;>";
-
-        // add yellow block
-        echo "<td style='width: 1px; background-color: yellow;'></td>"; // Yellow block column
-
         // Check if inventory is managed
         if ($product['ManageInventory'] == 0) {
             echo "<td title=\"" . htmlspecialchars($product['name']) . " ({$product['idpk']})\" data-context=\"SearchResults\" style=\"opacity: 0.6;\"><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a></td>";
@@ -248,7 +267,12 @@ function displayProductRowManualSelling($product, $highlight = false, $user_id =
 
     if ($canManage && $product['state'] == 1) {
         echo "<tr>";
-            echo "<td style='width: 1px; background-color: yellow;'></td>"; // add yellow block
+            // add yellow block
+            if ($product['OnlyForInternalPurposes'] == 0 || $product['OnlyForInternalPurposes'] === null) { // no
+                echo "<td title='your product or service, also for external purposes' style='width: 1px; background-color: yellow;'></td>"; // Yellow block column
+            } else { // yes
+                echo "<td title='your product or service, only for internal purposes' style='width: 1px; background-color: lightyellow;'></td>"; // Yellow block column
+            }
 
             // add image here
             $uploadDir = "uploads/ProductPictures/" . htmlspecialchars($product['idpk']) . "_";
@@ -266,13 +290,43 @@ function displayProductRowManualSelling($product, $highlight = false, $user_id =
             }
 
             if (isset($imagePaths[0]) && file_exists($imagePaths[0])):
-                echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'><img src=\"" . htmlspecialchars($imagePaths[0]) . "\" style=\"height:100px;\"></a></td>";
+                // echo "<td><a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'><img src=\"" . htmlspecialchars($imagePaths[0]) . "\" style=\"height:100px;\"></a></td>";
+                echo "<td>";
+                    echo "<a href='javascript:void(0);' 
+                        onclick='addToManualSelling(event, {$product['idpk']}, {
+                            IdpkCreator: \"{$product['IdpkCreator']}\",
+                            name: \"{$product['name']}\",
+                            SellingPriceProductOrServiceInDollars: \"{$product['SellingPriceProductOrServiceInDollars']}\",
+                            SellingPricePackagingAndShippingInDollars: \"{$product['SellingPricePackagingAndShippingInDollars']}\",
+                            TaxesInPercent: \"{$product['TaxesInPercent']}\",
+                            ManageInventory: \"{$product['ManageInventory']}\",
+                            InventoryAvailable: \"{$product['InventoryAvailable']}\",
+                            InventoryInProduction: \"{$product['InventoryInProduction']}\",
+                            InventoryMinimumLevel: \"{$product['InventoryMinimumLevel']}\",
+                            PersonalNotes: \"{$product['PersonalNotes']}\",
+                            state: \"{$product['state']}\"
+                        })'><img src=\"" . htmlspecialchars($imagePaths[0]) . "\" style=\"height:100px;\"></a>";
+                echo "</td>";
             else:
                 echo "<td></td>";
             endif;
 
             echo "<td title=\"" . htmlspecialchars($product['name']) . " ({$product['idpk']})\">";
-                echo "<a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a>";
+                // echo "<a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a>";
+                echo "<a href='javascript:void(0);' 
+                    onclick='addToManualSelling(event, {$product['idpk']}, {
+                        IdpkCreator: \"{$product['IdpkCreator']}\",
+                        name: \"{$product['name']}\",
+                        SellingPriceProductOrServiceInDollars: \"{$product['SellingPriceProductOrServiceInDollars']}\",
+                        SellingPricePackagingAndShippingInDollars: \"{$product['SellingPricePackagingAndShippingInDollars']}\",
+                        TaxesInPercent: \"{$product['TaxesInPercent']}\",
+                        ManageInventory: \"{$product['ManageInventory']}\",
+                        InventoryAvailable: \"{$product['InventoryAvailable']}\",
+                        InventoryInProduction: \"{$product['InventoryInProduction']}\",
+                        InventoryMinimumLevel: \"{$product['InventoryMinimumLevel']}\",
+                        PersonalNotes: \"{$product['PersonalNotes']}\",
+                        state: \"{$product['state']}\"
+                    })'>👉 ADD $truncatedName ({$product['idpk']})</a>";
                 echo "<br><div title=\"" . htmlspecialchars($product['ShortDescription']) . "\" style=\"opacity: 0.5;\">$truncatedDescription</div>";
                 echo "<div style=\"opacity: 0.5;\">available: {$product['InventoryAvailable']}, in production or reordered: {$product['InventoryInProduction']}</div>";
                 echo "<div style=\"opacity: 0.5;\">{$product['PersonalNotes']}</div>";
@@ -290,20 +344,21 @@ function displayProductRowManualSelling($product, $highlight = false, $user_id =
 
             // "ADD" button with tax-aware data
             echo "<td>";
-            echo "<a href='javascript:void(0);' 
-                onclick='addToManualSelling(event, {$product['idpk']}, {
-                    IdpkCreator: \"{$product['IdpkCreator']}\",
-                    name: \"{$product['name']}\",
-                    SellingPriceProductOrServiceInDollars: \"{$product['SellingPriceProductOrServiceInDollars']}\",
-                    SellingPricePackagingAndShippingInDollars: \"{$product['SellingPricePackagingAndShippingInDollars']}\",
-                    TaxesInPercent: \"{$product['TaxesInPercent']}\",
-                    ManageInventory: \"{$product['ManageInventory']}\",
-                    InventoryAvailable: \"{$product['InventoryAvailable']}\",
-                    InventoryInProduction: \"{$product['InventoryInProduction']}\",
-                    InventoryMinimumLevel: \"{$product['InventoryMinimumLevel']}\",
-                    PersonalNotes: \"{$product['PersonalNotes']}\",
-                    state: \"{$product['state']}\"
-                })'>👉 ADD</a>";
+                // echo "<a href='javascript:void(0);' 
+                //     onclick='addToManualSelling(event, {$product['idpk']}, {
+                //         IdpkCreator: \"{$product['IdpkCreator']}\",
+                //         name: \"{$product['name']}\",
+                //         SellingPriceProductOrServiceInDollars: \"{$product['SellingPriceProductOrServiceInDollars']}\",
+                //         SellingPricePackagingAndShippingInDollars: \"{$product['SellingPricePackagingAndShippingInDollars']}\",
+                //         TaxesInPercent: \"{$product['TaxesInPercent']}\",
+                //         ManageInventory: \"{$product['ManageInventory']}\",
+                //         InventoryAvailable: \"{$product['InventoryAvailable']}\",
+                //         InventoryInProduction: \"{$product['InventoryInProduction']}\",
+                //         InventoryMinimumLevel: \"{$product['InventoryMinimumLevel']}\",
+                //         PersonalNotes: \"{$product['PersonalNotes']}\",
+                //         state: \"{$product['state']}\"
+                //     })'>👉 ADD</a>";
+                echo "<a href='index.php?content=explore.php&action=ShowProduct&idpk={$product['idpk']}' style=\"opacity: 0.3;\" target='_blank'>👁️ MORE</a>";
             echo "</td>";
         echo "</tr>";
     }
@@ -394,6 +449,407 @@ function displayCreatorsAndExplorersRow($product, $highlight = false, $user_id =
 //     -> meaning: there has to have been a transaction between the two
 // -> look for where search matches CompanyName, VATID, street, ZIPCode, city, country, planet, PhoneNumberForExplorersAsContact, EmailForExplorersAsContact, ShortDescription, LongDescription (if ExplorerOrCreator = 1)
 // idpk LIKE :search OR KeywordsForSearch LIKE :search OR name LIKE :search OR ShortDescription LIKE :search OR LongDescription LIKE :search
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// display customer relationships row
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Function to display a customer relationships row
+function displayCustomerRelationshipsRow($product, $highlight = false, $user_id = null, $userRole = null, $profilePictograms = null, $senderName = null) {
+    global $pdo; // Make the $pdo variable accessible inside the function
+    
+    // Truncate the notes if they exceed 200 characters
+    $truncatedNotes = (strlen($product['notes']) > 200) ? substr($product['notes'], 0, 200) . '...' : $product['notes'];
+
+    // Fetch the ProfilePictogram value from $product
+    $profilePictogramIndex = $product['ProfilePictogram'];
+
+    // Get the matching emoji
+    $profilePictogramEmoji = isset($profilePictograms[$profilePictogramIndex]) 
+        ? $profilePictograms[$profilePictogramIndex] 
+        : ''; // Default to nothing if the index is invalid
+
+    echo "<tr>";
+    
+
+                // Display the table cell with the emoji
+                // echo "<td title=\"{$product['FirstName']} {$product['LastName']} ({$product['idpk']})\">
+                //         <a href='index.php?content=CustomerRelationships.php&action=update&idpk={$product['idpk']}' 
+                //            style='font-size: 3rem;'>{$profilePictogramEmoji}</a>
+                //       </td>";
+
+                // Assuming $product contains the relevant data
+                $state = $product['state'] ?? 0;
+                $importance = $product['importance'] ?? 0;
+
+                // Define dotted spacing based on importance (wider for lower importance, closer for higher importance)
+                $dottedSpacingMap = [
+                    0 => '10px', // Initial contact
+                    1 => '8px',  // Emerging partner
+                    2 => '6px',  // Partner
+                    3 => '4px',  // Core partner
+                    4 => '2px',  // Prime partner
+                ];
+                $dottedSpacing = $dottedSpacingMap[$importance] ?? '10px';
+
+                // Determine shape and border style dynamically
+                $borderStyle = ($state == 0) 
+                    ? "border-style: dotted dotted dotted dashed; border-width: 2px 2px 2px 3px;" // potential customer
+                    : "border-style: dotted dotted dotted solid; border-width: 2px 2px 2px 3px;";  // existing or former customer
+
+                // Dynamic border color based on importance
+                $borderColorMap = [
+                    0 => 'rgba(50, 50, 50, 0.1)', // Initial contact
+                    1 => 'rgba(50, 50, 50, 0.3)',      // Emerging partner
+                    2 => 'rgba(50, 50, 50, 0.5)',     // Partner
+                    3 => 'rgba(50, 50, 50, 0.7)',    // Core partner
+                    4 => 'rgba(50, 50, 50, 1)',       // Prime partner
+                ];
+                $borderColor = $borderColorMap[$importance] ?? ''; // Default if not defined
+
+                // Combine styles into a single definition
+                $circleStyle = "{$borderStyle} border-color: {$borderColor}; padding: 0.5rem; display: inline-flex; align-items: center; justify-content: center; opacity: 1;";
+
+                // Output the profile pictogram with dynamic styles
+                echo "<td title=\"{$product['FirstName']} {$product['LastName']} ({$product['idpk']})\" style='position: relative;'>
+                        <a href='index.php?content=CustomerRelationships.php&action=update&idpk={$product['idpk']}'
+                           style='font-size: 3rem; position: relative;'>
+                           <span style='{$circleStyle}'>{$profilePictogramEmoji}</span>
+                        </a>
+                      </td>";
+
+
+    echo "<td>";
+    echo "<a href='index.php?content=explore.php&action=ShowCustomerRelationships&idpk={$product['idpk']}' title=\"{$product['FirstName']} {$product['LastName']} ({$product['idpk']})\">{$product['FirstName']} {$product['LastName']} ({$product['idpk']})</a>";
+    echo "<span style=\"opacity: 0.8;\">";
+        echo " {$product['title']}";
+        if (!empty($product['CompanyName']) && !empty($product['title'])) {
+            echo " at ";
+        } elseif (!empty($product['CompanyName'])) {
+            echo " from ";
+        }
+        // echo "{$product['CompanyName']}";
+
+        // Assuming $product['CompanyName'] contains the input value (could be text or a number)
+        $companyName = $product['CompanyName'];
+
+        // Check if the CompanyName is numeric
+        if (is_numeric($companyName)) {
+            try {
+                // Prepare and execute the query to find the company name based on the numeric ID
+                $stmt = $pdo->prepare("SELECT CompanyName, idpk FROM ExplorersAndCreators WHERE idpk = :id AND ExplorerOrCreator = '1'");
+                $stmt->bindParam(':id', $companyName, PDO::PARAM_INT);
+                $stmt->execute();
+            
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+                if ($result) {
+                    // If a match is found, display the company name as a link
+                    echo "<a href='index.php?content=explore.php&action=ShowCreatorOrExplorer&idpk={$result['idpk']}' title='{$result['CompanyName']} ({$result['idpk']})'>
+                                {$result['CompanyName']}
+                            </a>";
+                } else {
+                    // If no match is found, display the original numeric value
+                    echo "{$companyName}";
+                }
+            } catch (PDOException $e) {
+                // Handle database errors
+                echo "Error fetching data: " . $e->getMessage();
+            }
+        } else {
+            // If the CompanyName is not numeric, display it as plain text
+            echo "{$companyName}";
+        }
+    echo "</span>";
+    echo "<br><span style=\"opacity: 0.5;\">";
+
+            // Determine recipient name
+            $recipientName = $product['FirstName'];
+
+            // sender name already determined earlier
+
+            // Prepare email subject and body
+            $emailSubject = "TRAMANN PORT - Hi from $senderName";
+            $emailBody = "Hi" . ($recipientName ? " $recipientName" : "") . ",\n\n\n[ContentOfYourMessage]\n\n\n\nSincerely yours,\n$senderName";
+            // URL-encode the subject and body
+            $emailLink = "mailto:{$product['email']}?subject=" . rawurlencode($emailSubject) . "&body=" . rawurlencode($emailBody);
+            // Generate tel link
+            $telLink = "tel:{$product['PhoneNumber']}";
+        if (!empty($product['email'])) {
+            echo "<a href='$emailLink'>✉️ EMAIL</a> "; // open directly
+        }
+        if (!empty($product['PhoneNumber'])) {
+            // echo "<a href='$telLink'>📞 PHONE</a> ";
+            echo "<a href='#' onclick=\"confirmPhoneCall('$telLink')\">📞 PHONE</a> "; // Trigger confirmation
+        }
+
+        $text = htmlspecialchars(trim($product['LinksToSocialMediaAndOtherSites'] ?? ''));
+
+        // Only process and display if there are links
+        if (!empty($text)) {
+            echo "<span class=\"LinksToSocialMediaAndOtherSites\" name=\"LinksToSocialMediaAndOtherSites\" style=\"text-align: left;\">";
+        
+            // Regular expression to match valid URLs
+            $urlRegex = '/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})([\/\w\-\.?&=]*)/';
+
+            // Replace URLs with clickable links
+            $formattedText = preg_replace_callback($urlRegex, function ($matches) {
+                $hostname = $matches[1];
+                $pathname = $matches[2] ?? '';
+            
+                // Create the full URL for the link
+                $fullUrl = "https://$hostname$pathname";
+            
+                // Remove 'www.' if present
+                $displayDomain = strtoupper(str_replace('www.', '', $hostname)); // Convert domain to uppercase
+            
+                // Remove TLDs from hostname
+                $domainParts = explode('.', $displayDomain);
+                $cleanDomain = count($domainParts) > 1 ? implode('.', array_slice($domainParts, 0, -1)) : $displayDomain;
+            
+                // Get the last part of the pathname for the page name
+                $pathParts = array_filter(explode('/', $pathname));
+                $pageName = end($pathParts) ? explode('?', end($pathParts))[0] : ''; // Get the last part without query or fragment
+            
+                // Limit lengths for display
+                $limitedDomain = strlen($cleanDomain) > 20 ? substr($cleanDomain, 0, 20) . '...' : $cleanDomain;
+                $limitedPageName = strlen($pageName) > 20 ? substr($pageName, 0, 20) . '...' : $pageName;
+            
+                // Convert page name to uppercase if present
+                $displayText = $pageName ? "$limitedDomain ($limitedPageName)" : $limitedDomain;
+            
+                return "<a href=\"$fullUrl\" target=\"_blank\" class=\"link\">🔗 $displayText</a> ";
+            }, $text);
+        
+            echo $formattedText;
+            echo "</span>";
+        }
+    echo "</span>";
+    // echo "<br><span style=\"opacity: 0.8;\">{$product['email']} {$product['PhoneNumber']} {$product['LinksToSocialMediaAndOtherSites']}</span>";
+    echo "<br><span  title='{$product['notes']}' style=\"opacity: 0.5;\">$truncatedNotes</div>";
+    echo "</td>";
+    echo "</tr>";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////// display customer relationships row as in ShowCustomerRelationships.php
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Function to display a customer relationships row as in ShowCustomerRelationships.php
+function displayCustomerRelationshipsRowManageCustomerRelationships($product, $highlight = false, $user_id = null, $userRole = null, $profilePictograms = null, $senderName = null) {
+    global $pdo; // Make the $pdo variable accessible inside the function
+    
+    // Truncate the notes if they exceed 200 characters
+    $truncatedNotes = (strlen($product['notes']) > 200) ? substr($product['notes'], 0, 200) . '...' : $product['notes'];
+
+    // Fetch the ProfilePictogram value from $product
+    $profilePictogramIndex = $product['ProfilePictogram'];
+
+    // Get the matching emoji
+    $profilePictogramEmoji = isset($profilePictograms[$profilePictogramIndex]) 
+        ? $profilePictograms[$profilePictogramIndex] 
+        : ''; // Default to nothing if the index is invalid
+
+    // Check if the state is "former customer" (state = 2)
+    $rowStyle = ($product['state'] == 2) ? ' style="opacity: 0.4;"' : '';
+
+    echo "<tr{$rowStyle}>";
+
+    
+                // Display the table cell with the emoji
+                // echo "<td title=\"{$product['FirstName']} {$product['LastName']} ({$product['idpk']})\">
+                //         <a href='index.php?content=CustomerRelationships.php&action=update&idpk={$product['idpk']}' 
+                //            style='font-size: 3rem;'>{$profilePictogramEmoji}</a>
+                //       </td>";
+
+                // Assuming $product contains the relevant data
+                $state = $product['state'] ?? 0;
+                $importance = $product['importance'] ?? 0;
+
+                // Define dotted spacing based on importance (wider for lower importance, closer for higher importance)
+                $dottedSpacingMap = [
+                    0 => '10px', // Initial contact
+                    1 => '8px',  // Emerging partner
+                    2 => '6px',  // Partner
+                    3 => '4px',  // Core partner
+                    4 => '2px',  // Prime partner
+                ];
+                $dottedSpacing = $dottedSpacingMap[$importance] ?? '10px';
+
+                // Determine shape and border style dynamically
+                $borderStyle = ($state == 0) 
+                    ? "border-style: dotted dotted dotted dashed; border-width: 2px 2px 2px 3px;" // potential customer
+                    : "border-style: dotted dotted dotted solid; border-width: 2px 2px 2px 3px;";  // existing or former customer
+
+                // Dynamic border color based on importance
+                $borderColorMap = [
+                    0 => 'rgba(50, 50, 50, 0.1)', // Initial contact
+                    1 => 'rgba(50, 50, 50, 0.3)',      // Emerging partner
+                    2 => 'rgba(50, 50, 50, 0.5)',     // Partner
+                    3 => 'rgba(50, 50, 50, 0.7)',    // Core partner
+                    4 => 'rgba(50, 50, 50, 1)',       // Prime partner
+                ];
+                $borderColor = $borderColorMap[$importance] ?? ''; // Default if not defined
+
+                // Combine styles into a single definition
+                $circleStyle = "{$borderStyle} border-color: {$borderColor}; padding: 0.5rem; display: inline-flex; align-items: center; justify-content: center; opacity: 1;";
+
+                // Output the profile pictogram with dynamic styles
+                echo "<td title=\"{$product['FirstName']} {$product['LastName']} ({$product['idpk']})\" style='position: relative;'>
+                        <a href='index.php?content=CustomerRelationships.php&action=update&idpk={$product['idpk']}'
+                           style='font-size: 3rem; position: relative;'>
+                           <span style='{$circleStyle}'>{$profilePictogramEmoji}</span>
+                        </a>
+                      </td>";
+
+
+    echo "<td>";
+    echo "<a href='index.php?content=CustomerRelationships.php&action=update&idpk={$product['idpk']}' title=\"{$product['FirstName']} {$product['LastName']} ({$product['idpk']})\">{$product['FirstName']} {$product['LastName']} ({$product['idpk']})</a>";
+    echo "<span style=\"opacity: 0.8;\">";
+        echo " {$product['title']}";
+        if (!empty($product['CompanyName']) && !empty($product['title'])) {
+            echo " at ";
+        } elseif (!empty($product['CompanyName'])) {
+            echo " from ";
+        }
+        // echo "{$product['CompanyName']}";
+
+        // Assuming $product['CompanyName'] contains the input value (could be text or a number)
+        $companyName = $product['CompanyName'];
+
+        // Check if the CompanyName is numeric
+        if (is_numeric($companyName)) {
+            try {
+                // Prepare and execute the query to find the company name based on the numeric ID
+                $stmt = $pdo->prepare("SELECT CompanyName, idpk FROM ExplorersAndCreators WHERE idpk = :id AND ExplorerOrCreator = '1'");
+                $stmt->bindParam(':id', $companyName, PDO::PARAM_INT);
+                $stmt->execute();
+            
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+                if ($result) {
+                    // If a match is found, display the company name as a link
+                    echo "<a href='index.php?content=explore.php&action=ShowCreatorOrExplorer&idpk={$result['idpk']}' title='{$result['CompanyName']} ({$result['idpk']})'>
+                                {$result['CompanyName']}
+                            </a>";
+                } else {
+                    // If no match is found, display the original numeric value
+                    echo "{$companyName}";
+                }
+            } catch (PDOException $e) {
+                // Handle database errors
+                echo "Error fetching data: " . $e->getMessage();
+            }
+        } else {
+            // If the CompanyName is not numeric, display it as plain text
+            echo "{$companyName}";
+        }
+    echo "</span>";
+    echo "<br><span style=\"opacity: 0.5;\">";
+
+            // Determine recipient name
+            $recipientName = $product['FirstName'];
+
+            // sender name already determined earlier
+
+            // Prepare email subject and body
+            $emailSubject = "TRAMANN PORT - Hi from $senderName";
+            $emailBody = "Hi" . ($recipientName ? " $recipientName" : "") . ",\n\n\n[ContentOfYourMessage]\n\n\n\nSincerely yours,\n$senderName";
+            // URL-encode the subject and body
+            $emailLink = "mailto:{$product['email']}?subject=" . rawurlencode($emailSubject) . "&body=" . rawurlencode($emailBody);
+            // Generate tel link
+            $telLink = "tel:{$product['PhoneNumber']}";
+        if (!empty($product['email'])) {
+            echo "<a href='$emailLink'>✉️ EMAIL</a> "; // open directly
+        }
+        if (!empty($product['PhoneNumber'])) {
+            // echo "<a href='$telLink'>📞 PHONE</a> ";
+            echo "<a href='#' onclick=\"confirmPhoneCall('$telLink')\">📞 PHONE</a> "; // Trigger confirmation
+        }
+
+        $text = htmlspecialchars(trim($product['LinksToSocialMediaAndOtherSites'] ?? ''));
+
+        // Only process and display if there are links
+        if (!empty($text)) {
+            echo "<span class=\"LinksToSocialMediaAndOtherSites\" name=\"LinksToSocialMediaAndOtherSites\" style=\"text-align: left;\">";
+        
+            // Regular expression to match valid URLs
+            $urlRegex = '/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})([\/\w\-\.?&=]*)/';
+
+            // Replace URLs with clickable links
+            $formattedText = preg_replace_callback($urlRegex, function ($matches) {
+                $hostname = $matches[1];
+                $pathname = $matches[2] ?? '';
+            
+                // Create the full URL for the link
+                $fullUrl = "https://$hostname$pathname";
+            
+                // Remove 'www.' if present
+                $displayDomain = strtoupper(str_replace('www.', '', $hostname)); // Convert domain to uppercase
+            
+                // Remove TLDs from hostname
+                $domainParts = explode('.', $displayDomain);
+                $cleanDomain = count($domainParts) > 1 ? implode('.', array_slice($domainParts, 0, -1)) : $displayDomain;
+            
+                // Get the last part of the pathname for the page name
+                $pathParts = array_filter(explode('/', $pathname));
+                $pageName = end($pathParts) ? explode('?', end($pathParts))[0] : ''; // Get the last part without query or fragment
+            
+                // Limit lengths for display
+                $limitedDomain = strlen($cleanDomain) > 20 ? substr($cleanDomain, 0, 20) . '...' : $cleanDomain;
+                $limitedPageName = strlen($pageName) > 20 ? substr($pageName, 0, 20) . '...' : $pageName;
+            
+                // Convert page name to uppercase if present
+                $displayText = $pageName ? "$limitedDomain ($limitedPageName)" : $limitedDomain;
+            
+                return "<a href=\"$fullUrl\" target=\"_blank\" class=\"link\">🔗 $displayText</a> ";
+            }, $text);
+        
+            echo $formattedText;
+            echo "</span>";
+        }
+    echo "</span>";
+    // echo "<br><span style=\"opacity: 0.8;\">{$product['email']} {$product['PhoneNumber']} {$product['LinksToSocialMediaAndOtherSites']}</span>";
+    // echo "<br><span title='{$product['notes']}' style=\"opacity: 0.5;\">$truncatedNotes</div>";
+    echo "<br><textarea id='notesConnectedToCustomerRelationship_{$product['idpk']}' class='notes-input' data-id='{$product['idpk']}' title='{$product['notes']}' style='opacity: 0.5; width: 100%;' rows='1'>{$product['notes']}</textarea>";
+    echo "</td>";
+    echo "</tr>";
+}
 
 
 
@@ -593,8 +1049,13 @@ function displayTransactionsRow($product, $highlight = false, $user_id = null, $
               </td>";
     }
 
-    echo "<td title='{$productName} ({$ProductId})'><a href='index.php?content=explore.php&action=ShowProduct&idpk={$ProductId}'>$truncatedName ({$ProductId})</a><br>{$commentsNotes}</td>";
-    echo "<td style='font-weight: bold; font-size: 1.5rem;'>{$Quantity}x</td>";
+    if ($isBuyer and $details['manual'] == 1) {
+        echo "<td></td>";
+        echo "<td></td>";
+    } else {
+        echo "<td title='{$productName} ({$ProductId})'><a href='index.php?content=explore.php&action=ShowProduct&idpk={$ProductId}'>$truncatedName ({$ProductId})</a><br>{$commentsNotes}</td>";
+        echo "<td style='font-weight: bold; font-size: 1.5rem;'>{$Quantity}x</td>";
+    }
     echo "<td>" . (!$isBuyer ? "{$TotalPriceIfSellingSide}$" : "{$TotalPrice}$") . "</td>";
     echo "<td title='(0 = collecting, 1 = ordered, 2 = paid, 3 = orders transmitted to creators, 4 = creators producing or selecting, 5 = creators shipping, 6 = in customs, 7 = at distribution center, 8 = arriving, 9 = finished)'>{$translatedTransactionState}</td>";
     
@@ -941,6 +1402,35 @@ if (isset($_POST['query']) && isset($_POST['preselectedOption']) && isset($_POST
             
             // Bind the :user_id parameter
             $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        } elseif ($preselectedOption === 'your_customer_relationships') {
+            // search only for the creators customer relationships
+            $sql = <<<SQL
+                SELECT DISTINCT cr.*
+                FROM CustomerRelationships cr
+                LEFT JOIN ExplorersAndCreators ec
+                    ON cr.CompanyName = ec.idpk AND ec.ExplorerOrCreator = 1
+                WHERE
+                    cr.IdpkCreator = :user_id
+                    AND (
+                        cr.idpk LIKE :search OR
+                        cr.FirstName LIKE :search OR
+                        cr.LastName LIKE :search OR
+                        cr.title LIKE :search OR
+                        cr.email LIKE :search OR
+                        cr.PhoneNumber LIKE :search OR
+                        cr.LinksToSocialMediaAndOtherSites LIKE :search OR
+                        cr.notes LIKE :search OR
+                        cr.CompanyName LIKE :search OR
+                        (
+                            cr.CompanyName REGEXP '^[0-9]+$' AND
+                            ec.CompanyName LIKE :search
+                        )
+                    );
+                SQL;
+            $stmt = $pdo->prepare($sql);
+            
+            // Bind the :user_id parameter
+            $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         } elseif ($preselectedOption === 'your_explorers_customers') {
             // search only for the creators explorers (customers)
             $sql = <<<SQL
@@ -1124,7 +1614,7 @@ if (isset($_POST['query']) && isset($_POST['preselectedOption']) && isset($_POST
                             )
                         )
                     )
-                ORDER BY t.TimestampCreation DESC
+                ORDER BY t.idpk DESC
                 ";
             $stmt = $pdo->prepare($sql);
             
@@ -1271,8 +1761,56 @@ if (isset($_POST['query']) && isset($_POST['preselectedOption']) && isset($_POST
             $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         } else {
             // general search for all active products and services
-            $sql = "SELECT * FROM ProductsAndServices WHERE state = 1 AND (idpk LIKE :search OR KeywordsForSearch LIKE :search OR name LIKE :search OR ShortDescription LIKE :search OR LongDescription LIKE :search)";
+            // $sql = "SELECT * FROM ProductsAndServices WHERE OnlyForInternalPurposes = 0 AND state = 1 AND (idpk LIKE :search OR KeywordsForSearch LIKE :search OR name LIKE :search OR ShortDescription LIKE :search OR LongDescription LIKE :search)";
+            // $sql = "SELECT * FROM ProductsAndServices 
+            //             WHERE state = 1 
+            //               AND (
+            //                   (OnlyForInternalPurposes = 0) 
+            //                   OR (OnlyForInternalPurposes = 1 AND IdpkCreator = :user_id)
+            //               )
+            //               AND (
+            //                   idpk LIKE :search 
+            //                   OR KeywordsForSearch LIKE :search 
+            //                   OR name LIKE :search 
+            //                   OR ShortDescription LIKE :search 
+            //                   OR LongDescription LIKE :search
+            //               )";
+            $sql = "
+                (
+                    SELECT * 
+                    FROM ProductsAndServices 
+                    WHERE state = 1 
+                      AND (
+                          (OnlyForInternalPurposes = 0) 
+                          OR (OnlyForInternalPurposes = 1 AND IdpkCreator = :user_id)
+                      )
+                      AND (
+                          idpk LIKE :search 
+                          OR KeywordsForSearch LIKE :search 
+                          OR name LIKE :search 
+                          OR ShortDescription LIKE :search 
+                          OR LongDescription LIKE :search
+                      )
+                )
+                UNION
+                (
+                    SELECT * 
+                    FROM ProductsAndServices 
+                    WHERE state = 0 
+                      AND IdpkCreator = :user_id
+                      AND (
+                          idpk LIKE :search 
+                          OR KeywordsForSearch LIKE :search 
+                          OR name LIKE :search 
+                          OR ShortDescription LIKE :search 
+                          OR LongDescription LIKE :search
+                      )
+                )
+                ORDER BY state DESC";
             $stmt = $pdo->prepare($sql);
+
+            // Bind the :user_id parameter
+            $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         }
 
         // Use wildcards for partial matches
@@ -1312,9 +1850,15 @@ if (isset($_POST['query']) && isset($_POST['preselectedOption']) && isset($_POST
                 } elseif ($preselectedViewing === "manual_selling") {
                     // Use displayProductRowManualSelling
                     displayProductRowManualSelling($exactMatch, true, $user_id, $userRole); // Highlight the exact match
+                } elseif ($preselectedViewing === "manage_customer_relationships") {
+                    // Use displayCustomerRelationshipsRowManageCustomerRelationships
+                    displayCustomerRelationshipsRowManageCustomerRelationships($exactMatch, true, $user_id, $userRole, $profilePictograms, $senderName); // Highlight the exact match
                 } elseif ($preselectedOption === "creators_explorers" || $preselectedOption === "your_explorers_customers" || $preselectedOption === "your_creators_suppliers") {
                     // Use displayCreatorsAndExplorersRow
                     displayCreatorsAndExplorersRow($exactMatch, true, $user_id, $userRole); // Highlight the exact match
+                } elseif ($preselectedOption === "your_customer_relationships") {
+                    // Use displayCustomerRelationshipsRow
+                    displayCustomerRelationshipsRow($exactMatch, true, $user_id, $userRole, $profilePictograms, $senderName); // Highlight the exact match
                 } elseif ($preselectedOption === "transactions") {
                     // Use displayTransactionsRow
                     displayTransactionsRow($exactMatch, true, $user_id, $userRole); // Highlight the exact match
@@ -1339,9 +1883,15 @@ if (isset($_POST['query']) && isset($_POST['preselectedOption']) && isset($_POST
             } elseif ($preselectedViewing === "manual_selling") {
                 // Use displayProductRowManualSelling
                 displayProductRowManualSelling($product, false, $user_id, $userRole);
+            } elseif ($preselectedViewing === "manage_customer_relationships") {
+                // Use displayCustomerRelationshipsRowManageCustomerRelationships
+                displayCustomerRelationshipsRowManageCustomerRelationships($product, false, $user_id, $userRole, $profilePictograms, $senderName);
             } elseif ($preselectedOption === "creators_explorers" || $preselectedOption === "your_explorers_customers" || $preselectedOption === "your_creators_suppliers") {
                 // Use displayCreatorsAndExplorersRow
                 displayCreatorsAndExplorersRow($product, false, $user_id, $userRole);
+            } elseif ($preselectedOption === "your_customer_relationships") {
+                // Use displayCustomerRelationshipsRow
+                displayCustomerRelationshipsRow($product, false, $user_id, $userRole, $profilePictograms, $senderName);
             } elseif ($preselectedOption === "transactions") {
                 // Use displayTransactionsRow
                 displayTransactionsRow($product, false, $user_id, $userRole);

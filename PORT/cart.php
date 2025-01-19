@@ -189,10 +189,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'buy') {
     echo "<div style=\"opacity: 0.5;\">for further processing within the TRAMANN PORT payment system.</div>";
 
     echo "<br><br><br><br><br>";
-    echo "<a href=\"index.php\" class=\"mainbutton\">✔️ DONE</a>";
+    // echo "<a href=\"index.php\" class=\"mainbutton\">✔️ DONE</a>";
+    if ($userRole === 0) { // explorer
+        echo "<a href=\"index.php\" class=\"mainbutton\">✔️ DONE</a>";
+    } else { // creator
+        echo "<a href='index.php?content=explore.php&action=ShowCarts&idpk={$lastCartId}' title='CART {$lastCartId}' class=\"mainbutton\">✔️ DONE</a>";
+    }
 
     echo "<br><br><br><br><br>";
-    echo "<a href=\"#\" id=\"learnLink\" style=\"opacity: 0.5;\">LEARN HOW IT WORKS</a>";
+    echo "<a href=\"#\" id=\"learnLink\" style=\"opacity: 0.4;\">LEARN HOW IT WORKS</a>";
     echo "<br><br>";
     echo "<div id='LearnHowItWorks' style='display: none;'>"; // initially hide the div
         echo "To ensure security in payment processing, we are hacking our way by using established banking infrastructure";
@@ -530,7 +535,7 @@ try {
 
         echo "<br><br><br><br><br><br>";
 
-        echo "<table>";
+        echo "<table style='width: 100%; text-align: left;'>";
         // echo "<tr><th></th><th></th><th></th><th></th><th></th></tr>";
         
         foreach ($cartProducts as $product) {

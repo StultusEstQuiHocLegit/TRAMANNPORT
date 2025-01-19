@@ -1,10 +1,4 @@
 <?php
-include ("ExchangeRates.php"); // include ExchangeRates.php for recalculation of prices
-
-
-
-
-
 echo "<h1>👈 MANUAL BUYING</h1>";
 ?>
 <script>
@@ -278,19 +272,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $totalTaxes = isset($_POST['totalTaxes']) ? (float)$_POST['totalTaxes'] : 0;
 
     // Check if total price is valid
-    if ($totalPricePaid <= 0) {
-        $errors[] = "Total price paid must be greater than zero.<br><br><a href=\"index.php?content=ManualBuying.php\">▶️ CONTINUE</a>";
-    }
+    // if ($totalPricePaid < 0) {
+    //     $errors[] = "Total price paid can't be negative.<br><br><a href=\"index.php?content=ManualBuying.php\">▶️ CONTINUE</a><br><br><br><br><br><div style='opacity: 0.5;'>If you want save a manual sale, please head over to <a href=\"index.php?content=ManualSelling.php\">👉 MANUAL SELLING</a></div>.";
+    // }
 
     // If no errors, proceed with database operations
     if (empty($errors)) {
         try {
             // Create a new entry in the 'carts' table
             $timestampCreation = time(); // Current timestamp
+            
+
+
+            // Assume the date is submitted from the form
+            $inputDate = $_POST['DateOfCreation'] ?? null; // Expected format: YYYY-MM-DD or null if not provided
+
+            // Get the current date
+            $currentDate = date('Y-m-d');
+
+            // Validate the input date
+            if (empty($inputDate) || strtotime($inputDate) === false || strtotime($inputDate) > strtotime($currentDate)) {
+                // If no date is entered or the date is invalid or in the future, use the current date
+                $inputDate = $currentDate;
+            }
+
+            // Combine the validated date with the current time
+            $currentTime = date('H:i:s'); // Current time in HH:MM:SS format
+            $combinedDateTime = $inputDate . ' ' . $currentTime; // Combine into a full datetime string
+
+            // Convert the combined datetime to a Unix timestamp
+            $timestampCreationOfCart = strtotime($combinedDateTime);
+
+            if ($timestampCreationOfCart === false) {
+                die("Failed to generate a valid timestamp.");
+            }
+
+
 
             $stmt = $pdo->prepare("INSERT INTO carts (TimestampCreation, manual, IfManualFurtherInformation, DeliveryType, IdpkExplorerOrCreator) 
-                                   VALUES (:timestampCreation, 1, :ifManualFurtherInformationManualBuying, 0, :userId)");
-            $stmt->bindParam(':timestampCreation', $timestampCreation, PDO::PARAM_INT);
+                                   VALUES (:timestampCreationOfCart, 1, :ifManualFurtherInformationManualBuying, 0, :userId)");
+            $stmt->bindParam(':timestampCreationOfCart', $timestampCreationOfCart, PDO::PARAM_INT);
             $stmt->bindParam(':ifManualFurtherInformationManualBuying', $ifManualFurtherInformationManualBuying, PDO::PARAM_STR);
             $stmt->bindParam(':userId', $user_id, PDO::PARAM_INT); // Bind the user_id to the IdpkExplorerOrCreator
             $stmt->execute();
@@ -308,7 +329,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bindParam(':totalTaxes', $totalTaxes, PDO::PARAM_STR);
             $stmt->execute();
 
-            echo "Saved successfully.<br><br><a href=\"index.php?content=ManualBuying.php\">▶️ CONTINUE</a>";
+            echo "<a href='index.php?content=explore.php&action=ShowCarts&idpk={$cartId}' title='CART {$cartId}'>◀ CART {$cartId}</a> ";
+            echo "saved successfully.<br><br><a href=\"index.php?content=ManualBuying.php\">▶️ CONTINUE</a>";
             ?>
             <script>
                 document.cookie = 'IfManualFurtherInformationManualBuying=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
@@ -364,29 +386,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<tr>";
                 echo "<td>";
                     $IfManualFurtherInformationManualBuying = isset($_COOKIE['IfManualFurtherInformationManualBuying']) ? $_COOKIE['IfManualFurtherInformationManualBuying'] : '';
-                    echo "<textarea id=\"IfManualFurtherInformationManualBuying\" name=\"IfManualFurtherInformationManualBuying\" rows=\"12\" style=\"width: 500px;\" placeholder=\"if you want to, you can insert further information about the creator (supplier) here, for example company name, first name, last name, street, house number, ZIP code, city, country, planet, VATID, email, further notes, ...\">" . htmlspecialchars($IfManualFurtherInformationManualBuying) . "</textarea>";
+                    echo "<textarea id=\"IfManualFurtherInformationManualBuying\" name=\"IfManualFurtherInformationManualBuying\" rows=\"15\" style=\"width: 500px;\" placeholder=\"if you want to, you can insert further information about the creator (supplier) here, for example company name, first name, last name, street, house number, ZIP code, city, country, planet, VATID, email, further notes, ...\">" . htmlspecialchars($IfManualFurtherInformationManualBuying) . "</textarea>";
                     echo "<br><br><br><div id=\"ShowSuggestionsForIfManualFurtherInformation\"></div>";
                     echo "</td>";   
                 echo "<td></td>";
                 echo "<td></td>";
                 echo "<td></td>";
                 echo "<td>";
-                    echo "<input type=\"number\" id=\"TotalPricePaid\" name=\"TotalPricePaid\" placeholder=\"How much?\" style=\"width: 200px;\" oninput=\"updateTotalCurrency('TotalPricePaid')\">";
-                    echo "<br><label for=\"TotalPricePaid\">total price paid (in USD)</label>";
-                    if ($ExchangeRateCurrencyCode !== "USD") {
+                    if ($ExchangeRateCurrencyCode == "USD") {
+                        echo "<input type=\"number\" id=\"TotalPricePaid\" name=\"TotalPricePaid\" placeholder=\"How much?\" style=\"width: 200px;\" oninput=\"updateTotalCurrency('TotalPricePaid')\">";
+                        echo "<br><label for=\"TotalPricePaid\">total price paid (in USD)</label>";
+                        echo "<br><br><br>";
+                        echo "<input type=\"number\" id=\"totalTaxes\" name=\"totalTaxes\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateTotalCurrency('totalTaxes')\">";
+                        echo "<br><label for=\"totalTaxes\">total taxes (in USD)</label>";
+                    } else {
+                        echo "<input type=\"number\" id=\"TotalPricePaidInOtherCurrency\" name=\"TotalPricePaidInOtherCurrency\" placeholder=\"How much?\" style=\"width: 200px;\" oninput=\"updateTotalCurrency('TotalPricePaidInOtherCurrency')\">";
+                        echo "<br><label for=\"TotalPricePaidInOtherCurrency\">total price paid (in $ExchangeRateCurrencyCode)</label>";
                         echo "<br><br>";
-                        echo "<input type=\"number\" id=\"TotalPricePaidInOtherCurrency\" name=\"TotalPricePaidInOtherCurrency\" placeholder=\"How much?\" style=\"width: 200px; opacity: 0.3;\" oninput=\"updateTotalCurrency('TotalPricePaidInOtherCurrency')\">";
-                        echo "<br><label for=\"TotalPricePaidInOtherCurrency\" style='opacity: 0.3;'>total price paid (in $ExchangeRateCurrencyCode)</label>";
-                    }
-                    echo "<br><br><br>";
-                    echo "<input type=\"number\" id=\"totalTaxes\" name=\"totalTaxes\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateTotalCurrency('totalTaxes')\">";
-                    echo "<br><label for=\"totalTaxes\">total taxes (in USD)</label>";
-                    if ($ExchangeRateCurrencyCode !== "USD") {
+                        echo "<input type=\"number\" id=\"TotalPricePaid\" name=\"TotalPricePaid\" placeholder=\"How much?\" style=\"width: 200px; opacity: 0.3;\" oninput=\"updateTotalCurrency('TotalPricePaid')\">";
+                        echo "<br><label for=\"TotalPricePaid\" style='opacity: 0.3;'>total price paid (in USD)</label>";
+                        echo "<br><br><br>";
+                        echo "<input type=\"number\" id=\"totalTaxesInOtherCurrency\" name=\"totalTaxesInOtherCurrency\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateTotalCurrency('totalTaxesInOtherCurrency')\">";
+                        echo "<br><label for=\"totalTaxesInOtherCurrency\">total taxes (in $ExchangeRateCurrencyCode)</label>";
                         echo "<br><br>";
-                        echo "<input type=\"number\" id=\"totalTaxesInOtherCurrency\" name=\"totalTaxesInOtherCurrency\" placeholder=\"only if needed\" style=\"width: 200px; opacity: 0.3;\" oninput=\"updateTotalCurrency('totalTaxesInOtherCurrency')\">";
-                        echo "<br><label for=\"totalTaxesInOtherCurrency\" style='opacity: 0.3;'>total taxes (in $ExchangeRateCurrencyCode)</label>";
+                        echo "<input type=\"number\" id=\"totalTaxes\" name=\"totalTaxes\" placeholder=\"only if needed\" style=\"width: 200px; opacity: 0.3;\" oninput=\"updateTotalCurrency('totalTaxes')\">";
+                        echo "<br><label for=\"totalTaxes\" style='opacity: 0.3;'>total taxes (in USD)</label>";
                     }
                     echo "<div id=\"IfTaxesEntered\" style=\"opacity: 0.4;\"></div>";
+                    echo "<br><br><br>";
+                    echo "<input type=\"date\" id=\"DateOfCreation\" name=\"DateOfCreation\" value=\"" . date('Y-m-d') . "\" style=\"width: 200px;\" onblur=\"validateDate()\">";
+                    echo "<br><label for=\"DateOfCreation\">date</label>";
                     echo "<br><br><br>";
                     echo "<a href=\"javascript:void(0);\" class=\"mainbutton\" onclick=\"setFormAction()\">↗️ SAVE</a>";
                 echo "</td>";
@@ -421,6 +450,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 <script>
+    function validateDate() {
+        const dateInput = document.getElementById("DateOfCreation");
+        const enteredDate = new Date(dateInput.value);
+        const currentDate = new Date();
+
+        // Reset the time for accurate comparison
+        enteredDate.setHours(0, 0, 0, 0);
+        currentDate.setHours(0, 0, 0, 0);
+
+        if (enteredDate > currentDate) {
+            // alert("The selected date is in the future. It will be reset to the current date.");
+            
+            // Ensure correct date handling in local time zone
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+            const day = String(today.getDate()).padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}`; // Format date as YYYY-MM-DD
+        }
+    }
+
     // Function to update the gross price when totalTaxes is filled
     function updateGrossPrice() {
         const priceInput = document.getElementById('TotalPricePaid');
@@ -430,15 +480,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         const totalPrice = parseFloat(priceInput.value) || 0;
         const totalTaxes = parseFloat(taxesInput.value) || 0;
 
-        // Calculate gross price in USD
+        // Ensure exchangeRateCurrencyCode and exchangeRate are defined globally or passed into the function
+        if (typeof exchangeRateCurrencyCode === 'undefined' || typeof exchangeRate === 'undefined') {
+            console.error("exchangeRateCurrencyCode or exchangeRate is not defined");
+            return;
+        }
+
         if (totalTaxes > 0) {
             const grossPriceUSD = totalPrice + totalTaxes;
-            let outputHTML = `<br><br>(total gross price therefore: ${grossPriceUSD.toFixed(2)})$`;
+            let outputHTML = '';
 
-            // If the currency is not USD, calculate and display gross price in the other currency
-            if (exchangeRateCurrencyCode !== "USD") {
+            if (exchangeRateCurrencyCode === "USD") {
+                outputHTML = `<br><br>(total gross price therefore: ${grossPriceUSD.toFixed(2)}$)`;
+            } else {
                 const grossPriceOther = grossPriceUSD * exchangeRate;
-                outputHTML += `<br><span style="opacity: 0.5;">(total gross price therefore: ${grossPriceOther.toFixed(2)}${exchangeRateCurrencyCode})</span>`;
+                outputHTML = `<br><br>(total gross price therefore: ${grossPriceOther.toFixed(2)} ${exchangeRateCurrencyCode})`;
+                outputHTML += `<br><span style="opacity: 0.5;">(total gross price therefore: ${grossPriceUSD.toFixed(2)}$)</span>`;
             }
 
             grossPriceDiv.innerHTML = outputHTML;
@@ -450,6 +507,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Attach event listeners to the input fields
     document.getElementById('totalTaxes').addEventListener('input', updateGrossPrice);
     document.getElementById('TotalPricePaid').addEventListener('input', updateGrossPrice);
+    document.getElementById('totalTaxesInOtherCurrency').addEventListener('input', updateGrossPrice);
+    document.getElementById('TotalPricePaidInOtherCurrency').addEventListener('input', updateGrossPrice);
 
     // Optionally initialize the calculation on page load
     window.onload = function () {

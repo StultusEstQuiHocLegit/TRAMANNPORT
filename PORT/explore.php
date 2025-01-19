@@ -38,6 +38,12 @@ $preselectedViewing = $preselectedViewing ?? '';
         </option> <!-- // all creators and explorers (for the latter only the ones you had transactions with) -->
         
         <?php if ($userRole === 1) { ?>
+            <option value="your_customer_relationships" <?php echo ($preselectedOption === 'your_customer_relationships') ? 'selected' : ''; ?>>
+                search for your business relationships
+            </option> <!-- // add this for creators -->
+        <?php } ?>
+
+        <?php if ($userRole === 1) { ?>
             <option value="your_explorers_customers" <?php echo ($preselectedOption === 'your_explorers_customers') ? 'selected' : ''; ?>>
                 search for your explorers (customers)
             </option> <!-- // add this for creators -->
@@ -72,6 +78,14 @@ echo "</div>";
 
 echo "<div id=\"ShowCreatorOrExplorer\">";
     include ("ShowCreatorOrExplorer.php");
+echo "</div>";
+
+
+
+
+
+echo "<div id=\"ShowCustomerRelationships\">";
+    include ("ShowCustomerRelationships.php");
 echo "</div>";
 
 
@@ -152,6 +166,9 @@ echo "<div id=\"FeedAndResults\"></div>";
 
         document.getElementById('ShowProduct').style.display = 'none';
         document.getElementById('ShowCreatorOrExplorer').style.display = 'none';
+        document.getElementById('ShowCustomerRelationships').style.display = 'none';
+        document.getElementById('ShowTransactions').style.display = 'none';
+        document.getElementById('ShowCarts').style.display = 'none';
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'search.php', true);

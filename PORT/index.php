@@ -78,13 +78,13 @@ try {
     exit();
 }
 
+    include ("ExchangeRates.php"); // include ExchangeRates.php for recalculation of prices
+
     // User is logged in, check the role from cookie
     if ($userRole === 0) {
         // Explorer
         if ($content === 'explore.php') {
             include("explore.php");
-        } elseif ($content === 'TRAMANNAIConnection.php') {
-            include("TRAMANNAIConnection.php");
         } elseif ($content === 'cart.php') {
             include("cart.php");
         } elseif ($content === 'PreviousCarts.php') {
@@ -109,6 +109,8 @@ try {
         // Creator
         if ($content === 'dashboard.php') {
             include("dashboard.php");
+        } elseif ($content === 'documents.php') {
+            include("documents.php");
         } elseif ($content === 'orders.php') {
             include("orders.php");
         } elseif ($content === 'ManualSelling.php') {
@@ -117,14 +119,14 @@ try {
             include("inventory.php");
         } elseif ($content === 'products.php') {
             include("products.php");
+        } elseif ($content === 'CustomerRelationships.php') {
+            include("CustomerRelationships.php");
         } elseif ($content === 'ExplorersCustomers.php') {
             include("ExplorersCustomers.php");
         } elseif ($content === 'CreatorsSuppliers.php') {
             include("CreatorsSuppliers.php");
         } elseif ($content === 'explore.php') {
             include("explore.php");
-        } elseif ($content === 'TRAMANNAIConnection.php') {
-            include("TRAMANNAIConnection.php");
         } elseif ($content === 'cart.php') {
             include("cart.php");
         } elseif ($content === 'PreviousCarts.php') {
@@ -155,5 +157,7 @@ try {
 }
 echo "<br><br><br><br><br><br><br><br><br><br>";
 echo "</div>";
+
+
 ?>
 

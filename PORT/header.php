@@ -18,6 +18,7 @@ session_start(); // Start the session
 </header>
 
 <style type="text/css">
+/*
 @font-face {
     font-family: 'OCR A Std';
     font-style: normal;
@@ -28,6 +29,7 @@ session_start(); // Start the session
 body {
   font-family: 'OCR A Std', monospace;
 }
+*/
 </style>
 
 <body>
@@ -41,11 +43,12 @@ body {
             $user_id = isset($_COOKIE['user_id']) ? (int)$_COOKIE['user_id'] : null;
             
             $userRole = null; // Initialize user role
+            $userFont = ''; // Initialize user font
             
             if ($user_id !== null) {
                 try {
                     // Prepare the SQL query to get the user role
-                    $stmt = $pdo->prepare('SELECT ExplorerOrCreator, darkmode FROM ExplorersAndCreators WHERE idpk = :id');
+                    $stmt = $pdo->prepare('SELECT ExplorerOrCreator, darkmode, font FROM ExplorersAndCreators WHERE idpk = :id');
                     $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
                     
                     // Execute the query
@@ -58,6 +61,7 @@ body {
                     if ($result) {
                         $userRole = (int)$result['ExplorerOrCreator']; // Cast to integer if needed
                         $darkMode = (int)$result['darkmode']; // 0 = no, 1 = yes
+                        $userFont = isset($result['font']) ? $result['font'] : '';
 
                         // Determine the appropriate stylesheet based on the dark mode preference
                         if ($darkMode === 1) {
@@ -72,22 +76,191 @@ body {
                         // Handle case where user role or dark mode is not found
                         $userRole = null; // Set to a default value or handle as needed
                         $darkMode = null;
+                        $userFont = '';
                     }
                 } catch (PDOException $e) {
                     // Handle database errors
                     echo "database error: " . $e->getMessage();
                 }
+                // You can now use $userFont here
             } else {
                 echo '<img id="menuIcon" src="../logos/TramannLogo.png" height="40" alt="TRAMANN">'; // Light mode logo
                 echo '<link rel="stylesheet" type="text/css" href="../style.css">'; // Dark mode stylesheet
                 echo '<link rel="stylesheet" type="text/css" href="../StyleLightmode.css">'; // Light mode stylesheet adding to the existing one
+                $userFont = '';
             }
+
+
+
+
+            ?>
+                <style type="text/css">
+                    <?php
+                    // Fonts URL mapping for user-selected fonts
+                    $differentFonts = [
+                        "Agu Display" => "Agu+Display",
+                        "Aldrich" => "Aldrich",
+                        "Aladin" => "Aladin",
+                        "Amarante" => "Amarante",
+                        "Arial" => null, // Arial is a system font
+                        "Astloch" => "Astloch",
+                        "Atomic Age" => "Atomic+Age",
+                        "Audiowide" => "Audiowide",
+                        "Barriecito" => "Barriecito",
+                        "Chewy" => "Chewy",
+                        "Condiment" => "Condiment",
+                        "Delius" => "Delius",
+                        "Delius Swash Caps" => "Delius+Swash+Caps",
+                        "Delicious Handrawn" => "Delicious+Handrawn",
+                        "DM Serif Text" => "DM+Serif+Text",
+                        "Dynalight" => "Dynalight",
+                        "DynaPuff" => "DynaPuff",
+                        "Fontdiner Swanky" => "Fontdiner+Swanky",
+                        "Funnel Display" => "Funnel+Display",
+                        "Funnel Sans" => "Funnel+Sans",
+                        "Geostar" => "Geostar",
+                        "Henny Penny" => "Henny+Penny",
+                        "Homemade Apple" => "Homemade+Apple",
+                        "Iceberg" => "Iceberg",
+                        "Jacquard 12" => "Jacquard+12",
+                        "Kablammo" => "Kablammo",
+                        "League Script" => "League+Script",
+                        "Limelight" => "Limelight",
+                        "Macondo" => "Macondo",
+                        "Megrim" => "Megrim",
+                        "Merriweather" => "Merriweather",
+                        "Montserrat" => "Montserrat",
+                        "Mystery Quest" => "Mystery+Quest",
+                        "Newsreader" => "Newsreader",
+                        "Noto Serif" => "Noto+Serif",
+                        "Nunito" => "Nunito",
+                        "Open Sans" => "Open+Sans",
+                        "Orbitron" => "Orbitron",
+                        "Pinyon Script" => "Pinyon+Script",
+                        "Playfair Display" => "Playfair+Display",
+                        "Poiret One" => "Poiret+One",
+                        "Princess Sofia" => "Princess+Sofia",
+                        "Roboto" => "Roboto",
+                        "Rubik Iso" => "Rubik+Iso",
+                        "Rye" => "Rye",
+                        "Sancreek" => "Sancreek",
+                        "Send Flowers" => "Send+Flowers",
+                        "Shadows Into Light" => "Shadows+Into+Light",
+                        "Shadows Into Light Two" => "Shadows+Into+Light+Two",
+                        "Silkscreen" => "Silkscreen",
+                        "Sixtyfour" => "Sixtyfour",
+                        "Sour Gummy" => "Sour+Gummy",
+                        "Tomorrow" => "Tomorrow",
+                        "Twinkle Star" => "Twinkle+Star",
+                        "UnifrakturMaguntia" => "UnifrakturMaguntia"
+                    ];
+                
+                    if ($userFont === "Arial") {
+                        // Arial is a system font
+                        echo "
+                        body, input[type='text'],
+                        input[type='email'],
+                        input[type='password'],
+                        input[type='number'],
+                        input[type='time'],
+                        input[type='date'],
+                        input[type='datetime-local'],
+                        input[type='search'],
+                        textarea,
+                        select {
+                            font-family: 'Arial', 'OCR A Std', monospace;
+                        }
+                        ";
+                    } elseif (isset($differentFonts[$userFont]) && $differentFonts[$userFont] !== null) {
+                        // Import the Font if it's mapped
+                        $fontUrl = $differentFonts[$userFont];
+                        echo "@import url('https://fonts.googleapis.com/css2?family=$fontUrl&display=swap');";
+                        echo "
+                        body, input[type='text'],
+                        input[type='email'],
+                        input[type='password'],
+                        input[type='number'],
+                        input[type='time'],
+                        input[type='date'],
+                        input[type='datetime-local'],
+                        input[type='search'],
+                        textarea,
+                        select {
+                            font-family: '$userFont', 'OCR A Std', monospace;
+                        }
+                        ";
+                    } else {
+                        // Fallback to OCR A Std if no font or invalid font is specified
+                        echo "
+                        @font-face {
+                            font-family: 'OCR A Std';
+                            font-style: normal;
+                            font-weight: normal;
+                            src: local('OCR A Std'), url('../OCRAStd.woff') format('woff');
+                        }
+                        body, input[type='text'],
+                        input[type='email'],
+                        input[type='password'],
+                        input[type='number'],
+                        input[type='time'],
+                        input[type='date'],
+                        input[type='datetime-local'],
+                        input[type='search'],
+                        textarea,
+                        select {
+                            font-family: 'OCR A Std', monospace;
+                        }
+                        ";
+                    }
+                    ?>
+                </style>
+            <?php
+
+
+
+
+
+
+
     echo "</a><div style=\"height: 5px;\"></div> <div id=\"dropdownMenu\">";
 
                                     include ("menu.php"); // Include the menu
             ?>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- // ///////////////////////////////////////////// old version:
 <div class="header">
     <a href="./index.php" title="TRAMANN PROJECTS"><img src="../logos/TramannLogoWhite.png" height="40" alt="TRAMANN PROJECTS"></a>
@@ -103,12 +276,22 @@ body {
     <div style="opacity: 0.08;"><a href="../imprint.php">IMPRINT</a> - <a href="../DataSecurity.php">DATA SECURITY</a> - <a href="../license.php">LICENSE</a></div>
 </footer>
 -->
-<div id="cookie-container" style="<?php echo $isLoggedIn ? 'display: none;' : ''; ?>">
-    <div id="cookie-content">
-        <div id="cookie-sentences">To give you the best user experience on our websites, we use cookies.<br>By continuing to use our websites, you consent to the use of cookies.</div>
-        <button id="close-cookie">&times;</button>
+<?php if ($isLoggedIn): ?>
+    <!-- don't show the cookie alert if the user is already logged in -->
+    <div id="cookie-container" style="display: none;">
+        <div id="cookie-content" style="display: none;">
+            <div id="cookie-sentences" style="display: none;"></div>
+            <button id="close-cookie" style="display: none;"></button>
+        </div>
     </div>
-</div>
+<?php else: ?>
+    <div id="cookie-container">
+        <div id="cookie-content">
+            <div id="cookie-sentences">To give you the best user experience on our websites, we use cookies.<br>By continuing to use our websites, you consent to the use of cookies.</div>
+            <button id="close-cookie">&times;</button>
+        </div>
+    </div>
+<?php endif; ?>
 <script type="text/javascript">
 // for dropdown menu
 document.getElementById("dropdownMenuLogo").addEventListener("click", function(event) {

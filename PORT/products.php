@@ -1,12 +1,6 @@
 <h1>📦 PRODUCTS AND SERVICES</h1>
 
 <?php
-include ("ExchangeRates.php"); // include ExchangeRates.php for recalculation of prices
-
-
-
-
-
 $preselectedOption = "your_products_services"; // add preselected search option
 
 include ("explore.php"); // include explore.php for exploring and searching
@@ -116,7 +110,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
     // Example array of required fields
     $requiredFields = [
         'name', 
-        'SellingPriceProductOrServiceInDollars', 
+        'SellingPriceProductOrServiceInDollars',
+        'SellingPriceProductOrServiceInDollarsInOtherCurrency',
         'type'
     ];
 
@@ -163,6 +158,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
     $inventoryInProduction = isset($_POST['InventoryInProduction']) ? (int) $_POST['InventoryInProduction'] : null;
     $inventoryMinimumLevel = isset($_POST['InventoryMinimumLevel']) ? (int) $_POST['InventoryMinimumLevel'] : null;
     $personalNotes = $_POST['PersonalNotes'];
+    $OnlyForInternalPurposes = $_POST['OnlyForInternalPurposes'];
     $state = $_POST['state'];
 
     // Check conditions for setting inventory values
@@ -193,6 +189,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
             InventoryInProduction = :inventoryInProduction,
             InventoryMinimumLevel = :inventoryMinimumLevel,
             PersonalNotes = :personalNotes,
+            OnlyForInternalPurposes = :OnlyForInternalPurposes,
             state = :state
         WHERE idpk = $idpk AND IdpkCreator = $user_id
     ");
@@ -216,6 +213,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'updateDatabase' && isset($_GE
     $stmt->bindParam(':inventoryInProduction', $inventoryInProduction, PDO::PARAM_INT);
     $stmt->bindParam(':inventoryMinimumLevel', $inventoryMinimumLevel, PDO::PARAM_INT);
     $stmt->bindParam(':personalNotes', $personalNotes);
+    $stmt->bindParam(':OnlyForInternalPurposes', $OnlyForInternalPurposes);
     $stmt->bindParam(':state', $state);
 
     // Execute the update
@@ -313,7 +311,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
             const formData = new FormData(form);
         
             // Check for required fields
-            const requiredFields = ['name', 'SellingPriceProductOrServiceInDollars', 'type'];
+            const requiredFields = ['name', 'SellingPriceProductOrServiceInDollars', 'SellingPriceProductOrServiceInDollarsInOtherCurrency', 'type'];
             let isValid = true;
         
             requiredFields.forEach(function(field) {
@@ -397,7 +395,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                 <h3>✏️ EDIT</h3>
             </div>
             <form id="editProductForm" action="index.php?content=products.php&action=updateDatabase&idpk=<?php echo $product['idpk']; ?>" method="post" enctype="multipart/form-data" onsubmit="event.preventDefault(); submitFormUpdateProduct();">
-                <!-- tell that this is the form for creating -->
+                <!-- tell that this is the form for updating -->
                     <input type="hidden" name="action" value="update">
                 <!-- tell the idpk of the product or service -->
                     <input type="hidden" name="productId" value="<?php echo htmlspecialchars($product['idpk']); ?>">
@@ -498,34 +496,42 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                     <input type="number" id="DimensionsHeightInMm" name="DimensionsHeightInMm" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['DimensionsHeightInMm'])); ?>" placeholder="it's totally logical" style="width: 300px;">
                     <label for="DimensionsHeightInMm">height (in mm)</label>
                 </div>
-        
-                    <br><br><br><br><br>
-                    <input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['SellingPriceProductOrServiceInDollars'])); ?>" placeholder="price the explorer should pay" style="width: 300px;" oninput="updatePriceCurrency('SellingPriceProductOrServiceInDollars')" required>
-                    <label for="SellingPriceProductOrServiceInDollars">selling price (in USD)*</label>
-                    <?php
-                        if ($ExchangeRateCurrencyCode !== "USD") {
-                            echo "<br><br>";
-                            echo "<input type=\"number\" id=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" name=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" placeholder=\"price the explorer should pay\" style=\"width: 300px; opacity: 0.3;\" oninput=\"updatePriceCurrency('SellingPriceProductOrServiceInDollarsInOtherCurrency')\">";
-                            echo "<label for=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" style='opacity: 0.3;'>selling price (in $ExchangeRateCurrencyCode)</label>";
-                        }
-                    ?>
-                <!-- Div for Selling Price (only for products/food) -->
-                <div id="priceAttributes" style="display: none;">
-                    <br><br>
-                    <input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['SellingPricePackagingAndShippingInDollars'])); ?>" placeholder="only if you want to separate" style="width: 300px;" oninput="updatePriceCurrency('SellingPricePackagingAndShippingInDollars')">
-                    <label for="SellingPricePackagingAndShippingInDollars">selling price of packaging and shipping (in USD)</label>
-                    <?php
-                        if ($ExchangeRateCurrencyCode !== "USD") {
-                            echo "<br><br>";
-                            echo "<input type=\"number\" id=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" name=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" placeholder=\"only if you want to separate\" style=\"width: 300px; opacity: 0.3;\" oninput=\"updatePriceCurrency('SellingPricePackagingAndShippingInDollarsInOtherCurrency')\">";
-                            echo "<label for=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" style='opacity: 0.3;'>selling price of packaging and shipping (in $ExchangeRateCurrencyCode)</label>";
-                        }
-                    ?>
-                </div>
 
-                <br><br>
-                <input type="number" id="TaxesInPercent" name="TaxesInPercent" value="<?php echo htmlspecialchars(str_replace(',', '.', $product['TaxesInPercent'])); ?>" placeholder="% for uncle sam" style="width: 300px;" oninput="updateLiveCalculations()">
-                <label for="TaxesInPercent">taxes (in %)<br><div id="LiveCalculations" style="opacity: 0.4;"></div></label>
+                <?php
+                    if ($ExchangeRateCurrencyCode == "USD") {
+                        echo '<br><br><br><br><br>';
+                            echo "<input type=\"hidden\" id=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" name=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" placeholder=\"price the explorer should pay\" style=\"width: 300px;\" oninput=\"updatePriceCurrency('SellingPriceProductOrServiceInDollarsInOtherCurrency')\">";
+                            echo "<input type=\"hidden\" id=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" name=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" placeholder=\"only if you want to separate\" style=\"width: 300px;\" oninput=\"updatePriceCurrency('SellingPricePackagingAndShippingInDollarsInOtherCurrency')\">";
+                        echo '<input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" value="' . htmlspecialchars(str_replace(',', '.', $product['SellingPriceProductOrServiceInDollars'])) . '" placeholder="price the explorer should pay" style="width: 300px;" oninput="updatePriceCurrency(\'SellingPriceProductOrServiceInDollars\')" required>';
+                        echo '<label for="SellingPriceProductOrServiceInDollars">selling price (in USD)*</label>';
+                        // <!-- Div for Selling Price (only for products/food) -->
+                        echo '<div id="priceAttributes" style="display: none;">';
+                            echo '<br><br>';
+                            echo '<input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" value="' . htmlspecialchars(str_replace(',', '.', $product['SellingPricePackagingAndShippingInDollars'])) . '" placeholder="only if you want to separate" style="width: 300px;" oninput="updatePriceCurrency(\'SellingPricePackagingAndShippingInDollars\')">';
+                            echo '<label for="SellingPricePackagingAndShippingInDollars">selling price of packaging and shipping (in USD)</label>';
+                        echo '</div>';
+                    } else {
+                        echo '<br><br><br><br><br>';
+                        echo "<input type=\"number\" id=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" name=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" placeholder=\"price the explorer should pay\" style=\"width: 300px;\" oninput=\"updatePriceCurrency('SellingPriceProductOrServiceInDollarsInOtherCurrency')\" required>";
+                        echo "<label for=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\">selling price (in $ExchangeRateCurrencyCode)*</label>";
+                        echo "<br><br>";
+                        echo '<input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" value="' . htmlspecialchars(str_replace(',', '.', $product['SellingPriceProductOrServiceInDollars'])) . '" placeholder="price the explorer should pay" style="width: 300px; opacity: 0.3;" oninput="updatePriceCurrency(\'SellingPriceProductOrServiceInDollars\')" required>';
+                        echo '<label for="SellingPriceProductOrServiceInDollars" style="opacity: 0.3;">selling price (in USD)*</label>';
+                        // <!-- Div for Selling Price (only for products/food) -->
+                        echo '<div id="priceAttributes" style="display: none;">';
+                            echo "<br><br>";
+                            echo "<input type=\"number\" id=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" name=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" placeholder=\"only if you want to separate\" style=\"width: 300px;\" oninput=\"updatePriceCurrency('SellingPricePackagingAndShippingInDollarsInOtherCurrency')\">";
+                            echo "<label for=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\">selling price of packaging and shipping (in $ExchangeRateCurrencyCode)</label>";
+                            echo '<br><br>';
+                            echo '<input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" value="' . htmlspecialchars(str_replace(',', '.', $product['SellingPricePackagingAndShippingInDollars'])) . '" placeholder="only if you want to separate" style="width: 300px; opacity: 0.3;" oninput="updatePriceCurrency(\'SellingPricePackagingAndShippingInDollars\')">';
+                            echo '<label for="SellingPricePackagingAndShippingInDollars" style="opacity: 0.3;"">selling price of packaging and shipping (in USD)</label>';
+                        echo '</div>';
+                    }
+
+                    echo '<br><br>';
+                    echo '<input type="number" id="TaxesInPercent" name="TaxesInPercent" value="' . htmlspecialchars(str_replace(',', '.', $product['TaxesInPercent'])) . '" placeholder="% for uncle sam" style="width: 300px;" oninput="updateLiveCalculations()">';
+                    echo '<label for="TaxesInPercent">taxes (in %)<br><div id="LiveCalculations" style="opacity: 0.4;"></div></label>';
+                ?>
         
                 <!-- Checkbox for Manage Inventory -->
                     <input type="hidden" name="ManageInventory" value="0">
@@ -553,9 +559,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'update' && isset($_GET['idpk'
                 <textarea id="PersonalNotes" name="PersonalNotes" rows="6" style="width: 100%;" placeholder="only you can see these"><?php echo htmlspecialchars($product['PersonalNotes']); ?></textarea>
                 <label for="PersonalNotes">personal notes</label>
 
-                <!-- Checkbox for Manage Inventory -->
-                    <input type="hidden" name="state" value="0">
+                <!-- Checkbox for OnlyForInternalPurposes -->
+                    <input type="hidden" name="OnlyForInternalPurposes" value="0">
                 <br><br><br><br><br>
+                <input type="checkbox" id="OnlyForInternalPurposes" name="OnlyForInternalPurposes" value="1" <?php echo ($product['OnlyForInternalPurposes'] == 1) ? 'checked' : ''; ?>>
+                <label for="OnlyForInternalPurposes">only for internal purposes (ckeck if you don't want to present this to people outside your company)</label>
+
+                <!-- Checkbox for state -->
+                    <input type="hidden" name="state" value="0">
+                <br><br>
                 <input type="checkbox" id="state" name="state" value="1" <?php echo ($product['state'] == 1) ? 'checked' : ''; ?>>
                 <label for="state">state active/inactive (uncheck if you don't want to present and sell this anymore)</label>
         
@@ -630,7 +642,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     // Example array of required fields
     $requiredFields = [
         'name', 
-        'SellingPriceProductOrServiceInDollars', 
+        'SellingPriceProductOrServiceInDollars',
+        'SellingPriceProductOrServiceInDollarsInOtherCurrency',
         'type'
     ];
 
@@ -677,6 +690,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     $inventoryInProduction = isset($_POST['InventoryInProduction']) ? (int) $_POST['InventoryInProduction'] : null;
     $inventoryMinimumLevel = isset($_POST['InventoryMinimumLevel']) ? (int) $_POST['InventoryMinimumLevel'] : null;
     $personalNotes = $_POST['PersonalNotes'];
+    $OnlyForInternalPurposes = $_POST['OnlyForInternalPurposes'];
 
     // Check conditions for setting inventory values
     if ($manageInventory == 0 || $type == 3 || $type == 4) {
@@ -698,13 +712,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         AllowCommentsNotesSpecialRequests, type, SellingPriceProductOrServiceInDollars, WeightInKg, 
         DimensionsLengthInMm, DimensionsWidthInMm, DimensionsHeightInMm, 
         SellingPricePackagingAndShippingInDollars, TaxesInPercent, ManageInventory, InventoryAvailable, 
-        InventoryInProduction, InventoryMinimumLevel, PersonalNotes, state
+        InventoryInProduction, InventoryMinimumLevel, PersonalNotes, OnlyForInternalPurposes, state
     ) VALUES (
         :timestampCreation, :idpkCreator, :keywordsForSearch, :name, :shortDescription, :longDescription, 
         :allowComments, :type, :sellingPriceProductOrServiceInDollars, :weightInKg, 
         :dimensionsLengthInMm, :dimensionsWidthInMm, :dimensionsHeightInMm, 
         :sellingPricePackagingAndShippingInDollars, :taxesInPercent, :manageInventory, :inventoryAvailable, 
-        :inventoryInProduction, :inventoryMinimumLevel, :personalNotes, :state
+        :inventoryInProduction, :inventoryMinimumLevel, :personalNotes, :OnlyForInternalPurposes, :state
     )");
     
     // Bind the parameters
@@ -728,6 +742,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
     $stmt->bindParam(':inventoryInProduction', $inventoryInProduction);
     $stmt->bindParam(':inventoryMinimumLevel', $inventoryMinimumLevel);
     $stmt->bindParam(':personalNotes', $personalNotes);
+    $stmt->bindParam(':OnlyForInternalPurposes', $OnlyForInternalPurposes);
     $stmt->bindParam(':state', $state);
     
     // Execute the statement
@@ -838,7 +853,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         const formData = new FormData(form);
 
         // Check for required fields
-        const requiredFields = ['name', 'SellingPriceProductOrServiceInDollars', 'type'];
+        const requiredFields = ['name', 'SellingPriceProductOrServiceInDollars', 'SellingPriceProductOrServiceInDollarsInOtherCurrency', 'type'];
         let isValid = true;
 
         requiredFields.forEach(function(field) {
@@ -894,7 +909,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         const formData = new FormData(form);
 
         // Check for required fields
-        const requiredFields = ['name', 'SellingPriceProductOrServiceInDollars', 'type'];
+        const requiredFields = ['name', 'SellingPriceProductOrServiceInDollars', 'SellingPriceProductOrServiceInDollarsInOtherCurrency', 'type'];
         let isValid = true;
 
         requiredFields.forEach(function(field) {
@@ -1204,33 +1219,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
             <label for="DimensionsHeightInMm">height (in mm)</label>
         </div>
 
-            <br><br><br><br><br>
-            <input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" placeholder="price the explorer should pay" style="width: 300px;" oninput="updatePriceCurrency('SellingPriceProductOrServiceInDollars')" required>
-            <label for="SellingPriceProductOrServiceInDollars">selling price (in USD)*</label>
-            <?php
-                if ($ExchangeRateCurrencyCode !== "USD") {
+        <?php
+            if ($ExchangeRateCurrencyCode == "USD") {
+                echo '<br><br><br><br><br>';
+                    echo "<input type=\"hidden\" id=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" name=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" placeholder=\"price the explorer should pay\" style=\"width: 300px;\" oninput=\"updatePriceCurrency('SellingPriceProductOrServiceInDollarsInOtherCurrency')\">";
+                    echo "<input type=\"hidden\" id=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" name=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" placeholder=\"only if you want to separate\" style=\"width: 300px;\" oninput=\"updatePriceCurrency('SellingPricePackagingAndShippingInDollarsInOtherCurrency')\">";
+                echo '<input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" placeholder="price the explorer should pay" style="width: 300px;" oninput="updatePriceCurrency(\'SellingPriceProductOrServiceInDollars\')" required>';
+                echo '<label for="SellingPriceProductOrServiceInDollars">selling price (in USD)*</label>';
+                // <!-- Div for Selling Price (only for products/food) -->
+                echo '<div id="priceAttributes" style="display: none;">';
+                    echo '<br><br>';
+                    echo '<input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" placeholder="only if you want to separate" style="width: 300px;" oninput="updatePriceCurrency(\'SellingPricePackagingAndShippingInDollars\')">';
+                    echo '<label for="SellingPricePackagingAndShippingInDollars">selling price of packaging and shipping (in USD)*</label>';
+                echo '</div>';
+            } else {
+                echo '<br><br><br><br><br>';
+                echo "<input type=\"number\" id=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" name=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" placeholder=\"price the explorer should pay\" style=\"width: 300px;\" oninput=\"updatePriceCurrency('SellingPriceProductOrServiceInDollarsInOtherCurrency')\" required>";
+                echo "<label for=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\">selling price (in $ExchangeRateCurrencyCode)*</label>";
+                echo "<br><br>";
+                echo '<input type="number" id="SellingPriceProductOrServiceInDollars" name="SellingPriceProductOrServiceInDollars" placeholder="price the explorer should pay" style="width: 300px; opacity: 0.3;" oninput="updatePriceCurrency(\'SellingPriceProductOrServiceInDollars\')" required>';
+                echo '<label for="SellingPriceProductOrServiceInDollars" style="opacity: 0.3;">selling price (in USD)*</label>';
+                // <!-- Div for Selling Price (only for products/food) -->
+                echo '<div id="priceAttributes" style="display: none;">';
                     echo "<br><br>";
-                    echo "<input type=\"number\" id=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" name=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" placeholder=\"price the explorer should pay\" style=\"width: 300px; opacity: 0.3;\" oninput=\"updatePriceCurrency('SellingPriceProductOrServiceInDollarsInOtherCurrency')\">";
-                    echo "<label for=\"SellingPriceProductOrServiceInDollarsInOtherCurrency\" style='opacity: 0.3;'>selling price (in $ExchangeRateCurrencyCode)</label>";
-                }
-            ?>
-        <!-- Div for Selling Price (only for products/food) -->
-        <div id="priceAttributes" style="display: none;">
-            <br><br>
-            <input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" placeholder="only if you want to separate" style="width: 300px;" oninput="updatePriceCurrency('SellingPricePackagingAndShippingInDollars')">
-            <label for="SellingPricePackagingAndShippingInDollars">selling price of packaging and shipping (in USD)</label>
-            <?php
-                if ($ExchangeRateCurrencyCode !== "USD") {
-                    echo "<br><br>";
-                    echo "<input type=\"number\" id=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" name=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" placeholder=\"only if you want to separate\" style=\"width: 300px; opacity: 0.3;\" oninput=\"updatePriceCurrency('SellingPricePackagingAndShippingInDollarsInOtherCurrency')\">";
-                    echo "<label for=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" style='opacity: 0.3;'>selling price of packaging and shipping (in $ExchangeRateCurrencyCode)</label>";
-                }
-            ?>
-        </div>
+                    echo "<input type=\"number\" id=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" name=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\" placeholder=\"only if you want to separate\" style=\"width: 300px;\" oninput=\"updatePriceCurrency('SellingPricePackagingAndShippingInDollarsInOtherCurrency')\">";
+                    echo "<label for=\"SellingPricePackagingAndShippingInDollarsInOtherCurrency\">selling price of packaging and shipping (in $ExchangeRateCurrencyCode)</label>";
+                    echo '<br><br>';
+                    echo '<input type="number" id="SellingPricePackagingAndShippingInDollars" name="SellingPricePackagingAndShippingInDollars" placeholder="only if you want to separate" style="width: 300px; opacity: 0.3;" oninput="updatePriceCurrency(\'SellingPricePackagingAndShippingInDollars\')">';
+                    echo '<label for="SellingPricePackagingAndShippingInDollars" style="opacity: 0.3;"">selling price of packaging and shipping (in USD)</label>';
+                echo '</div>';
+            }
 
-            <br><br>
-            <input type="number" id="TaxesInPercent" name="TaxesInPercent" placeholder="% for uncle sam" style="width: 300px;" oninput="updateLiveCalculations()">
-            <label for="TaxesInPercent">taxes (in %)<br><div id="LiveCalculations" style="opacity: 0.4;"></div></label>
+            echo '<br><br>';
+            echo '<input type="number" id="TaxesInPercent" name="TaxesInPercent" placeholder="% for uncle sam" style="width: 300px;" oninput="updateLiveCalculations()">';
+            echo '<label for="TaxesInPercent">taxes (in %)<br><div id="LiveCalculations" style="opacity: 0.4;"></div></label>';
+        ?>
 
         <!-- Checkbox for Manage Inventory -->
             <input type="hidden" name="ManageInventory" value="0">
@@ -1257,6 +1280,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         <br><br><br><br><br>
         <textarea id="PersonalNotes" name="PersonalNotes" rows="6" style="width: 100%;" placeholder="only you can see these"></textarea>
         <label for="PersonalNotes">personal notes</label>
+
+        <!-- Checkbox for OnlyForInternalPurposes -->
+            <input type="hidden" name="OnlyForInternalPurposes" value="0">
+        <br><br><br><br><br>
+        <input type="checkbox" id="OnlyForInternalPurposes" name="OnlyForInternalPurposes" value="1" unchecked>
+        <label for="OnlyForInternalPurposes">only for internal purposes (ckeck if you don't want to present this to people outside your company)</label>
 
         <br><br><br><br><br>
         <div align=center>
@@ -1302,7 +1331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         $user_id = $_COOKIE['user_id'];
 
         // Query to get all products for the specific user, ordered alphabetically
-        $stmt = $pdo->prepare("SELECT idpk, name, ShortDescription, SellingPriceProductOrServiceInDollars, SellingPricePackagingAndShippingInDollars, PersonalNotes, state FROM ProductsAndServices WHERE IdpkCreator = :id ORDER BY name ASC");
+        $stmt = $pdo->prepare("SELECT idpk, name, ShortDescription, SellingPriceProductOrServiceInDollars, SellingPricePackagingAndShippingInDollars, PersonalNotes, OnlyForInternalPurposes, state FROM ProductsAndServices WHERE IdpkCreator = :id ORDER BY name ASC");
         $stmt->bindParam(':id', $user_id, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -1322,7 +1351,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         }
 
         // Start the table structure
-        echo '<table>';
+        echo "<table style='width: 100%; text-align: left;'>";
 
         // Display active products
         if (!empty($activeProducts)) {
@@ -1338,15 +1367,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
                                 : '';
 
                 echo "<tr>";
-                echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a></td>";
-                echo "<td><div style=\"opacity: 0.5;\">$truncatedDescription</div></td>";
-                echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$</td>";
-                echo "<td>$shippingPrice</td>";
-                // echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";
-                // echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>✏️ EDIT</a></td>";
-                // hidden field to transfer the idpk of the product or service
-                    echo "<input type='hidden' class='editProductId' id='editProductId' value='{$product['idpk']}'>";
-                echo "<td><div style=\"opacity: 0.5;\">$truncatedPersonalNotes</div></td>";
+                    // add yellow block
+                    if ($product['OnlyForInternalPurposes'] == 0 || $product['OnlyForInternalPurposes'] === null) { // no
+                        echo "<td title='your product or service, also for external purposes' style='width: 1px; background-color: yellow;'></td>"; // Yellow block column
+                    } else { // yes
+                        echo "<td title='your product or service, only for internal purposes' style='width: 1px; background-color: lightyellow;'></td>"; // Yellow block column
+                    }
+                    echo "<td title=\"" . htmlspecialchars($product['name']) . " ({$product['idpk']})\"><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a></td>";
+                    echo "<td><div style=\"opacity: 0.5;\">$truncatedDescription</div></td>";
+                    echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$</td>";
+                    echo "<td>$shippingPrice</td>";
+                    // echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";
+                    // echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>✏️ EDIT</a></td>";
+                    // hidden field to transfer the idpk of the product or service
+                        echo "<input type='hidden' class='editProductId' id='editProductId' value='{$product['idpk']}'>";
+                    echo "<td><div style=\"opacity: 0.5;\">$truncatedPersonalNotes</div></td>";
                 echo "</tr>";
                 echo "<tr></tr>"; // additional line after each product or service
             }
@@ -1369,15 +1404,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
                                 : '';
 
                 echo "<tr $opacityStyle>";
-                echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a></td>";
-                echo "<td><div style=\"opacity: 0.5;\">$truncatedDescription</div></td>";
-                echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$</td>";
-                echo "<td>$shippingPrice</td>";
-                // echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";
-                // echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>✏️ EDIT</a></td>";
-                // hidden field to transfer the idpk of the product or service
-                    echo "<input type='hidden' class='editProductId' id='editProductId' value='{$product['idpk']}'>";
-                echo "<td><div style=\"opacity: 0.5;\">$truncatedPersonalNotes</div></td>";
+                    // add yellow block
+                    if ($product['OnlyForInternalPurposes'] == 0 || $product['OnlyForInternalPurposes'] === null) { // no
+                        echo "<td title='your product or service, also for external purposes' style='width: 1px; background-color: yellow;'></td>"; // Yellow block column
+                    } else { // yes
+                        echo "<td title='your product or service, only for internal purposes' style='width: 1px; background-color: lightyellow;'></td>"; // Yellow block column
+                    }
+                    echo "<td title=\"" . htmlspecialchars($product['name']) . " ({$product['idpk']})\"><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>$truncatedName ({$product['idpk']})</a></td>";
+                    echo "<td><div style=\"opacity: 0.5;\">$truncatedDescription</div></td>";
+                    echo "<td>{$product['SellingPriceProductOrServiceInDollars']}$</td>";
+                    echo "<td>$shippingPrice</td>";
+                    // echo "<td><a href='index.php?content=products.php&action=update&idpk={$product['idpk']}'>✏️ EDIT</a></td>";
+                    // echo "<td><a href='javascript:void(0)' onclick='showEditProduct({$product['idpk']})'>✏️ EDIT</a></td>";
+                    // hidden field to transfer the idpk of the product or service
+                        echo "<input type='hidden' class='editProductId' id='editProductId' value='{$product['idpk']}'>";
+                    echo "<td><div style=\"opacity: 0.5;\">$truncatedPersonalNotes</div></td>";
                 echo "</tr>";
                 echo "<tr></tr>"; // additional line after each product or service
             }
@@ -1385,7 +1426,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
 
         // Display message only if there are no products at all
         if (empty($activeProducts) && empty($inactiveProducts)) {
-            echo "<tr><td colspan='5' align='center'>please create new products and services so they can be shown here by clicking on the button above</td></tr>";
+            echo "<tr><td colspan='5' style='text-align: center;'>please create new products and services so they can be shown here by clicking on the button above</td></tr>";
         }
 
         echo '</table>';
@@ -1529,18 +1570,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'create') {
         const taxesValueConverted = convertValue(taxesValue);
         const grossPriceConverted = convertValue(grossPrice);
 
-        liveCalculationsDiv.innerHTML = `
+        liveCalculationsDiv.innerHTML = isUSD ? `
             <br>(combined value for you: ${combinedValue.toFixed(2)}$, 
             adding ${contributionValue.toFixed(2)}$ (${contributionPercent}%) contribution for TRAMANN PORT, 
             total net price therefore: ${netPrice.toFixed(2)}$, 
             adding ${taxesValue.toFixed(2)}$ (${taxesPercent}%) taxes, 
             total gross price therefore: ${grossPrice.toFixed(2)}$)
-            ${!isUSD ? `
-            <br><br><div style="opacity: 0.5;">(in ${exchangeRateCurrencyCode}: combined value for you: ${combinedValueConverted.toFixed(2)}, 
+        ` : `
+            <br>(in ${exchangeRateCurrencyCode}: combined value for you: ${combinedValueConverted.toFixed(2)}, 
             adding ${contributionValueConverted.toFixed(2)} (${contributionPercent}%) contribution for TRAMANN PORT, 
             total net price therefore: ${netPriceConverted.toFixed(2)}, 
             adding ${taxesValueConverted.toFixed(2)} (${taxesPercent}%) taxes, 
-            total gross price therefore: ${grossPriceConverted.toFixed(2)})</div>` : ''}
+            total gross price therefore: ${grossPriceConverted.toFixed(2)})
+            <br><br><div style="opacity: 0.5;">(combined value for you: ${combinedValue.toFixed(2)}$, 
+            adding ${contributionValue.toFixed(2)}$ (${contributionPercent}%) contribution for TRAMANN PORT, 
+            total net price therefore: ${netPrice.toFixed(2)}$, 
+            adding ${taxesValue.toFixed(2)}$ (${taxesPercent}%) taxes, 
+            total gross price therefore: ${grossPrice.toFixed(2)}$)</div>
         `;
     }
 </script>

@@ -21,6 +21,22 @@ if (!function_exists('safe_round')) {
 
 
 
+
+$profilePictograms = [
+    "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🦁", "🐯",
+    "🐨", "🐸", "🐵", "🐔", "🐧", "🐦", "🐥", "🦆", "🦅", "🦉",
+    "🦇", "🐺", "🐗", "🐴", "🐝", "🐛", "🦋", "🐌", "🐞", "🐜",
+    "🪲", "🪳", "🦟", "🦗", "🕷", "🐢", "🐍", "🦎", "🐙", "🦑",
+    "🦐", "🦞", "🦀", "🐡", "🐠", "🐟", "🐬", "🐋", "🦈", "🐊",
+    "🐅", "🐆", "🦓", "🦍", "🦧", "🐘", "🦛", "🦏", "🐪", "🐫",
+    "🦒", "🦘", "🦬", "🐃", "🐂", "🐄", "🐖", "🐏", "🐑", "🦙",
+    "🐐", "🦌", "🐓", "🦃", "🐿", "🦫", "🦔"
+];
+
+
+
+
+
 // Function to display a product row
 function displayCreatorOrExplorerProductRow($product, $highlight = false, $userRole = null, $ContributionForTRAMANNPORT = null) {
     $truncatedName = truncateText($product['name'], 50);
@@ -359,7 +375,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorerProducts
         if ($ExplorersAndCreators['ExplorerOrCreator'] == 1) {  // creator
             echo "<h3>{$ExplorersAndCreators['CompanyName']} ({$ExplorersAndCreators['idpk']})</h3>";
             echo "<br><strong>{$ExplorersAndCreators['ShortDescription']}</strong><br><br><br><br><br>";
-            echo "<table>";
+            echo "<table style=\"margin: auto; text-align: center;\">";
                 echo "<tr>";
                     echo "<td>$address";
                         $levelDescription = $ExplorersAndCreators['level'] === 0 ? "new" : ($ExplorersAndCreators['level'] === 1 ? "experienced" : ($ExplorersAndCreators['level'] === 2 ? "experts" : ($ExplorersAndCreators['level'] === 3 ? "checked experts" : ($ExplorersAndCreators['level'] === 4 ? "official partners" : "unknown"))));
@@ -381,15 +397,53 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorerProducts
                         $emailSubject = "TRAMANN PORT - Hi from $senderName";
                         $emailBody = "Hi" . ($recipientName ? " $recipientName" : "") . ",\n\n\n[ContentOfYourMessage]\n\n\n\nSincerely yours,\n$senderName";
                         // URL-encode the subject and body
-                        $emailLink = "mailto:{$ExplorersAndCreators['EmailForExplorersAsContact']}?subject=" . rawurlencode($emailSubject) . "&body=" . rawurlencode($emailBody);                        // Generate tel link
+                        $emailLink = "mailto:{$ExplorersAndCreators['EmailForExplorersAsContact']}?subject=" . rawurlencode($emailSubject) . "&body=" . rawurlencode($emailBody);
+                        // Generate tel link
                         $telLink = "tel:{$ExplorersAndCreators['PhoneNumberForExplorersAsContact']}";
-                    echo "<td><a href='$emailLink'>{$ExplorersAndCreators['EmailForExplorersAsContact']}</a><br><br><a href='$telLink'>{$ExplorersAndCreators['PhoneNumberForExplorersAsContact']}</a></td>";
+                    echo "<td><a href='$emailLink'>✉️ {$ExplorersAndCreators['EmailForExplorersAsContact']}</a><br><br><a href='$telLink'>📞 {$ExplorersAndCreators['PhoneNumberForExplorersAsContact']}</a></td>";
                 echo "</tr>";
             echo "</table>";
 
-            // echo "<a href='index.php?content=explore.php&action=ShowCreatorOrExplorerProductsAndServices&idpk={$ExplorersAndCreators['idpk']}' class='mainbutton'>👁️ OUR PRODUCTS AND SERVICES</a>";
+            // Check if the user is a Creator if there are matching entries in CustomerRelationships 
+            try {
+                $user_id = $_COOKIE['user_id'];
+                // Query to fetch all customer relationships for the specified company and creator
+                $sql = "SELECT * FROM CustomerRelationships WHERE CompanyName = :companyId AND IdpkCreator = :creatorId";
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':companyId', $ExplorersAndCreators['idpk'], PDO::PARAM_INT);
+                $stmt->bindParam(':creatorId', $user['idpk'], PDO::PARAM_INT);
+                $stmt->execute();
+            
+                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+                // Check if there are results
+                if ($results) {
+                    echo "<br><br><br><br><strong>❤️ YOUR CUSTOMER RELATIONSHIPS</strong><br>";
+                
+                    // Iterate through the results and display each as part of the list
+                    foreach ($results as $product) {
+                        // Fetch the ProfilePictogram value from $product
+                        $profilePictogramIndex = $product['ProfilePictogram'];
+                    
+                        // Get the matching emoji
+                        $profilePictogramEmoji = isset($profilePictograms[$profilePictogramIndex]) 
+                            ? $profilePictograms[$profilePictogramIndex] 
+                            : ''; // Default to nothing if the index is invalid
+                    
+                        // Display the name with the emoji in a single line
+                        echo "<a href='index.php?content=explore.php&action=ShowCustomerRelationships&idpk={$product['idpk']}' 
+                                 title=\"{$product['FirstName']} {$product['LastName']} ({$product['idpk']})\">
+                                 {$profilePictogramEmoji} {$product['FirstName']} {$product['LastName']}
+                              </a><br>";
+                    }
+                }
+            } catch (PDOException $e) {
+                // Handle database errors (e.g., log the error and display a user-friendly message)
+            }
 
-            // Check if the user is a Creator and has entries in ProductsAndServices
+            // echo "<br><br><br><br><a href='index.php?content=explore.php&action=ShowCreatorOrExplorerProductsAndServices&idpk={$ExplorersAndCreators['idpk']}' class='mainbutton'>👁️ OUR PRODUCTS AND SERVICES</a>";
+
+            // Check if the user is a creator and has entries in ProductsAndServices
             try {
                 // Query to check if the user is a Creator and has active Products or Services
                 $sql = "SELECT COUNT(*) AS productCount 
@@ -404,7 +458,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorerProducts
             
                 // Display the link if there are active Products or Services
                 if ($result && intval($result['productCount']) > 0) {
-                    echo "<a href='index.php?content=explore.php&action=ShowCreatorOrExplorerProductsAndServices&idpk={$idpk}' class='mainbutton'>👁️ OUR PRODUCTS AND SERVICES</a>";
+                    echo "<br><br><br><br><a href='index.php?content=explore.php&action=ShowCreatorOrExplorerProductsAndServices&idpk={$idpk}' class='mainbutton'>👁️ OUR PRODUCTS AND SERVICES</a>";
                 }
             } catch (PDOException $e) {
                 // Handle database errors (e.g., log the error and display a user-friendly message)
@@ -414,7 +468,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorerProducts
 
 
             if ($ExplorersAndCreators['CanExplorersVisitYou'] == 1) {
-                echo "<br><br><br>";
+                echo "<br><br><br><br><br>";
             
                 // Extract relevant opening and closing time data
                 $openingHours = [
@@ -517,7 +571,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowCreatorOrExplorerProducts
                     // Convert page name to uppercase if present
                     $displayText = $pageName ? "$limitedDomain ($limitedPageName)" : $limitedDomain;
                 
-                    return "<a href=\"$fullUrl\" target=\"_blank\" class=\"link\">$displayText</a><br>";
+                    return "<a href=\"$fullUrl\" target=\"_blank\" class=\"link\">🔗 $displayText</a><br>";
                 }, $text);
 
                 echo $formattedText;

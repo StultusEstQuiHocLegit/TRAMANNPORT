@@ -120,6 +120,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                          " you could for example insert the notes from your last meeting here," . 
                          " so everybody in your team can see them";
 
+        $personalBoardOfIdeas = "note ideas for new products and services and innovation possibilities here\n" . 
+                         "or just insert some comments for how to improve operations or ...";
+
         $personalStrategicPlaningNotes = "plan your long-term business strategy,\n" . 
                                          "which new products you want to introduce,\n" . 
                                          "which new explorers you want to reach, ...";
@@ -139,17 +142,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                      " then add links to other distribution channels," . 
                                      " mail programs, social media, editing tools, ...," . 
                                      " so you can quickly access everything from your dashboard.";
+
+        $additionalTextForInvoices = "managing director: $firstName $lastName";
+        
         } else {
             // insert NULL for explorers
             $personalNotes = null;
+            $personalBoardOfIdeas = null;
             $personalStrategicPlaningNotes = null;
             $personalToDoList = null;
             $personalCollectionOfLinks = null;
+            $additionalTextForInvoices = null;
         }
 
     // Prepare the SQL statement for inserting data into ExplorersAndCreators table
-    $stmt = $pdo->prepare("INSERT INTO ExplorersAndCreators (TimestampCreation, email, password, PhoneNumber, FirstName, LastName, street, HouseNumber, ZIPCode, city, country, planet, IBAN, CapitalInAccountInDollars, darkmode, ExplorerOrCreator, level, CompanyName, VATID, PhoneNumberForExplorersAsContact, EmailForExplorersAsContact, ShowAddressToExplorers, CanExplorersVisitYou, OpeningHoursMondayOpening, OpeningHoursMondayClosing, OpeningHoursTuesdayOpening, OpeningHoursTuesdayClosing, OpeningHoursWednesdayOpening, OpeningHoursWednesdayClosing, OpeningHoursThursdayOpening, OpeningHoursThursdayClosing, OpeningHoursFridayOpening, OpeningHoursFridayClosing, OpeningHoursSaturdayOpening, OpeningHoursSaturdayClosing, OpeningHoursSundayOpening, OpeningHoursSundayClosing, OpeningHoursNationalHolidaysOpening, OpeningHoursNationalHolidaysClosing, CloseOnlineShopIfPhysicalShopIsClosed, PhysicalShopClosedBecauseOfHolidaysClosing, PhysicalShopClosedBecauseOfHolidaysOpening, ShortDescription, LongDescription, LinksToSocialMediaAndOtherSites, PersonalNotes, PersonalStrategicPlaningNotes, PersonalToDoList, PersonalCollectionOfLinks, APIKey) 
-                            VALUES (:timestampCreation, :email, :password, :phoneNumber, :firstName, :lastName, :street, :houseNumber, :zipCode, :city, :country, :planet, :iban, :capitalInAccountInDollars, :darkmode, :explorerOrCreator, :level, :companyName, :vatId, :phoneNumberForExplorersAsContact, :emailForExplorersAsContact, :showAddressToExplorers, :canExplorersVisitYou, :openingHoursMondayOpening, :openingHoursMondayClosing, :openingHoursTuesdayOpening, :openingHoursTuesdayClosing, :openingHoursWednesdayOpening, :openingHoursWednesdayClosing, :openingHoursThursdayOpening, :openingHoursThursdayClosing, :openingHoursFridayOpening, :openingHoursFridayClosing, :openingHoursSaturdayOpening, :openingHoursSaturdayClosing, :openingHoursSundayOpening, :openingHoursSundayClosing, :openingHoursNationalHolidaysOpening, :openingHoursNationalHolidaysClosing, :closeOnlineShopIfPhysicalShopIsClosed, :physicalShopClosedBecauseOfHolidaysClosing, :physicalShopClosedBecauseOfHolidaysOpening, :shortDescription, :longDescription, :linksToSocialMediaAndOtherSites, :personalNotes, :personalStrategicPlaningNotes, :personalToDoList, :personalCollectionOfLinks, :APIKey)");
+    $stmt = $pdo->prepare("INSERT INTO ExplorersAndCreators (TimestampCreation, email, password, PhoneNumber, FirstName, LastName, street, HouseNumber, ZIPCode, city, country, planet, IBAN, CapitalInAccountInDollars, darkmode, ExplorerOrCreator, level, CompanyName, VATID, PhoneNumberForExplorersAsContact, EmailForExplorersAsContact, ShowAddressToExplorers, CanExplorersVisitYou, OpeningHoursMondayOpening, OpeningHoursMondayClosing, OpeningHoursTuesdayOpening, OpeningHoursTuesdayClosing, OpeningHoursWednesdayOpening, OpeningHoursWednesdayClosing, OpeningHoursThursdayOpening, OpeningHoursThursdayClosing, OpeningHoursFridayOpening, OpeningHoursFridayClosing, OpeningHoursSaturdayOpening, OpeningHoursSaturdayClosing, OpeningHoursSundayOpening, OpeningHoursSundayClosing, OpeningHoursNationalHolidaysOpening, OpeningHoursNationalHolidaysClosing, CloseOnlineShopIfPhysicalShopIsClosed, PhysicalShopClosedBecauseOfHolidaysClosing, PhysicalShopClosedBecauseOfHolidaysOpening, ShortDescription, LongDescription, LinksToSocialMediaAndOtherSites, PersonalNotes, PersonalBoardOfIdeas, PersonalStrategicPlaningNotes, PersonalToDoList, PersonalCollectionOfLinks, APIKey, AdditionalTextForInvoices) 
+                            VALUES (:timestampCreation, :email, :password, :phoneNumber, :firstName, :lastName, :street, :houseNumber, :zipCode, :city, :country, :planet, :iban, :capitalInAccountInDollars, :darkmode, :explorerOrCreator, :level, :companyName, :vatId, :phoneNumberForExplorersAsContact, :emailForExplorersAsContact, :showAddressToExplorers, :canExplorersVisitYou, :openingHoursMondayOpening, :openingHoursMondayClosing, :openingHoursTuesdayOpening, :openingHoursTuesdayClosing, :openingHoursWednesdayOpening, :openingHoursWednesdayClosing, :openingHoursThursdayOpening, :openingHoursThursdayClosing, :openingHoursFridayOpening, :openingHoursFridayClosing, :openingHoursSaturdayOpening, :openingHoursSaturdayClosing, :openingHoursSundayOpening, :openingHoursSundayClosing, :openingHoursNationalHolidaysOpening, :openingHoursNationalHolidaysClosing, :closeOnlineShopIfPhysicalShopIsClosed, :physicalShopClosedBecauseOfHolidaysClosing, :physicalShopClosedBecauseOfHolidaysOpening, :shortDescription, :longDescription, :linksToSocialMediaAndOtherSites, :personalNotes, :personalBoardOfIdeas, :personalStrategicPlaningNotes, :personalToDoList, :personalCollectionOfLinks, :APIKey, :additionalTextForInvoices)");
 
     // Bind parameters
     $stmt->bindParam(':timestampCreation', $timestampCreation);
@@ -198,10 +206,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bindParam(':longDescription', $longDescription);
     $stmt->bindParam(':linksToSocialMediaAndOtherSites', $linksToSocialMediaAndOtherSites);
     $stmt->bindParam(':personalNotes', $personalNotes);
+    $stmt->bindParam(':personalBoardOfIdeas', $personalBoardOfIdeas);
     $stmt->bindParam(':personalStrategicPlaningNotes', $personalStrategicPlaningNotes);
     $stmt->bindParam(':personalToDoList', $personalToDoList);
     $stmt->bindParam(':personalCollectionOfLinks', $personalCollectionOfLinks);
     $stmt->bindParam(':APIKey', $APIKey);
+    $stmt->bindParam(':additionalTextForInvoices', $additionalTextForInvoices);
 
     // Execute the statement
     if ($stmt->execute()) {

@@ -89,9 +89,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['
     $user_id = isset($_COOKIE['user_id']) ? (int)$_COOKIE['user_id'] : null;
 
     // Query the database to get product details
-    $query = "SELECT * FROM ProductsAndServices WHERE idpk = ? AND state = 1";
+    $query = "SELECT * FROM ProductsAndServices 
+          WHERE idpk = :idpk
+          AND (state = 1 OR (state = 0 AND IdpkCreator = :user_id))";
     $stmt = $pdo->prepare($query);
-    $stmt->execute([$idpk]);
+    $stmt->execute(['idpk' => $idpk, 'user_id' => $user_id]);
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Determine if the user can manage this product
@@ -370,13 +372,24 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['
 
         // Bottom right cell: Inventory information
         echo "<td style='text-align: center; opacity: 0.5;'>";
+        if ($product['state'] == 0 || $product['state'] === null || $product['OnlyForInternalPurposes'] == 1) {
+            if ($product['state'] == 0 || $product['state'] === null) {
+                echo "inactive";
+            }
+            if (($product['state'] == 0 || $product['state'] === null) AND ($product['OnlyForInternalPurposes'] == 1)) {
+                echo ", ";
+            }
+            if ($product['OnlyForInternalPurposes'] == 1) {
+                echo "only for internal purposes";
+            }
+            echo "<br><br>";
+        }
         if ($product['ManageInventory'] == 1) {
             echo ($product['InventoryAvailable'] > 0 ? "available: " . htmlspecialchars($product['InventoryAvailable']) : "can be produced") . "<br>";
             echo ($product['InventoryInProduction'] > 0 ? "in production or reordered: " . htmlspecialchars($product['InventoryInProduction']) : "can be produced");
         } else {
             echo "can be produced";
         }
-                echo "<br><br>";
                 // Query the transactions table to count sales of the selected product
                 $productId = $product['idpk'];
                 $query = "SELECT COUNT(*) as sale_count FROM transactions WHERE IdpkProductOrService = :productId";
@@ -387,7 +400,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['
 
                 // Display the sales count if the product has been sold at least once
                 if ($salesData && $salesData['sale_count'] > 0) {
-                    echo "<br>already sold: " . htmlspecialchars($salesData['sale_count']);
+                    echo "<br><br>already sold: " . htmlspecialchars($salesData['sale_count']);
                 }
         echo "</td>";
         echo "</tr>";
@@ -397,17 +410,17 @@ if (isset($_GET['action']) && $_GET['action'] === 'ShowProduct' && isset($_GET['
             // Initialize an array to hold dimensions if they exist
             $details = [];
                 
-            // Add each dimension to the array if it exists and is not null or 0
-            if (!empty($product['WeightInKg'])) {
+            // Add each dimension to the array if it exists, is not null, and is greater than 0
+            if (!empty($product['WeightInKg']) && $product['WeightInKg'] > 0) {
                 $details[] = "weight: {$product['WeightInKg']}kg";
             }
-            if (!empty($product['DimensionsLengthInMm'])) {
+            if (!empty($product['DimensionsLengthInMm']) && $product['DimensionsLengthInMm'] > 0) {
                 $details[] = "length: {$product['DimensionsLengthInMm']}mm";
             }
-            if (!empty($product['DimensionsWidthInMm'])) {
+            if (!empty($product['DimensionsWidthInMm']) && $product['DimensionsWidthInMm'] > 0) {
                 $details[] = "width: {$product['DimensionsWidthInMm']}mm";
             }
-            if (!empty($product['DimensionsHeightInMm'])) {
+            if (!empty($product['DimensionsHeightInMm']) && $product['DimensionsHeightInMm'] > 0) {
                 $details[] = "height: {$product['DimensionsHeightInMm']}mm";
             }
         

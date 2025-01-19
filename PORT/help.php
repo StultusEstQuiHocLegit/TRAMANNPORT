@@ -58,6 +58,91 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
     `
 },
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// general advice
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    group: '🌱 GETTING STARTED',
+    title: '💡 GENERAL ADVICE',
+    content: `
+        <div class="steps">
+            You can get more information about things by <strong>hovering</strong>, that means by moving you mouse over them (but without clicking).
+            <br>
+            <br>Sometimes you can find <strong>numbers in brackets</strong> behind things, these numbers are the idpks and can be used to search for that exact thing.
+            <br>
+            <br>Having <strong>great product pictures</strong> is very important to drive more sales, you should especially look for lighting (as much as possible),
+                a suiting angle and a neutral, homogeneous background (or fitting decorations, but maybe not already on the first picture).
+        </div>
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// translations
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    group: '🌱 GETTING STARTED',
+    title: '💬 TRANSLATIONS',
+    content: `
+       If you should need the content of this system in another language, we recommend using the translation feature of your browser.
+       <br>
+       <br>We have made good experiences with Chromium (free and open source too), the moment you visit this page, a popup should appear in the top right corner of the screen,
+       there you can click on your preferred language and the content of this page should be translated.
+       To also apply translations to the other pages, it could be necessary to to click on the three points over each other (the menu)
+       and click on - always translate english - there.
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////////////// ways to enter transactions: just updating inventories
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    group: '🌱 GETTING STARTED',
+    title: '🏷️ WAYS TO ENTER TRANSACTIONS: JUST UPDATING INVENTORIES',
+    content: `
+       The easiest way to enter your transactions (your selling and buying) into this system is to visit <a href=\"index.php?content=inventory.php\">🏰 INVENTORY</a> and change the quantaties there correspondingly.
+       For example if you just sold 2x product - a - and 1x service - b -, you just go over there and decrease their quantaties by 2 and 1 accordingly.
+       <br>
+       <br>The disadvantage of this method is, that you won't have proper recordings of your transactions history,
+       because no real transactions are entered and payments and taxes have to be handled elsewhere.
+       This is why we don't really recommend this way, but if you just use this system for only a few functionalities, this can work.
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////////////// ways to enter transactions: manual selling and buying
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    group: '🌱 GETTING STARTED',
+    title: '🏷️ WAYS TO ENTER TRANSACTIONS: MANUAL SELLING AND BUYING',
+    content: `
+       A better way is to use <a href=\"index.php?content=ManualSelling.php\">👉 MANUAL SELLING</a> and <a href=\"index.php?content=ManualBuying.php\">👈 MANUAL BUYING</a>.
+       <br>
+       <br>This gives you proper recordings of your transactions and saves the corresponding information there too, but you have to enter it manually.
+       You can also enter prices paid and taxes, but the handling (payment) still has to be done elsewhere (for example by using cash).
+       <br>
+       <br>After clicking on - ↗️ SAVE -, you can either click on - ▶️ CONTINUE - to directly enter the next transactions or you can click on the cart
+       to open it and then click on - ↔️ INVOICE DOWNLOAD - or - 🚚 DELIVERY RECEIPT DOWNLOAD - to get the corresponding document.
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////////////// ways to enter transactions: system powered automation
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    group: '🌱 GETTING STARTED',
+    title: '🏷️ WAYS TO ENTER TRANSACTIONS: SYSTEM POWERED AUTOMATION',
+    content: `
+       The best and most advanced way to enter transactions is by just not doing it and instead let the system handle everything automatically,
+       all relevant information is connected and saved automatically, including prices paid and taxes, which are both also handled (transferred) automatically by the system.
+       <br>
+       <br>You can capture all these advantages by buying and selling your products and services directly over our system, over our platform.
+       Use <a href=\"index.php?content=explore.php\">🔍 EXPLORE</a> to search for all registered products and services and buy needed ones, others can buy your ones there too,
+       all active ones are listed automatically (this way you just got your own online shop too).
+       <br>
+       <br>Some business partners, creators (suppliers) and explorers (customers), may not be connected to the system yet,
+       in these cases we are very sorry, but there you still have to enter the transactions manually.
+       <br>
+       <br>You can increase the utility of this open source system and platform for all of us by telling your business partners about it,
+       so they can come and join, which brings benefits for them (they can connect with you too), for you and for everybody else around here,
+       so if you want, please spread the word about us   : )
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure CalendarEvents
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
@@ -67,7 +152,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
         <br>
         <strong>table name: CalendarEvents</strong>
         <br><br>
-        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)<br>(your possible SQL commands: INSERT INTO, UPDATE, SELECT, DELETE)</div>
         <br><br><br>
         <table>
             <thead>
@@ -89,6 +174,118 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
     `
 },
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure carts
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    group: '🧬 DATABASE STRUCTURE',
+    title: '🧬 DATABASE STRUCTURE CARTS',
+    content: `
+        <br>
+        <strong>table name: carts</strong>
+        <br><br>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)<br>(your possible SQL commands: INSERT INTO, UPDATE, SELECT)</div>
+        <br><br><br>
+        <table>
+            <thead>
+                <tr><th>field name</th><th>type</th><th>r</th><th>description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>idpk</td><td>int, auto increment, primary key</td><td>s*</td><td></td></tr>
+                <tr><td>TimestampCreation</td><td>int</td><td>s* (e*)</td><td>(only for manual buying there is the possibility to insert a date of creation, the time will automatically be set to the current time, the TimestampCreation for the corresponding transaction will be kept as the current timestamp)</td></tr>
+                <tr><td>IdpkExplorerOrCreator</td><td>int</td><td>s*</td><td style="opacity: 0.5;">(0 for manual selling)</td></tr>
+                <tr><td>manual</td><td>tinyint</td><td>s*</td><td>(0 = no (standard), 1 = yes)</td></tr>
+                <tr><td>IfManualFurtherInformation</td><td>text</td><td>e</td><td></td></tr>
+
+                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
+                <tr style='opacity: 0.5;'><td>if the ProductsAndServices aren't restaurant food (type)</td><td></td><td></td><td></td></tr>
+                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
+
+                <tr><td>DeliveryType</td><td>tinyint</td><td>e*</td><td>
+                    (0 = standard (default), 1 = express, 2 = as soon as possible, 
+                    3 = pick up in store, 4 = best matching wished ideal delivery time)
+                </td></tr>
+                <tr><td>WishedIdealDeliveryOrPickUpTime</td><td>int</td><td>e</td><td style="opacity: 0.5;">
+                    (show only, if DeliveryType is 3 or 4, for 3 show OpeningHours (from database ExplorersAndCreators) also)
+                </td></tr>
+
+                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
+                <tr style='opacity: 0.5;'><td>if the ProductsAndServices are restaurant food (type)</td><td></td><td></td><td></td></tr>
+                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
+
+                <tr><td>DeliveryType</td><td>tinyint</td><td>e*</td><td>
+                    <div style="opacity: 0.5;">(0 = standard (don't show), 1 = express (don't show), )</div>(2 = as soon as possible, 3 = pick up in store, 
+                    4 = best matching wished ideal delivery time (default))
+                </td></tr>
+                <tr><td>WishedIdealDeliveryOrPickUpTime</td><td>int</td><td>e</td><td style="opacity: 0.5;">
+                    (show only, if DeliveryType is 4, for 3 show OpeningHours (from database ExplorersAndCreators) also)
+                </td></tr>
+            </tbody>
+        </table>
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure CustomerRelationships
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    group: '🧬 DATABASE STRUCTURE',
+    title: '🧬 DATABASE STRUCTURE CUSTOMERRELATIONSHIPS',
+    content: `
+        <br>
+        <strong>table name: CustomerRelationships</strong>
+        <br><br>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)<br>(your possible SQL commands: INSERT INTO, UPDATE, SELECT, DELETE)</div>
+        <br><br><br>
+        <table>
+            <thead>
+                <tr><th>field name</th><th>type</th><th>r</th><th>description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>idpk</td><td>int, auto increment, primary key</td><td>s*</td><td></td></tr>
+                <tr><td>TimestampCreation</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>IdpkCreator</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>ProfilePictogram</td><td>tinyint</td><td>e*</td><td>numbers that are mapped to the corresponding animal pictograms</td></tr>
+                <tr><td>FirstName</td><td>varchar(250)</td><td>e</td><td></td></tr>
+                <tr><td>LastName</td><td>varchar(250)</td><td>e</td><td></td></tr>
+                <tr><td>title</td><td>varchar(250)</td><td>e</td><td></td></tr>
+                <tr><td>CompanyName</td><td>varchar(250)</td><td>e</td><td>can be a normal company name or also directly an idpk of a creator from within TRAMANN PORT (then connecting automatically)</td></tr>
+                <tr><td>email</td><td>varchar(250)</td><td>e</td><td></td></tr>
+                <tr><td>PhoneNumber</td><td>int</td><td>e</td><td></td></tr>
+                <tr><td>LinksToSocialMediaAndOtherSites</td><td>text</td><td>e</td><td></td></tr>
+                <tr><td>notes</td><td>text</td><td>e</td><td></td></tr>
+                <tr><td>importance</td><td>tinyint</td><td>e*</td><td>(0 = initial contact, 1 = emerging partner, 2 = partner, 3 = core partner, 4 = prime partner)</td></tr>
+                <tr><td>state</td><td>tinyint</td><td>e*</td><td>(0 = potential customer, 1 = existing customer, 2 = former customer)</td></tr>
+            </tbody>
+        </table>
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure documents
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+    group: '🧬 DATABASE STRUCTURE',
+    title: '🧬 DATABASE STRUCTURE DOCUMENTS',
+    content: `
+        <br>
+        <strong>table name: documents</strong>
+        <br><br>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)<br>(your possible SQL commands: INSERT INTO, UPDATE, SELECT, DELETE)</div>
+        <br><br><br>
+        <table>
+            <thead>
+                <tr><th>field name</th><th>type</th><th>r</th><th>description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>idpk</td><td>int, auto increment, primary key</td><td>s*</td><td></td></tr>
+                <tr><td>TimestampCreation</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>IdpkCreator</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>TimestampLastEdit</td><td>int</td><td>s*</td><td></td></tr>
+                <tr><td>title</td><td>text</td><td>e*</td><td>name of the document and relative position in folders, separated by - / -, for example: SomeFolder/AnotherFolder/DocumentName</td></tr>
+                <tr><td>content</td><td>text</td><td>e</td><td></td></tr>
+            </tbody>
+        </table>
+    `
+},
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure ExchangeRates
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
@@ -98,7 +295,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
         <br>
         <strong>table name: ExchangeRates</strong>
         <br><br>
-        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)<br>(your possible SQL commands: SELECT)</div>
         <br><br><br>
         <table>
             <thead>
@@ -124,7 +321,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
         <br>
         <strong>table name: ExplorersAndCreators</strong>
         <br><br>
-        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)<br>(your possible SQL commands: INSERT INTO, UPDATE, SELECT)</div>
         <br><br><br>
         <table>
             <thead>
@@ -147,6 +344,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
                 <tr><td>IBAN</td><td>varchar(250)</td><td>e*</td><td></td></tr>
                 <tr><td>CapitalInAccountInDollars</td><td>decimal(10,2)</td><td>s</td><td></td></tr>
                 <tr><td>darkmode</td><td>tinyint</td><td>e</td><td>(0 = no (standard), 1 = yes)</td></tr>
+                <tr><td>font</td><td>varchar(250)</td><td>e</td><td>(OCR-A (standard), Agu Display, Aldrich, Aladin, Amarante, Arial, Astloch, Atomic Age, Audiowide, Barriecito, Chewy, Condiment, Delius, Delius Swash Caps, Delicious Handrawn, DM Serif Text, Dynalight, DynaPuff, Fontdiner Swanky, Funnel Display, Funnel Sans, Geostar, Henny Penny, Homemade Apple, Iceberg, Jacquard 12, Kablammo, League Script, Limelight, Macondo, Megrim, Merriweather, Montserrat, Mystery Quest, Newsreader, Noto Serif, Nunito, Open Sans, Orbitron, Pinyon Script, Playfair Display, Poiret One, Princess Sofia, Roboto, Rubik Iso, Rye, Sancreek, Send Flowers, Shadows Into Light, Shadows Into Light Two, Silkscreen, Sixtyfour, Sour Gummy, Tomorrow, Twinkle Star, UnifrakturMaguntia)</td></tr>
                 <tr><td>ExplorerOrCreator</td><td>tinyint</td><td>e*</td><td>(0 = explorer, 1 = creator)</td></tr>
                 <tr><td>level</td><td>tinyint</td><td>s</td><td>(0 = new, 1 = experienced, 2 = experts, 3 = checked experts, 4 = official partners)</td></tr>
 
@@ -203,10 +401,12 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
                 <tr><td>Heading10</td><td>text</td><td>e</td><td></td></tr>
                 <tr><td>Text10</td><td>text</td><td>e</td><td></td></tr>
                 <tr><td>PersonalNotes</td><td>text</td><td>e</td><td></td></tr>
+                <tr><td>PersonalBoardOfIdeas</td><td>text</td><td>e</td><td></td></tr>
                 <tr><td>PersonalStrategicPlaningNotes</td><td>text</td><td>e</td><td></td></tr>
                 <tr><td>PersonalToDoList</td><td>text</td><td>e</td><td></td></tr>
                 <tr><td>PersonalCollectionOfLinks</td><td>text</td><td>e</td><td></td></tr>
                 <tr><td>APIKey</td><td>text</td><td>s*</td><td></td></tr>
+                <tr><td>AdditionalTextForInvoices</td><td>text</td><td>e</td><td></td></tr>
             </tbody>
         </table>
     `
@@ -221,7 +421,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
         <br>
         <strong>table name: ProductsAndServices</strong>
         <br><br>
-        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)<br>(your possible SQL commands: INSERT INTO, UPDATE, SELECT)</div>
         <br><br><br>
         <table>
             <thead>
@@ -249,6 +449,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
                 <tr><td>InventoryInProduction</td><td>int</td><td>e</td><td style="opacity: 0.5;">(0 for services or if inventory is not managed)</td></tr>
                 <tr><td>InventoryMinimumLevel</td><td>int</td><td>e</td><td style="opacity: 0.5;">(0 for services or if inventory is not managed)</td></tr>
                 <tr><td>PersonalNotes</td><td>text</td><td>e</td><td></td></tr>
+                <tr><td>OnlyForInternalPurposes</td><td>tinyint</td><td>e*</td><td>(0 = no (standard), 1 = yes)</td></tr>
                 <tr><td>state</td><td>tinyint</td><td>e*</td><td>(0 = inactive, 1 = active (standard))</td></tr>
             </tbody>
         </table>
@@ -264,7 +465,7 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
         <br>
         <strong>table name: transactions</strong>
         <br><br>
-        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
+        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)<br>(your possible SQL commands: INSERT INTO, UPDATE, SELECT, DELETE (but only if state = 0))</div>
         <br><br><br>
         <table>
             <thead>
@@ -292,56 +493,6 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
     `
 },
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// database structure carts
-// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-{
-    group: '🧬 DATABASE STRUCTURE',
-    title: '🧬 DATABASE STRUCTURE CARTS',
-    content: `
-        <br>
-        <strong>table name: carts</strong>
-        <br><br>
-        <div style="opacity: 0.5;">(r = rights (e = editable, s = system only, * means that this field is required)</div>
-        <br><br><br>
-        <table>
-            <thead>
-                <tr><th>field name</th><th>type</th><th>r</th><th>description</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>idpk</td><td>int, auto increment, primary key</td><td>s*</td><td></td></tr>
-                <tr><td>TimestampCreation</td><td>int</td><td>s*</td><td></td></tr>
-                <tr><td>IdpkExplorerOrCreator</td><td>int</td><td>s*</td><td style="opacity: 0.5;">(0 for manual selling)</td></tr>
-                <tr><td>manual</td><td>tinyint</td><td>s*</td><td>(0 = no (standard), 1 = yes)</td></tr>
-                <tr><td>IfManualFurtherInformation</td><td>text</td><td>e</td><td></td></tr>
-
-                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
-                <tr style='opacity: 0.5;'><td>if the ProductsAndServices aren't restaurant food (type)</td><td></td><td></td><td></td></tr>
-                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
-
-                <tr><td>DeliveryType</td><td>tinyint</td><td>e*</td><td>
-                    (0 = standard (default), 1 = express, 2 = as soon as possible, 
-                    3 = pick up in store, 4 = best matching wished ideal delivery time)
-                </td></tr>
-                <tr><td>WishedIdealDeliveryOrPickUpTime</td><td>int</td><td>e</td><td style="opacity: 0.5;">
-                    (show only, if DeliveryType is 3 or 4, for 3 show OpeningHours (from database ExplorersAndCreators) also)
-                </td></tr>
-
-                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
-                <tr style='opacity: 0.5;'><td>if the ProductsAndServices are restaurant food (type)</td><td></td><td></td><td></td></tr>
-                <tr><td><br><br><br></td><td></td><td></td><td></td></tr>
-
-                <tr><td>DeliveryType</td><td>tinyint</td><td>e*</td><td>
-                    <div style="opacity: 0.5;">(0 = standard (don't show), 1 = express (don't show), )</div>(2 = as soon as possible, 3 = pick up in store, 
-                    4 = best matching wished ideal delivery time (default))
-                </td></tr>
-                <tr><td>WishedIdealDeliveryOrPickUpTime</td><td>int</td><td>e</td><td style="opacity: 0.5;">
-                    (show only, if DeliveryType is 4, for 3 show OpeningHours (from database ExplorersAndCreators) also)
-                </td></tr>
-            </tbody>
-        </table>
-    `
-},
-// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// page structure
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
@@ -356,8 +507,10 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
             <br>calendar.php
             <br>cart.php
             <br>CreateAccount.php
+            <br>CreateDocumentsShowCarts.php
             <br>CreatorsSuppliers.php
             <br>dashboard.php
+            <br>documents.php
             <br>ExchangeRates.php
             <br>explore.php
             <br>ExplorersCustomers.php
@@ -378,7 +531,10 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
             <br>SaveDataCalendarGetEvents.php
             <br>SaveDataCalendarSaveEvents.php
             <br>SaveDataCart.php
+            <br>SaveDataCustomerRelationships.php
+            <br>SaveDataCustomerRelationshipsFetchCompanyName.php
             <br>SaveDataDashboard.php
+            <br>SaveDataDocuments.php
             <br>SaveDataInventory.php
             <br>SaveDataManualSellingOrBuying.php
             <br>SaveDataOrders.php
@@ -386,8 +542,10 @@ echo ' <a href="mailto:' . $contactEmail . '?subject=' . $mailtoSubject . '&body
             <br>search.php
             <br>ShowCarts.php
             <br>ShowCreatorOrExplorer.php
+            <br>ShowCustomerRelationships.php
             <br>ShowProduct.php
             <br>ShowTransactions.php
+            <br>translations.php
             <br>YourWebsite.php
         </div>
     `
@@ -509,10 +667,22 @@ const groups = Array.from(groupsSet);
 function toggleTopicContent(event, contentId) {
     event.preventDefault();
     const contentDiv = document.getElementById(contentId);
+    
     if (contentDiv.style.display === "none" || contentDiv.style.display === "") {
         contentDiv.style.display = "block";
+        
+        // Add three <br> elements after displaying the content, if not already added
+        for (let i = 0; i < 3; i++) {
+            const br = document.createElement('br');
+            br.classList.add('dynamic-br'); // Mark as dynamically added
+            contentDiv.appendChild(br);
+        }
     } else {
         contentDiv.style.display = "none";
+
+        // Remove only the dynamically added <br> elements
+        const dynamicBrs = contentDiv.querySelectorAll('.dynamic-br');
+        dynamicBrs.forEach(br => br.remove());
     }
 }
 
@@ -520,13 +690,32 @@ function toggleTopicContent(event, contentId) {
 function toggleGroupTopics(event, groupName) {
     event.preventDefault();
     const topicsContainer = document.getElementById('topics');
+    const groupsContainer = document.getElementById('groups');
     const alreadyShown = topicsContainer.getAttribute('data-current-group');
 
-    // If the same group is clicked again, hide it
+    // If the same group is clicked again, do nothing
     if (alreadyShown === groupName) {
-        topicsContainer.innerHTML = '';
-        topicsContainer.removeAttribute('data-current-group');
         return;
+    }
+
+    // Update button classes for highlighting the selected group
+    const groupLinks = groupsContainer.querySelectorAll('a');
+    groupLinks.forEach(link => {
+        link.classList.remove('mainbutton'); // Remove the "mainbutton" class
+        link.classList.add('button');       // Revert to "button" class
+        link.style.fontSize = '';           // Reset font size
+        link.style.fontWeight = '';         // Reset font weight
+    });
+
+    // Find and update the clicked group button
+    const selectedGroupLink = Array.from(groupLinks).find(link => link.textContent.trim() === groupName);
+    if (selectedGroupLink) {
+        selectedGroupLink.classList.remove('button'); // Remove "button" class
+        selectedGroupLink.classList.add('mainbutton'); // Add "mainbutton" class
+        // selectedGroupLink.style.fontSize = '1.5rem';   // Highlight font size
+        selectedGroupLink.style.fontSize = '';   // Highlight font size
+        // selectedGroupLink.style.fontWeight = 'bold';   // Highlight font weight
+        selectedGroupLink.style.fontWeight = '';   // Highlight font weight
     }
 
     // Clear and show topics for the selected group
@@ -591,6 +780,10 @@ window.onload = function() {
         toggleGroupTopics(dummyEvent, "🌱 GETTING STARTED");
     }
 };
+
+
+
+
 
 
 

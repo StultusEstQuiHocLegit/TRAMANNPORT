@@ -37,21 +37,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($type === 'ManualSelling') {
             // Query for Manual Selling
             $stmt = $pdo->prepare("
-                SELECT DISTINCT c.IfManualFurtherInformation
+                SELECT DISTINCT c.IfManualFurtherInformation, c.TimestampCreation
                 FROM carts c
                 INNER JOIN transactions t ON c.idpk = t.IdpkCart
                 INNER JOIN ProductsAndServices ps ON t.IdpkProductOrService = ps.idpk
                 WHERE ps.IdpkCreator = :user_id
                 AND c.IfManualFurtherInformation LIKE :query
+                ORDER BY c.TimestampCreation DESC
                 LIMIT 5
             ");
         } elseif ($type === 'ManualBuying') {
             // Query for Manual Buying
             $stmt = $pdo->prepare("
-                SELECT DISTINCT IfManualFurtherInformation
+                SELECT DISTINCT IfManualFurtherInformation, TimestampCreation
                 FROM carts
                 WHERE IdpkExplorerOrCreator = :user_id
                 AND IfManualFurtherInformation LIKE :query
+                ORDER BY TimestampCreation DESC
                 LIMIT 5
             ");
         } else {

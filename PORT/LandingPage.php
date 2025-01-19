@@ -3,7 +3,7 @@
   <p style="font-size: 1.6rem;"><strong>
     <!-- An open source shopping platform that brings more value to buyers and sellers. -->
     <!-- Get your own online shop and ERP system on our open source platform for just 3% per transaction! -->
-    Get your own online shop and business management system on our open source platform for just 3% per transaction!
+    Get your own online shop and business management system (ERP system) on our open source platform!
 </strong></p>
   <!-- manage your products and services, orders, inventory, customer and supplier relationships, buying and selling, accounting, ... -->
   <br>
@@ -41,15 +41,17 @@
       </tr>
       <tr>
         <td style="text-align:center;">
-          <h2>🥇 ONLY 3% PER TRANSACTION, NO OTHER COSTS</h2>
+          <h2>🥇 ONLY <?php echo "$ContributionForTRAMANNPORT"; ?>% PAYMENT PROCESSING FEES PER HANDLED TRANSACTION, NO OTHER COSTS</h2>
         </td>
         <td>
         </td>
         <td>
+          <h3>start for free with full functionality</h3>
+          <div style="opacity: 0.5;">(you can use everything in the system for free and only pay if you want us to handle transactions for you)</div>
           <h3>transparent pricing</h3>
           <h3>aligned interests: we win if you win</h3>
           <h3>more than 10x cheaper</h3>
-          <div style="opacity: 0.5;">(compared to average erp, transaction and dealer fees)</div>
+          <div style="opacity: 0.5;">(compared to average ERP costs, transaction fees and dealer fees)</div>
         </td>
       </tr>
       <tr height="150px";>
@@ -145,9 +147,12 @@
           <h3>manage your 📦 products (including 🏰 inventory) and services</h3>
           <h3>automatically get your 🛍️ online shop and 🌐 website</h3>
           <h3>handling 📝 orders and 🛒 payments over TRAMANN PORT too</h3>
+          <h3>💫 recalculate currencies, create ↔️ invoices and 🚚 delivery receipts</h3>
           <h3>connect with our 🕸️ TRAMANN API using your free key for unlimited access</h3>
           <h3>use our smart 🔍 explore functionality to search</h3>
           <h3>our 🗓️ calendar to plan and our 📱 app for mobile viewing</h3>
+          <h3>create ☁️ documents using the integrated editor</h3>
+          <h3>manage your ❤️ business relationships</h3>
           <h3>check your 👥 explorers (customers) and fellow 🏭 creators (suppliers)</h3>
           <h3>and there is a lot more to come ...</h3>
         </td>

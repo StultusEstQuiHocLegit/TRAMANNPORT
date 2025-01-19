@@ -181,6 +181,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 planet = :planet, 
                 IBAN = :IBAN,
                 darkmode = :darkmode,
+                font = :font,
                 OpeningHoursMondayOpening = :OpeningHoursMondayOpening,
                 OpeningHoursMondayClosing = :OpeningHoursMondayClosing,
                 OpeningHoursTuesdayOpening = :OpeningHoursTuesdayOpening,
@@ -204,6 +205,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ShortDescription = :ShortDescription,
                 LongDescription = :LongDescription,
                 LinksToSocialMediaAndOtherSites = :LinksToSocialMediaAndOtherSites,
+                AdditionalTextForInvoices = :AdditionalTextForInvoices,
                 ExplorerOrCreator = :ExplorerOrCreator,
                 ShowAddressToExplorers = :ShowAddressToExplorers,
                 CanExplorersVisitYou = :CanExplorersVisitYou,
@@ -225,6 +227,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(':planet', $_POST['planet'], PDO::PARAM_STR);
         $stmt->bindParam(':IBAN', $_POST['IBAN'], PDO::PARAM_STR);
         $stmt->bindParam(':darkmode', $_POST['darkmode'], PDO::PARAM_STR);
+        $stmt->bindParam(':font', $_POST['font'], PDO::PARAM_STR);
 
         // Bind opening hours
         $stmt->bindParam(':OpeningHoursMondayOpening', $_POST['OpeningHoursMondayOpening'], PDO::PARAM_STR);
@@ -252,6 +255,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(':ShortDescription', $_POST['ShortDescription'], PDO::PARAM_STR);
         $stmt->bindParam(':LongDescription', $_POST['LongDescription'], PDO::PARAM_STR);
         $stmt->bindParam(':LinksToSocialMediaAndOtherSites', $_POST['LinksToSocialMediaAndOtherSites'], PDO::PARAM_STR);
+        $stmt->bindParam(':AdditionalTextForInvoices', $_POST['AdditionalTextForInvoices'], PDO::PARAM_STR);
 
         // Handle checkbox values
         $explorerOrCreator = isset($_POST['ExplorerOrCreator']) ? (int) $_POST['ExplorerOrCreator'] : 0; // Default to 0 for Explorer
@@ -518,9 +522,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="IBAN">IBAN*</label>
 
             <br><br>
-            capital in account (in USD): <?php echo htmlspecialchars($user['CapitalInAccountInDollars']); ?>$
+            <?php
+                if ($ExchangeRateCurrencyCode == "USD") {
+                    echo "<br>";
+                    echo "capital in account (in USD): " . htmlspecialchars($user['CapitalInAccountInDollars']) . "$";
+                } else {
+                    echo "<br>";
+                    echo "capital in account (in $ExchangeRateCurrencyCode): " . 
+                         htmlspecialchars($user['CapitalInAccountInDollars'] * $ExchangeRateOneDollarIsEqualTo);
+                    echo "<br><br>";
+                    echo "<div style='opacity: 0.5;'>capital in account (in USD): " . 
+                         htmlspecialchars($user['CapitalInAccountInDollars']) . "$</div>";
+                }
+            ?>
 
-            <br><br>
+            <br><br><br><br>
             level: <?php echo htmlspecialchars($user['level']); ?> (<?php 
                     // Map the user level to corresponding text
                     switch ($user['level']) {
@@ -550,7 +566,78 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="checkbox" id="darkmode" name="darkmode" value="1" <?php echo ($user['darkmode'] == 1) ? 'checked' : ''; ?>>
             <label for="darkmode">darkmode (check if you want things to look way cooler)</label>
 
-            <br><br><br><br>
+            <br><br>
+            <select id="font" name="font" style="width: 300px;">
+                <?php
+                $currentFont = $user['font']; // Assuming the database value is stored in $user['font']
+                $fontOptions = [
+                    "OCR-A" => "OCR-A (standard)",
+                    "Agu Display" => "Agu Display",
+                    "Aldrich" => "Aldrich",
+                    "Aladin" => "Aladin",
+                    "Amarante" => "Amarante",
+                    "Arial" => "Arial",
+                    "Astloch" => "Astloch",
+                    "Atomic Age" => "Atomic Age",
+                    "Audiowide" => "Audiowide",
+                    "Barriecito" => "Barriecito",
+                    "Chewy" => "Chewy",
+                    "Condiment" => "Condiment",
+                    "Delius" => "Delius",
+                    "Delius Swash Caps" => "Delius Swash Caps",
+                    "Delicious Handrawn" => "Delicious Handrawn",
+                    "DM Serif Text" => "DM Serif Text",
+                    "Dynalight" => "Dynalight",
+                    "DynaPuff" => "DynaPuff",
+                    "Fontdiner Swanky" => "Fontdiner Swanky",
+                    "Funnel Display" => "Funnel Display",
+                    "Funnel Sans" => "Funnel Sans",
+                    "Geostar" => "Geostar",
+                    "Henny Penny" => "Henny Penny",
+                    "Homemade Apple" => "Homemade Apple",
+                    "Iceberg" => "Iceberg",
+                    "Jacquard 12" => "Jacquard 12",
+                    "Kablammo" => "Kablammo",
+                    "League Script" => "League Script",
+                    "Limelight" => "Limelight",
+                    "Macondo" => "Macondo",
+                    "Megrim" => "Megrim",
+                    "Merriweather" => "Merriweather",
+                    "Montserrat" => "Montserrat",
+                    "Mystery Quest" => "Mystery Quest",
+                    "Newsreader" => "Newsreader",
+                    "Noto Serif" => "Noto Serif",
+                    "Nunito" => "Nunito",
+                    "Open Sans" => "Open Sans",
+                    "Orbitron" => "Orbitron",
+                    "Pinyon Script" => "Pinyon Script",
+                    "Playfair Display" => "Playfair Display",
+                    "Poiret One" => "Poiret One",
+                    "Princess Sofia" => "Princess Sofia",
+                    "Roboto" => "Roboto",
+                    "Rubik Iso" => "Rubik Iso",
+                    "Rye" => "Rye",
+                    "Sancreek" => "Sancreek",
+                    "Send Flowers" => "Send Flowers",
+                    "Shadows Into Light" => "Shadows Into Light",
+                    "Shadows Into Light Two" => "Shadows Into Light Two",
+                    "Silkscreen" => "Silkscreen",
+                    "Sixtyfour" => "Sixtyfour",
+                    "Sour Gummy" => "Sour Gummy",
+                    "Tomorrow" => "Tomorrow",
+                    "Twinkle Star" => "Twinkle Star",
+                    "UnifrakturMaguntia" => "UnifrakturMaguntia",
+                ];
+            
+                foreach ($fontOptions as $value => $label) {
+                    $selected = ($currentFont === $value) ? 'selected' : '';
+                    echo "<option value=\"$value\" $selected>$label</option>";
+                }
+                ?>
+            </select>
+            <label for="font">font</label>
+
+            <br><br><br><br><br>
                 <input type="hidden" name="ExplorerOrCreator" value="0">
             <input type="checkbox" id="ExplorerOrCreator" name="ExplorerOrCreator" value="1" <?php echo ($user['ExplorerOrCreator'] == 1) ? 'checked' : ''; ?> onclick="toggleCreatorFields()">
             <label for="ExplorerOrCreator">business account (check if you<br>want to create and sell products too)</label>
@@ -642,6 +729,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <br><br><br><br><br>
                 TRAMANN API key: <span id="apiKey"><?php echo htmlspecialchars($user['APIKey']); ?> </span><a href="#" id="copyLink" onclick="copyAPIKey(event)">👀 COPY</a>
 
+                <br><br><br><br><br>
+                <textarea id="AdditionalTextForInvoices" name="AdditionalTextForInvoices" rows="4" cols="50" placeholder="some legal stuff"><?php echo htmlspecialchars($user['AdditionalTextForInvoices']); ?></textarea>
+                <label for="AdditionalTextForInvoices">additional text to be displayed at the bottom of invoices</label>
+
             </div>
         </div>
         <br><br><br><br><br>
@@ -700,7 +791,7 @@ function confirmRemoval() {
 //     // Replace URLs with clickable shortened links (first 30 characters) and add a 'link' class for easier targeting
 //     const linkedText = text.replace(/(https?:\/\/[^\s]+)/g, function(url) {
 //         const displayText = url.length > 30 ? url.substring(0, 30) + "..." : url;
-//         return `<a href="${url}" target="_blank" class="link">${displayText}</a>`;
+//         return `<a href="${url}" target="_blank" class="link">🔗 ${displayText}</a>`;
 //     });
 // 
 //     // Display parsed content with clickable shortened links
@@ -737,7 +828,7 @@ function updateDisplay() {
         // Convert page name to uppercase if present
         const displayText = pageName ? `${limitedDomain} (${limitedPageName.toUpperCase()})` : limitedDomain;
 
-        return `<a href="${fullUrl}" target="_blank" class="link">${displayText}</a>`;
+        return `<a href="${fullUrl}" target="_blank" class="link">🔗 ${displayText}</a>`;
     });
 
     // Display parsed content with clickable links

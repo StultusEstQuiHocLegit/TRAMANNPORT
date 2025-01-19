@@ -36,8 +36,6 @@ if ($isLoggedIn && $userRole !== null) {
         // Show Explorer links
         echo "<br><a href=\"index.php?content=explore.php\" title=\"your main page, search for interesting things in TRAMANN PORT\">⭐ EXPLORE</a>";
         echo "<br>";
-        echo "<br><a href=\"index.php?content=TRAMANNAIConnection.php\" title=\"connect with our TRAMANN AI\">🧠 TRAMANN AI</a>";
-        echo "<br>";
         // echo "<br><a href=\"index.php?content=cart.php\">SHOPPING CART</a>";
         echo "<br><a href=\"index.php?content=cart.php\" style=\"$borderStyle\" title=\"manage your current purchase and make the order\">🛒 SHOPPING CART $pendingText</a>";
         echo "<br>";
@@ -52,6 +50,10 @@ if ($isLoggedIn && $userRole !== null) {
         // Show Creator links
         echo "<br><a href=\"index.php?content=dashboard.php\" title=\"main page, get an overview about your business and manage your notes\">⭐ DASHBOARD</a>";
         echo "<br>";
+        echo "<br><a href=\"index.php?content=documents.php\" title=\"create, save and edit documents containing relevant data for your business\">☁️ DOCUMENTS</a>";
+        echo "<br>";
+        echo "<br>";
+        echo "<br>";
         echo "<br><a href=\"index.php?content=orders.php\" title=\"manage the orders that explorers (or other creators too) have submitted to you\">📝 ORDERS</a>";
         echo "<br>";
         echo "<br><a href=\"index.php?content=ManualSelling.php\" title=\"directly save a manual sale for explorers (customers) outside our systeme where you already got the money\">👉 MANUAL SELLING</a>";
@@ -60,6 +62,8 @@ if ($isLoggedIn && $userRole !== null) {
         echo "<br>";
         echo "<br><a href=\"index.php?content=products.php\" title=\"create and manage the products and services you want to offer\">📦 PRODUCTS AND SERVICES</a>";
         echo "<br>";
+        echo "<br><a href=\"index.php?content=CustomerRelationships.php\" title=\"take care of your potential and existing business partners, plan for acquisition and retention, establish loyalty\">❤️ BUSINESS RELATIONSHIPS</a>";
+        echo "<br>";
         echo "<br><a href=\"index.php?content=ExplorersCustomers.php\" title=\"list of all those who have already bought something from you\">👥 EXPLORERS (CUSTOMERS)</a>";
         echo "<br>";
         echo "<br>";
@@ -67,8 +71,6 @@ if ($isLoggedIn && $userRole !== null) {
         echo "<br><a href=\"index.php?content=CreatorsSuppliers.php\" title=\"list of all those from whom you have already bought something\">🏭 CREATORS (SUPPLIERS)</a>";
         echo "<br>";
         echo "<br><a href=\"index.php?content=explore.php\" title=\"search for interesting things in TRAMANN PORT\">🔍 EXPLORE</a>";
-        echo "<br>";
-        echo "<br><a href=\"index.php?content=TRAMANNAIConnection.php\" title=\"connect with our TRAMANN AI\">🧠 TRAMANN AI</a>";
         echo "<br>";
         // echo "<br><a href=\"index.php?content=cart.php\">SOURCING CART</a>";
         echo "<br><a href=\"index.php?content=cart.php\" style=\"$borderStyle\" title=\"manage your current purchase and make the order\">🛒 SOURCING CART $pendingText</a>";

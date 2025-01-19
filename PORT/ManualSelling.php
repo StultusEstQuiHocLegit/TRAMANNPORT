@@ -1,10 +1,4 @@
 <?php
-include ("ExchangeRates.php"); // include ExchangeRates.php for recalculation of prices
-
-
-
-
-
 echo "<h1>👉 MANUAL SELLING</h1>";
 ?>
 <script>
@@ -285,6 +279,7 @@ function displayAddedItems() {
 
             const link = document.createElement('a');
             link.href = `index.php?content=explore.php&action=ShowProduct&idpk=${item.idpk}`;
+            link.target = '_blank'; // Correctly set the target attribute
             link.title = `${item.name} (${item.idpk}), available: ${item.InventoryAvailable}, in production or reordered: ${item.InventoryInProduction}, ${item.PersonalNotes}`;
             const truncatedName = item.name.length > 50 ? item.name.substring(0, 50) + '...' : item.name;
             link.textContent = `${truncatedName} (${item.idpk})`;
@@ -724,7 +719,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Commit the transaction
             $pdo->commit();
 
-            echo "Saved successfully.<br><br><a href=\"index.php?content=ManualSelling.php\">▶️ CONTINUE</a>";
+            echo "<a href='index.php?content=explore.php&action=ShowCarts&idpk={$cartId}' title='CART {$cartId}'>▶ CART {$cartId}</a> ";
+            echo "saved successfully.<br><br><a href=\"index.php?content=ManualSelling.php\">▶️ CONTINUE</a>";
             ?>
             <script>
                 document.cookie = 'IfManualFurtherInformation=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
@@ -786,17 +782,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo "</td>";    
                 echo "<td></td>";
                 echo "<td>";
-                    echo "<strong><span id=\"TotalSellingPrice\">0.00</span>$ (+<span id=\"TotalShippingPrice\">0.00</span>$)</strong>";
-                    if ($ExchangeRateCurrencyCode !== "USD") {
-                        echo "<br><strong id='totalPriceInOtherCurrency' style='opacity: 0.5;'><span id=\"TotalSellingPriceInOtherCurrency\">0.00</span> (+<span id=\"TotalShippingPriceInOtherCurrency\">0.00</span>) (in $ExchangeRateCurrencyCode)</strong>";
-                    }
-                    echo "<br><br>";
-                    echo "<input type=\"number\" id=\"OverwrittenPrice\" name=\"OverwrittenPrice\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateOtherCurrency('USD')\">";
-                    echo "<br><label for=\"OverwrittenPrice\">overwritten price (in USD)</label>";
-                    if ($ExchangeRateCurrencyCode !== "USD") {
+                    if ($ExchangeRateCurrencyCode == "USD") {
+                        echo "<strong><span id=\"TotalSellingPrice\">0.00</span>$ (+<span id=\"TotalShippingPrice\">0.00</span>$)</strong>";
                         echo "<br><br>";
-                        echo "<input type=\"number\" id=\"OverwrittenPriceInOtherCurrency\" name=\"OverwrittenPriceInOtherCurrency\" placeholder=\"only if needed\" style=\"width: 200px; opacity: 0.3;\" oninput=\"updateOtherCurrency('$ExchangeRateCurrencyCode')\">";
-                        echo "<br><label for=\"OverwrittenPriceInOtherCurrency\" style=\"opacity: 0.3;\">overwritten price (in $ExchangeRateCurrencyCode)</label>";
+                        echo "<input type=\"number\" id=\"OverwrittenPrice\" name=\"OverwrittenPrice\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateOtherCurrency('USD')\">";
+                        echo "<br><label for=\"OverwrittenPrice\">overwritten price (in USD)</label>";
+                    } else {
+                        echo "<strong id='totalPriceInOtherCurrency'><span id=\"TotalSellingPriceInOtherCurrency\">0.00</span> (+<span id=\"TotalShippingPriceInOtherCurrency\">0.00</span>) (in $ExchangeRateCurrencyCode)</strong>";
+                        echo "<br><strong style=\"opacity: 0.5;\"><span id=\"TotalSellingPrice\">0.00</span>$ (+<span id=\"TotalShippingPrice\">0.00</span>$)</strong>";
+                        echo "<br><br>";
+                        echo "<input type=\"number\" id=\"OverwrittenPriceInOtherCurrency\" name=\"OverwrittenPriceInOtherCurrency\" placeholder=\"only if needed\" style=\"width: 200px;\" oninput=\"updateOtherCurrency('$ExchangeRateCurrencyCode')\">";
+                        echo "<br><label for=\"OverwrittenPriceInOtherCurrency\">overwritten price (in $ExchangeRateCurrencyCode)</label>";
+                        echo "<br><br>";
+                        echo "<input type=\"number\" id=\"OverwrittenPrice\" name=\"OverwrittenPrice\" placeholder=\"only if needed\" style=\"width: 200px; opacity: 0.3;\" oninput=\"updateOtherCurrency('USD')\">";
+                        echo "<br><label for=\"OverwrittenPrice\" style=\"opacity: 0.3;\">overwritten price (in USD)</label>";
                     }
                     echo "<br><br>";
                     echo "<a href=\"javascript:void(0);\" onclick=\"toggleTaxes(event)\">➕ ADD TAXES</a>";

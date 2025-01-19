@@ -240,7 +240,7 @@ $orderList = "";
 
 // Check if there are any orders in the database
 if (empty($newestOrders)) {
-    $orderList = "<div style=\"opacity: 0.4;\">There are no orders yet, you can scroll down to your to do list and pick some tasks from there.</div>"; // Display message if no orders are found
+    $orderList = "<div style=\"opacity: 0.4;\">There are currently no orders, you can scroll down to your to do list and pick some tasks from there.</div>"; // Display message if no orders are found
     $orderList .= '<br><a href="index.php?content=orders.php">📝 VIEW ALL ORDERS AND MANAGE THEM</a>';
 } else {
     // Set the total number of orders to display
@@ -282,7 +282,7 @@ if (empty($newestOrders)) {
         }
     
         // Format delivery or pickup time
-        $wishedDeliveryTime = isset($order['WishedTime']) && $order['WishedTime'] ? date('Y-m-d H:i:s', $order['WishedTime']) : 'Not specified';
+        $wishedDeliveryTime = isset($order['WishedTime']) && $order['WishedTime'] ? date('Y-m-d H:i:s', $order['WishedTime']) : 'not specified';
     
         // Adjust opacity based on the order position
         if ($i < 3) {
@@ -314,7 +314,7 @@ if (empty($newestOrders)) {
         $orderList .= ", delivery type: " . $deliveryType . "";
         
         // Check if wished delivery time exists before displaying
-        if (isset($wishedDeliveryTime) && $wishedDeliveryTime !== 'Not specified') {
+        if (isset($wishedDeliveryTime) && $wishedDeliveryTime !== 'not specified') {
             $orderList .= " (" . $wishedDeliveryTime . ")";
         }
         
@@ -435,34 +435,46 @@ if (empty($events)) {
 
 
 
-<br><br>
 <h3>📋 TO DO LIST</h3>
-<textarea id="PersonalToDoList" rows="16" style="width: 100%;" oninput="saveData('PersonalToDoList', this.value)"><?php echo htmlspecialchars(trim($user['PersonalToDoList'] ?? '')); ?></textarea>
+<textarea id="PersonalToDoList" rows="16" style="width: 100%;" 
+          onfocus="expandRows(this, 30)" 
+          onblur="resetRows(this, 16)" 
+          oninput="saveData('PersonalToDoList', this.value)"><?php echo htmlspecialchars(trim($user['PersonalToDoList'] ?? '')); ?></textarea>
 <br>
 <br>
 <h3>🔗 COLLECTION OF LINKS</h3>
-<!-- <textarea id="PersonalCollectionOfLinks" rows="10" style="width: 100%;" oninput="saveData('PersonalCollectionOfLinks', this.value)"><?php // echo htmlspecialchars(trim($user['PersonalCollectionOfLinks'] ?? '')); ?></textarea> -->
 <!-- Hidden Textarea for Input -->
-<!-- <div style="width: 50%; max-width: 50%;"> -->
 <textarea id="PersonalCollectionOfLinks" rows="10" style="display: none; text-align: left;"
-    oninput="updateDisplay(); saveData('PersonalCollectionOfLinks', this.value)">
-<?php echo htmlspecialchars(trim($user['PersonalCollectionOfLinks'] ?? '')); ?>
-</textarea>
+          onfocus="expandRows(this, 30)" 
+          onblur="resetRows(this, 10)" 
+          oninput="updateDisplay(); saveData('PersonalCollectionOfLinks', this.value)"><?php echo htmlspecialchars(trim($user['PersonalCollectionOfLinks'] ?? '')); ?></textarea>
 
 <!-- Display Area for Clickable Links -->
 <div id="displayLinks" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; text-align: left;"
     onclick="handleDisplayClick(event)">
     <!-- Display will be dynamically updated here -->
 </div>
-<!-- </div> -->
-<!-- <br> -->
 <br>
-<h3>📒 NOTES</h3>
-<textarea id="PersonalNotes" rows="16" style="width: 100%;" oninput="saveData('PersonalNotes', this.value)"><?php echo htmlspecialchars(trim($user['PersonalNotes'] ?? '')); ?></textarea>
+<h3>📚 NOTES</h3>
+<textarea id="PersonalNotes" rows="16" style="width: 100%;" 
+          onfocus="expandRows(this, 30)" 
+          onblur="resetRows(this, 16)" 
+          oninput="saveData('PersonalNotes', this.value)"><?php echo htmlspecialchars(trim($user['PersonalNotes'] ?? '')); ?></textarea>
+<br>
+<br>
+<h3>💡 BOARD OF IDEAS</h3>
+<textarea id="PersonalBoardOfIdeas" rows="10" style="width: 100%;" 
+          onfocus="expandRows(this, 30)" 
+          onblur="resetRows(this, 10)" 
+          oninput="saveData('PersonalBoardOfIdeas', this.value)"><?php echo htmlspecialchars(trim($user['PersonalBoardOfIdeas'] ?? '')); ?></textarea>
 <br>
 <br>
 <h3>📊 STRATEGIC PLANNING NOTES</h3>
-<textarea id="PersonalStrategicPlaningNotes" rows="10" style="width: 100%;" oninput="saveData('PersonalStrategicPlaningNotes', this.value)"><?php echo htmlspecialchars(trim($user['PersonalStrategicPlaningNotes'] ?? '')); ?></textarea>
+<textarea id="PersonalStrategicPlaningNotes" rows="10" style="width: 100%;" 
+          onfocus="expandRows(this, 30)" 
+          onblur="resetRows(this, 10)" 
+          oninput="saveData('PersonalStrategicPlaningNotes', this.value)"><?php echo htmlspecialchars(trim($user['PersonalStrategicPlaningNotes'] ?? '')); ?></textarea>
+
 
 
 
@@ -509,7 +521,7 @@ include ("menu.php"); // include the menu
 //     // Replace URLs with clickable shortened links (first 30 characters) and add a 'link' class for easier targeting
 //     const linkedText = text.replace(/(https?:\/\/[^\s]+)/g, function(url) {
 //         const displayText = url.length > 30 ? url.substring(0, 30) + "..." : url;
-//         return `<a href="${url}" target="_blank" class="link">${displayText}</a>`;
+//         return `<a href="${url}" target="_blank" class="link">🔗 ${displayText}</a>`;
 //     });
 // 
 //     // Display parsed content with clickable shortened links
@@ -546,7 +558,7 @@ function updateDisplay() {
         // Convert page name to uppercase if present
         const displayText = pageName ? `${limitedDomain} (${limitedPageName.toUpperCase()})` : limitedDomain;
 
-        return `<a href="${fullUrl}" target="_blank" class="link">${displayText}</a>`;
+        return `<a href="${fullUrl}" target="_blank" class="link">🔗 ${displayText}</a>`;
     });
 
     // Display parsed content with clickable links
@@ -734,4 +746,30 @@ function loadAdditionalIcon() {
 
 // Run the function on page load
 document.addEventListener('DOMContentLoaded', loadAdditionalIcon);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Function to expand the rows of a textarea
+function expandRows(textarea, newRows) {
+    textarea.setAttribute('data-original-rows', textarea.rows); // Save the original rows
+    textarea.rows = newRows;
+}
+
+// Function to reset the rows of a textarea
+function resetRows(textarea, originalRows) {
+    const savedRows = textarea.getAttribute('data-original-rows');
+    textarea.rows = savedRows || originalRows; // Reset to the saved or original rows
+}
 </script>
