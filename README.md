@@ -1,14 +1,14 @@
-# TRAMANN PORT
+# TRAMANN PROJECTS
 <h3>Get your own online shop and business management system (ERP system) on our open source platform!</h3>
 <br>
-<h3>⭐ SEE PROJECT LIVE</h3>
-If you want to see the project live, please visit:
+<h3>⭐ SEE LIVE</h3>
+If you want to it live, please visit:
 <br>www.tramann-projects.com/PORT/index.php
 <br>
 <br>
 <br>
 <h3>✨ OPEN SOURCE AND TRANSPARENT</h3>
-Our project is open source, you are currently viewing the corresponding repository
+We are open source, you are currently viewing the corresponding repository
 <br>and you can find the code in the folder namend - PORT -.
 <br>
 <br>
