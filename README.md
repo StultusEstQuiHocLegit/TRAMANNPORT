@@ -1,8 +1,9 @@
 # ⚠️ IMPORTANT NOTE: THIS PROJECT IS OUTDATED, NEW APPROACH OF ERP SYSTEM IS TNX API!
->> https://github.com/StultusEstQuiHocLegit/TNXAPI2/
+code: https://github.com/StultusEstQuiHocLegit/TNXAPI2/
+landing page: www.tnxapi.com/UI/LandingPage.php
 
 
-# TRAMANN PROJECTS
+# TRAMANN PROJECTS PORT
 <h3>Get your own online shop and business management system (ERP system) on our open source platform!</h3>
 <br>
 <h3>⭐ SEE LIVE</h3>
