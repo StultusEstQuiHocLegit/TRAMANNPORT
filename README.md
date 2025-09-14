@@ -2,12 +2,6 @@
 code: https://github.com/StultusEstQuiHocLegit/TNXAPI2/
 landing page: www.tnxapi.com/UI/LandingPage.php
 
-.
-.
-.
-.
-.
-
 # TRAMANN PROJECTS PORT
 <h3>Get your own online shop and business management system (ERP system) on our open source platform!</h3>
 <br>
